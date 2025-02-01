@@ -21,13 +21,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 	
-	@Value("${spring.security.user.name}")
-	private String username;
+	@Value("${spring.security.user.name}") // Collects the User's name from application.properties
+	private String username; 
 	
-	@Value("${spring.security.user.password}")
+	@Value("${spring.security.user.password}") // Collects the User's password from application.properties
 	private String password;
 	
-	@Value("${spring.security.user.roles}")
+	@Value("${spring.security.user.roles}") // Collects the User's role from application.properties
 	private String roles;
 	
 	/**
@@ -56,13 +56,13 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(authorizeRequests -> 
 				authorizeRequests
-					.requestMatchers("/").permitAll()
+					.requestMatchers("/").permitAll() // here we can add the URL we want to have a free access. 
 					.anyRequest().authenticated()
 				)
 			.formLogin(formLogin -> 
 				formLogin
-//				.loginPage("/login") // If we didn't create a login page we don't need this function
-				.defaultSuccessUrl("/")
+//				.loginPage("/login") // If we didn't create a login template we don't need this function.
+				.defaultSuccessUrl("/") // If the login is successful it redirects to the page you wanted (if you didn't want one, it redirects you to the main page), if you want force one page as default, add true after the string with the URL.  
 				.permitAll()
 				)
 			.logout(logout ->
@@ -73,7 +73,7 @@ public class SecurityConfig {
 	
 	/**
 	 * Bean that configures the security filter chain for HTTP requests.
-	 * Defines which endpoints are publicly accessible and which require authentication.
+	 * Defines which end-points are publicly accessible and which require authentication.
 	 *
 	 * @param http The HttpSecurity configuration object.
 	 * @return The configured SecurityFilterChain.
@@ -84,11 +84,11 @@ public class SecurityConfig {
 		return inputUsername -> {
 			if(username.equals(inputUsername)) {
 				return User.withUsername(username)
-						   .password(passwordEncoder.encode(password))
+						   .password(passwordEncoder.encode(password)) // encodes the password before save it in memory
 					       .roles(roles.split(",")) // .split is for if you add more than one role
-					       .build();
+					       .build(); // builds the User object with the elements we gave
 			}
-			throw new UsernameNotFoundException("User not Found");
+			throw new UsernameNotFoundException("User not Found"); // If credentials don't match we send UserNotFound error
 		};
 		
 	}
@@ -100,8 +100,8 @@ public class SecurityConfig {
 	 * @return The configured UserDetailsService instance.
 	 */
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 	
-}
+}// End of the Class
