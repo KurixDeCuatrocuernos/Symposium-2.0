@@ -21,13 +21,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 	
-	@Value("${spring.security.user.name}")
-	private String username;
+	@Value("${spring.security.user.name}") // Collects the User's name from application.properties
+	private String username; 
 	
-	@Value("${spring.security.user.password}")
+	@Value("${spring.security.user.password}") // Collects the User's password from application.properties
 	private String password;
 	
-	@Value("${spring.security.user.roles}")
+	@Value("${spring.security.user.roles}") // Collects the User's role from application.properties
 	private String roles;
 	
 	/**
@@ -45,10 +45,12 @@ public class SecurityConfig {
 	}
 	
 	/**
+	 * Bean that configures the security filter chain for HTTP requests.
+	 * Defines which end-points are publicly accessible and which require authentication.
 	 * 
-	 * @param http
-	 * @return
-	 * @throws Exception
+	 * @param http HttpSecurity object used to configure HTTP request security.
+	 * @return A configured SecurityFilterChain.
+	 * @throws Exception If any security configuration error occurs.
 	 */
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -56,13 +58,13 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(authorizeRequests -> 
 				authorizeRequests
-					.requestMatchers("/").permitAll()
+					.requestMatchers("/","/index").permitAll() // here we can add the URL we want to have a free access. 
 					.anyRequest().authenticated()
 				)
 			.formLogin(formLogin -> 
 				formLogin
-//				.loginPage("/login") // If we didn't create a login page we don't need this function
-				.defaultSuccessUrl("/")
+//				.loginPage("/login") // If we didn't create a login template we don't need this function.
+				.defaultSuccessUrl("/") // If the login is successful it redirects to the page you wanted (if you didn't want one, it redirects you to the main page), if you want force one page as default, add true after the string with the URL.  
 				.permitAll()
 				)
 			.logout(logout ->
@@ -72,36 +74,36 @@ public class SecurityConfig {
 	}
 	
 	/**
-	 * Bean that configures the security filter chain for HTTP requests.
-	 * Defines which endpoints are publicly accessible and which require authentication.
-	 *
-	 * @param http The HttpSecurity configuration object.
-	 * @return The configured SecurityFilterChain.
-	 * @throws Exception If an error occurs during security configuration.
+	 * Bean that configures a custom UserDetailsService to retrieve user details based on the provided username.
+	 * This method provides a custom implementation of the UserDetailsService interface, which is used
+	 * by Spring Security to authenticate and load user-specific data.
+	 * 
+	 * @param passwordEncoder A PasswordEncoder to encode the user's password before storing it.
+	 * @return A custom UserDetailsService implementation.
 	 */
 	@Bean
 	UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
 		return inputUsername -> {
 			if(username.equals(inputUsername)) {
 				return User.withUsername(username)
-						   .password(passwordEncoder.encode(password))
+						   .password(passwordEncoder.encode(password)) // encodes the password before save it in memory
 					       .roles(roles.split(",")) // .split is for if you add more than one role
-					       .build();
+					       .build(); // builds the User object with the elements we gave
 			}
-			throw new UsernameNotFoundException("User not Found");
+			throw new UsernameNotFoundException("User not Found"); // If credentials don't match we send UserNotFound error
 		};
 		
 	}
 	
 	/**
-	 * Bean that defines an in-memory UserDetailsService to load user-specific data for authentication.
-	 *
-	 * @param passwordEncoder The password encoder used to encode the password securely.
-	 * @return The configured UserDetailsService instance.
+	 * Bean that returns an instance of PasswordEncoder. It returns an instance of BCryptPasswordEncoder, which is used for 
+	 * securely hashing and verifying passwords using the BCrypt algorithm.
+	 * 
+	 * @return an instance of BCryptPasswordEncoder
 	 */
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 	
-}
+}// End of the Class

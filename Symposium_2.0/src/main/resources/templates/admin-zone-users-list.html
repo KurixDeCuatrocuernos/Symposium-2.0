@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Lista Usuarios Admin</title>
+</head>
+<body>
+	
+	<table>
+		<thead>
+			<tr>
+				<th>Avatar</th>
+				<th>ID</th>
+				<th>Username</th>
+				<th>E-mail</th>
+				<th>Birth Date</th>
+				<th>Role</th>
+				
+		</thead>
+		<tbody>
+			<tr th:each="usuario: ${listaUsuarios}">
+				<td><img src="" th:src="usuario.png" width="64px" alt=""><a href="https://www.flaticon.es/iconos-gratis/usuario" title="usuario iconos"></a></td>
+				<td th:text="${usuario.id}">ID</td>
+				<td th:text="${usuario.name}" >Nombre del usuario</td>
+				<td th:text="${usuario.email}">Email del usuario</td>
+				<td th:text="${usuario.fechaNac}">Fecha de Nacimiento del usuario</td>
+				<td th:text="${usuario.role}">Rol del usuario</td>
+				<td><a th:href="@{/admin-zone-user-edit/{id}(id=${usuario.id})}"></a></td>
+			</tr>
+		</tbody>
+	</table>
+
+</body>
+</html>
