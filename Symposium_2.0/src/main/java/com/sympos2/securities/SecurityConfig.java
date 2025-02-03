@@ -45,10 +45,12 @@ public class SecurityConfig {
 	}
 	
 	/**
+	 * Bean that configures the security filter chain for HTTP requests.
+	 * Defines which end-points are publicly accessible and which require authentication.
 	 * 
-	 * @param http
-	 * @return
-	 * @throws Exception
+	 * @param http HttpSecurity object used to configure HTTP request security.
+	 * @return A configured SecurityFilterChain.
+	 * @throws Exception If any security configuration error occurs.
 	 */
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -56,7 +58,7 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(authorizeRequests -> 
 				authorizeRequests
-					.requestMatchers("/").permitAll() // here we can add the URL we want to have a free access. 
+					.requestMatchers("/","/index").permitAll() // here we can add the URL we want to have a free access. 
 					.anyRequest().authenticated()
 				)
 			.formLogin(formLogin -> 
@@ -72,12 +74,12 @@ public class SecurityConfig {
 	}
 	
 	/**
-	 * Bean that configures the security filter chain for HTTP requests.
-	 * Defines which end-points are publicly accessible and which require authentication.
-	 *
-	 * @param http The HttpSecurity configuration object.
-	 * @return The configured SecurityFilterChain.
-	 * @throws Exception If an error occurs during security configuration.
+	 * Bean that configures a custom UserDetailsService to retrieve user details based on the provided username.
+	 * This method provides a custom implementation of the UserDetailsService interface, which is used
+	 * by Spring Security to authenticate and load user-specific data.
+	 * 
+	 * @param passwordEncoder A PasswordEncoder to encode the user's password before storing it.
+	 * @return A custom UserDetailsService implementation.
 	 */
 	@Bean
 	UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
@@ -94,10 +96,10 @@ public class SecurityConfig {
 	}
 	
 	/**
-	 * Bean that defines an in-memory UserDetailsService to load user-specific data for authentication.
-	 *
-	 * @param passwordEncoder The password encoder used to encode the password securely.
-	 * @return The configured UserDetailsService instance.
+	 * Bean that returns an instance of PasswordEncoder. It returns an instance of BCryptPasswordEncoder, which is used for 
+	 * securely hashing and verifying passwords using the BCrypt algorithm.
+	 * 
+	 * @return an instance of BCryptPasswordEncoder
 	 */
 	@Bean
 	PasswordEncoder passwordEncoder() {
