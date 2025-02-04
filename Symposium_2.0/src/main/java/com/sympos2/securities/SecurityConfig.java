@@ -58,7 +58,7 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(authorizeRequests -> 
 				authorizeRequests
-					.requestMatchers("/","/index").permitAll() // here we can add the URL we want to have a free access. 
+					.requestMatchers("/","/index/**","/login/**","/register/**","/submit/**","/form/**").permitAll() // here we can add the URL we want to have a free access.
 					.anyRequest().authenticated()
 				)
 			.formLogin(formLogin -> 
@@ -68,7 +68,9 @@ public class SecurityConfig {
 				.permitAll()
 				)
 			.logout(logout ->
-				logout.permitAll()
+				logout
+				.permitAll()
+				.logoutSuccessUrl("/")
 					);
 		return http.build(); 
 	}
