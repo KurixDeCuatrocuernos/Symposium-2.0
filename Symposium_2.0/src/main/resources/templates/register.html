@@ -5,7 +5,12 @@
 <title>Register</title>
 </head>
 <body>
-	<form class="form-horizontal">
+
+	<div th:if="${message != null}" class="alert alert-danger">
+		<p th:text="${message}"></p>
+	</div>
+	
+	<form class="form-horizontal" id="userForm" th:action="@{/submit}" method="post">
 		<fieldset>
 
 			<!-- Form Name -->
@@ -13,19 +18,29 @@
 
 			<!-- Text input-->
 			<div class="form-group">
-			  <label class="col-md-4 control-label" for="username">Username*</label>  
+			  <label class="col-md-4 control-label" for="name">Username*</label>  
 			  <div class="col-md-4">
-			  <input id="username" name="username" type="text" placeholder="User_name example123" class="form-control input-md">
+			  <input id="name" name="name" type="text" placeholder="User_name example123" class="form-control input-md">
 			  <span class="help-block">Name of the user which you want everyone can see</span>  
 			  </div>
 			</div>
 			
-			<!-- Text input-->
 			<div class="form-group">
+				<label class="col-md-4 control-label" for="fechaNac">Birthday</label>
+				<div class="col-md-4">
+				<input id="fechaNac" name="fechaNac" type="date" placeholder="1990-2-1" class="form-control input-md" th:value="${fecha}" />
+				<span class="help-block">Your Birthday Date</span>
+				</div>
+
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group" ><!-- th:classappend="${#fields.hasErrors('email')} ? 'has-error'"-->
 			  <label class="col-md-4 control-label" for="email">E-mail*</label>  
 			  <div class="col-md-5">
-			  <input id="email" name="email" type="text" placeholder="user.name@example.email.com" class="form-control input-md">
-			  <span class="help-block">E-mail with you want log-in</span>  
+			  	<input id="email" name="email" type="text" placeholder="user.name@example.email.com" class="form-control input-md">
+			  	<span class="help-block">E-mail with you want log-in</span>  
+			  	<!-- <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="help-block text-danger" id="id-error">Errores</span> -->
 			  </div>
 			</div>
 			
@@ -47,22 +62,29 @@
 			  </div>
 			</div>
 			
-			<!-- File Button --> 
+			<!-- File Button 
 			<div class="form-group">
 			  <label class="col-md-4 control-label" for="avatar">Avatar</label>
 			  <div class="col-md-4">
 			    <input id="avatar" name="avatar" class="input-file" type="file">
 			  </div>
+			</div> --> 
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="studies">Studies</label>  
+			  <div class="col-md-5">
+			  <input id="studies" name="studies" type="text" placeholder="student of social science" class="form-control input-md">
+			  <span class="help-block">Studies or level you have</span>  
+			  </div>
 			</div>
 			
-			<!-- Select Basic -->
+			<!-- Text input-->
 			<div class="form-group">
-			  <label class="col-md-4 control-label" for="select">Role</label>
-			  <div class="col-md-4">
-			    <select id="select" name="select" class="form-control">
-			      <option value="1">Student</option>
-			      <option value="2">Titled</option>
-			    </select>
+			  <label class="col-md-4 control-label" for="chool">School</label>  
+			  <div class="col-md-5">
+			  <input id="school" name="school" type="text" placeholder="School of my country" class="form-control input-md">
+			  <span class="help-block">School where you are/were studying</span>  
 			  </div>
 			</div>
 			

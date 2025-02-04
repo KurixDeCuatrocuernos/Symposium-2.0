@@ -6,9 +6,12 @@
 </head>
 <body>
 	<h1>Hello World!</h1>
+	<div th:if="${username != 'anonymousUser'}"><h2 th:text="${username}"></h2></div>
+	<div th:if="${username == 'anonymousUser'}"><h2>Invitado</h2></div>
 	<ul>
-		<li><a th:href="@{/register}">Registrarse</a></li>
-		<li><a th:href="@{/login}">Login</a></li>
+		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/register}">Registrarse</a></li>
+		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/login}">Login</a></li>
+		<li th:if="${username != 'anonymousUser'}"><a th:href="@{/logout}">Cerrar Sesión</a></li>
 		<li><a th:href="@{/admin-zone-users-list}">Users List</a></li>
 	</ul>
 </body>
