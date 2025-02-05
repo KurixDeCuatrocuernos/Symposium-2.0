@@ -2,6 +2,7 @@ package com.sympos2.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -23,21 +24,13 @@ public class UserService {
 	private UserRepository userRepo;
 	
 	public Usuario edit(Usuario edit) {
-		boolean encontrado=false;
-		List<Usuario> repository = new ArrayList();
-		repository = userRepo.findAll();
-		int i=0;
-		while (!encontrado && i<repository.size()) {
-			if (repository.get(i).getId() == edit.getId()) {
-				encontrado=true;
-				userRepo.deleteById(repository.get(i).getId());
-				userRepo.save(repository.get(i));
-			} else {
-				i++;
-			}
-		}
+		System.out.println("Se modificará: "+edit.getId());
+		Optional<Usuario> user = userRepo.findById(edit.getId());
 		
-		if (!encontrado) {userRepo.save(edit);}
+		if(!user.isPresent()) {
+			userRepo.deleteById(user.get().getId());
+			userRepo.save(user.get());
+		} else {userRepo.save(edit);}
 		
 		return edit;
 	}
