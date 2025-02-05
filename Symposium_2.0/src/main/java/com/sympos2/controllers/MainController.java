@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sympos2.models.Usuario;
@@ -96,10 +97,11 @@ public class MainController {
 	}
 	
 	@GetMapping("/edit{id}")
-	public String editarUsuarioForm(@PathVariable String id, Model model) {
+	public String editarUsuarioForm(@PathVariable("id") String id, Model model) {
 		String retorno="";
 		Optional<Usuario> user = UserRepo.findById(id);
-		if (user != null) {
+		System.out.println("recogiendo el usuario"+ user.get().toString());
+		if (user.isPresent()) {
 			model.addAttribute("usuarioEdit", user.get());
 			retorno = "form";
 		} else {
@@ -109,8 +111,9 @@ public class MainController {
 	}
 	
 	@PostMapping("edit/submit")
-	public String editarUsuarioSubmit(@Valid @ModelAttribute("usuarioForm") Usuario editarUsuario, BindingResult br) {
+	public String editarUsuarioSubmit(@Valid @ModelAttribute("userForm") Usuario editarUsuario, BindingResult br) {
 		String retorno = "";
+		System.out.println("Modificando: "+editarUsuario.toString());
 		if (br.hasErrors()){
 			retorno = "form";
 		} else {
@@ -119,5 +122,17 @@ public class MainController {
 		}
 		
 		return retorno;
+	}
+	
+	@GetMapping("/userlist/delete")
+	public String deleteUser(@RequestParam String id, Model model) {
+		Optional<Usuario> user = UserRepo.findById(id);
+		if (user.isPresent()) {
+			System.out.println("Se ha borrado al usuario: ");
+			System.out.println(user.get().getId().toString());
+			UserRepo.deleteById(user.get().getId());
+		} 
+		return "redirect:/admin-zone-users-list";
+		
 	}
 }
