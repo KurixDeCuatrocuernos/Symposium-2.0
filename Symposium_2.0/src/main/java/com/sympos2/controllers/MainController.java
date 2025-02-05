@@ -1,5 +1,7 @@
 package com.sympos2.controllers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,11 +10,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sympos2.models.Usuario;
 import com.sympos2.repositories.UserRepository;
+import com.sympos2.services.UserService;
 
 import jakarta.validation.Valid;
 
@@ -21,6 +25,9 @@ public class MainController {
 	
 	@Autowired
 	private UserRepository UserRepo;
+	
+	@Autowired
+	private UserService service;
 	
 //	@Autowired
 //	private StorageService storage;
@@ -35,7 +42,7 @@ public class MainController {
 		}
 		return "index";
 	}
-	
+	// mappings for user
 	@GetMapping("admin-zone-users-list")
 	public String listado(Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -48,13 +55,13 @@ public class MainController {
 		return "admin-zone-users-list";
 	}
 	
-	@GetMapping("register")
+	@GetMapping("form")
 	public String registro(Model model) {
-		// Here goes the things before the page charges
-		return "/register";
+		
+		return "/form";
 	}
 	
-	@PostMapping("/submit")
+	@PostMapping("/form/submit")
 	public String handleFormSubmit(@Valid @ModelAttribute("userForm") Usuario nuevoUsuario, BindingResult br, RedirectAttributes redirectAttributes) {
 		String retorno="";
 		String mensaje="";
@@ -79,13 +86,38 @@ public class MainController {
 		
 		if (check==false) {
 			redirectAttributes.addFlashAttribute("message", mensaje);  // Usar addFlashAttribute
-			return "redirect:/register";  // Redirigir a la página de registro
+			return "redirect:/form";  // Redirigir a la página de registro
 		} else {
-			nuevoUsuario.setRole("STUDENT");
+			nuevoUsuario.setRole("ROLE_STUDENT");
 			UserRepo.save(nuevoUsuario);
 			retorno="index";
 		}
 		return retorno;
 	}
 	
+	@GetMapping("/edit{id}")
+	public String editarUsuarioForm(@PathVariable String id, Model model) {
+		String retorno="";
+		Optional<Usuario> user = UserRepo.findById(id);
+		if (user != null) {
+			model.addAttribute("usuarioEdit", user.get());
+			retorno = "form";
+		} else {
+			retorno = "redirect:/form";
+		}
+		return retorno;
+	}
+	
+	@PostMapping("edit/submit")
+	public String editarUsuarioSubmit(@Valid @ModelAttribute("usuarioForm") Usuario editarUsuario, BindingResult br) {
+		String retorno = "";
+		if (br.hasErrors()){
+			retorno = "form";
+		} else {
+			service.edit(editarUsuario);
+			retorno="redirect:/admin-zone-users-list";
+		}
+		
+		return retorno;
+	}
 }

@@ -76,7 +76,7 @@ public class Usuario {
 		this.avatar = avatar;
 		this.studies = studies;
 		this.school = school;
-		this.role = "STUDENT";
+		this.role = "ROLE_STUDENT";
 	}
 	/**
 	 * Constructor for creating an "Administrator" user with the specified attributes.
@@ -102,7 +102,7 @@ public class Usuario {
 		this.password = password;
 		this.avatar = avatar;
 		this.phone = phone;
-		this.role = "ADMIN";
+		this.role = "ROLE_ADMIN";
 	}
 	
 	/**
@@ -135,7 +135,7 @@ public class Usuario {
 		this.study_place = study_place;
 		this.title_date = title_date;
 		this.title_img = title_img;
-		this.role="TITLED";
+		this.role="ROLE_TITLED";
 	}
 	// Getters and Setters
 	public String getId() {

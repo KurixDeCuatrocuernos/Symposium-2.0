@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+</head>
+<script>
+  function toggleFields() {
+    // Ocultar todos los campos específicos
+    document.getElementById('studentFields').style.display = 'none';
+    document.getElementById('titledFields').style.display = 'none';
+    document.getElementById('adminFields').style.display = 'none';
+    
+    // Mostrar solo los campos que corresponden al rol seleccionado
+    var selectedRole = document.querySelector('input[name="role"]:checked').value;
+    
+    if (selectedRole === 'ROLE_STUDENT') {
+      document.getElementById('studentFields').style.display = 'block';
+    } else if (selectedRole === 'ROLE_TITLED') {
+      document.getElementById('titledFields').style.display = 'block';
+    } else if (selectedRole === 'ROLE_ADMIN') {
+      document.getElementById('adminFields').style.display = 'block';
+    }
+  }
+
+  // Llamar a la función una vez cuando la página se cargue para asegurarse de que se muestren los campos correctos si ya hay un valor seleccionado
+  window.onload = toggleFields;
+</script>
+<body>
+
+	<div th:if="${message != null}" class="alert alert-danger">
+		<p th:text="${message}"></p>
+	</div>
+	<p th:text="${usuarioEdit == null ? '' : 'Editando usuario con id: '+usuarioEdit.id}"></p>
+	<form class="form-horizontal" id="userForm" th:action="${usuarioEdit == null} ? @{/form/submit} : @{/edit/submit}" method="post">
+		<fieldset>
+			
+			<!-- Form Name -->
+			<legend>New User</legend>
+
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="name">Username*</label>  
+			  <div class="col-md-4">
+			  <input id="name" name="name" type="text" placeholder="User_name example123" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.name}">
+			  <span class="help-block">Name of the user which you want everyone can see</span>  
+			  </div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="fechaNac">Birthday</label>
+				<div class="col-md-4">
+					<input id="fechaNac" name="fechaNac" type="date" placeholder="1990-2-1" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.fechaNac}" >
+					<span class="help-block">Your Birthday Date</span>
+				</div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group" ><!-- th:classappend="${#fields.hasErrors('email')} ? 'has-error'"-->
+			  <label class="col-md-4 control-label" for="email">E-mail*</label>  
+			  <div class="col-md-5">
+			  	<input id="email" name="email" type="text" placeholder="user.name@example.email.com" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.email}">
+			  	<span class="help-block">E-mail with you want log-in</span>  
+			  	<!-- <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="help-block text-danger" id="id-error">Errores</span> -->
+			  </div>
+			</div>
+			
+			<!-- Password input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="password">Password*</label>
+			  <div class="col-md-5">
+			    <input id="password" name="password" type="password" placeholder="My_pasword-123" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.password}">
+			    <span class="help-block">Password with you want to log-in </span>
+			  </div>
+			</div>
+			
+			<!-- Password input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="repeatedPassword">Repeat Password*</label>
+			  <div class="col-md-5">
+			    <input id="repeatedPassword" name="repeatedPassword" type="password" placeholder="My_password-123" class="form-control input-md">
+			    <span class="help-block">Repeat your password for security</span>
+			  </div>
+			</div>
+			
+			<!-- File Button 
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="avatar">Avatar</label>
+			  <div class="col-md-4">
+			    <input id="avatar" name="avatar" class="input-file" type="file">
+			  </div>
+			</div> --> 
+			
+			<div th:if="${usuarioEdit != null}">
+				<!-- Multiple Radios (inline) -->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="role">Role</label>
+				  <div class="col-md-4"> 
+				    <label class="radio-inline" for="role-0">
+				      <input type="radio" name="role" id="role-0" value="ROLE_STUDENT"  onclick="toggleFields()"> 
+				      Student
+				    </label> 
+				    <label class="radio-inline" for="role-1">
+				      <input type="radio" name="role" id="role-1" value="ROLE_TITLED"  onclick="toggleFields()"> 
+				      Titled
+				    </label> 
+				    <label class="radio-inline" for="role-2">
+				      <input type="radio" name="role" id="role-2" value="ROLE_ADMIN"  onclick="toggleFields()"> 
+				      Admin
+				    </label>
+				  </div>
+				</div>
+			</div>
+			
+			<div th:if="${usuarioEdit == null}">
+				<!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="studies">Studies</label>  
+				  <div class="col-md-5">
+				  <input id="studies" name="studies" type="text" placeholder="student of social science" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.studies}">
+				  <span class="help-block">Studies or level you have</span>  
+				  </div>
+				</div>
+				
+				<!-- Text input-->
+				<div class="form-group" th:if="${usuarioEdit == null}">
+				  <label class="col-md-4 control-label" for="chool">School</label>  
+				  <div class="col-md-5">
+				  <input id="school" name="school" type="text" placeholder="School of my country" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.school}">
+				  <span class="help-block">School where you are/were studying</span>  
+				  </div>
+				</div>
+			</div>
+			
+			<!-- Specific fields for the role: "Student" -->
+			<div id="studentFields" >
+			  <!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="studies">Studies</label>  
+				  <div class="col-md-5">
+				  <input id="studies" name="studies" type="text" placeholder="student of social science" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.studies}">
+				  <span class="help-block">Studies or level you have</span>  
+				  </div>
+				</div>
+				
+				<!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="chool">School</label>  
+				  <div class="col-md-5">
+				  <input id="school" name="school" type="text" placeholder="School of my country" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.school}">
+				  <span class="help-block">School where you are/were studying</span>  
+				  </div>
+				</div>
+			</div>
+			
+			<!-- Campos específicos para el rol "Titled" -->
+			<div id="titledFields" >
+			 <!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="titleStudies">Title Studies: </label>  
+				  <div class="col-md-5">
+				  <input id="titleStudies" name="studies_title" type="text" placeholder="Titled in Literature" class="form-control input-md">
+				  <span class="help-block">The name of the title which you have</span>  
+				  </div>
+				</div>
+				
+				<!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="titlePlace">Title Place: </label>  
+				  <div class="col-md-5">
+				  <input id="titlePlace" name="study_place" type="text" placeholder="Nebrija High School" class="form-control input-md">
+				  <span class="help-block">The place which issue the title</span>  
+				  </div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="fechaNac">Title issue date: </label>
+					<div class="col-md-4">
+						<input id="titleDate" name="title_date" type="date" placeholder="1990-2-1" class="form-control input-md" >
+						<span class="help-block">Date of issue of the title</span>
+					</div>
+				</div>
+				
+				<!-- File Button 
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="titleImg">Title Photo</label>
+				  <div class="col-md-4">
+				    <input id="titleImg" name="title_img" class="input-file" type="file">
+				  </div>
+				</div> --> 
+			</div>
+			
+			<!-- Specific fields for the role "Admin" -->
+			<div id="adminFields">
+				<!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-4 control-label" for="phone">Phone number*</label>  
+				  <div class="col-md-2">
+				  <input id="phone" name="phone" type="text" placeholder="555123123" class="form-control input-md">
+				  <span class="help-block">The phone number to contact with the admin</span>  
+				  </div>
+				</div>
+			</div>
+			
+			<!-- Button (Double) -->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="saveUser"></label>
+			  <div class="col-md-8">
+			    <button id="saveUser" name="saveUser" class="btn btn-success">Save</button>
+			    <button id="cancelSave" name="cancelSave" class="btn btn-danger" th:href="@{/}">Cancel</button>
+			  </div>
+			</div>
+
+		</fieldset>
+	</form>
+	
+</body>
+
+</html>
