@@ -23,9 +23,37 @@
     }
   }
 
-  // Llamar a la función una vez cuando la página se cargue para asegurarse de que se muestren los campos correctos si ya hay un valor seleccionado
-  window.onload = toggleFields;
+  // Función para marcar el radio button del rol por defecto
+  function setDefaultRole(role) {
+    // Desmarcar todos los radio buttons
+    document.querySelectorAll('input[name="role"]').forEach(input => {
+      input.checked = false;
+    });
+    
+    // Marcar el radio button correspondiente
+    const selectedRadio = document.querySelector(`input[name="role"][value="${role}"]`);
+    if (selectedRadio) {
+      selectedRadio.checked = true;
+    }
+    
+    // Llamar a toggleFields para mostrar los campos correspondientes
+    toggleFields();
+  }
+
+  // Llamar a setDefaultRole con el rol del usuario si está disponible
+  window.onload = function() {
+    // El valor de usuarioEdit se pasa del servidor como un objeto de Thymeleaf
+    // Si usuarioEdit no es null, se toma el rol de usuarioEdit; si no, no se hace nada
+    const role = "[[${usuarioEdit != null ? usuarioEdit.role : 'null'}]]";
+    
+    if (role !== 'null') {
+      setDefaultRole(role); // Establece el rol del usuario por defecto
+    } else {
+      toggleFields(); // Si no hay rol, por defecto no se marca ninguno
+    }
+  };
 </script>
+
 <body>
 
 	<div th:if="${message != null}" class="alert alert-danger">
@@ -37,7 +65,15 @@
 			
 			<!-- Form Name -->
 			<legend>New User</legend>
-
+			
+			<div class="form-group" th:if="${usuarioEdit != null}">
+			  <label class="col-md-4 control-label" for="name">ID*</label>  
+			  <div class="col-md-4">
+			  <input id="idInput" name="id" type="text" th:readonly="${usuarioEdit != null}" placeholder="adfafdfyt1465fjgh" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.id}">
+			  <span class="help-block">ID of the user</span>  
+			  </div>
+			</div>
+			
 			<!-- Text input-->
 			<div class="form-group">
 			  <label class="col-md-4 control-label" for="name">Username*</label>  
@@ -97,7 +133,7 @@
 				  <label class="col-md-4 control-label" for="role">Role</label>
 				  <div class="col-md-4"> 
 				    <label class="radio-inline" for="role-0">
-				      <input type="radio" name="role" id="role-0" value="ROLE_STUDENT"  onclick="toggleFields()"> 
+				      <input type="radio" name="role" id="role-0" value="ROLE_STUDENT" onclick="toggleFields()"> 
 				      Student
 				    </label> 
 				    <label class="radio-inline" for="role-1">
@@ -159,7 +195,7 @@
 				<div class="form-group">
 				  <label class="col-md-4 control-label" for="titleStudies">Title Studies: </label>  
 				  <div class="col-md-5">
-				  <input id="titleStudies" name="studies_title" type="text" placeholder="Titled in Literature" class="form-control input-md">
+				  <input id="titleStudies" name="studies_title" type="text" placeholder="Titled in Literature" class="form-control input-md" th:value="${usuarioEdit.studies_title != null ? usuarioEdit.studies_title : ''}">
 				  <span class="help-block">The name of the title which you have</span>  
 				  </div>
 				</div>
@@ -168,7 +204,7 @@
 				<div class="form-group">
 				  <label class="col-md-4 control-label" for="titlePlace">Title Place: </label>  
 				  <div class="col-md-5">
-				  <input id="titlePlace" name="study_place" type="text" placeholder="Nebrija High School" class="form-control input-md">
+				  <input id="titlePlace" name="study_place" type="text" placeholder="Nebrija High School" class="form-control input-md" th:value="${usuarioEdit.study_place != null ? usuarioEdit.study_place : ''}">
 				  <span class="help-block">The place which issue the title</span>  
 				  </div>
 				</div>
@@ -176,7 +212,7 @@
 				<div class="form-group">
 					<label class="col-md-4 control-label" for="fechaNac">Title issue date: </label>
 					<div class="col-md-4">
-						<input id="titleDate" name="title_date" type="date" placeholder="1990-2-1" class="form-control input-md" >
+						<input id="titleDate" name="title_date" type="date" placeholder="1990-2-1" class="form-control input-md" th:value="${usuarioEdit.title_date != null ? usuarioEdit.title_date : ''}">
 						<span class="help-block">Date of issue of the title</span>
 					</div>
 				</div>
@@ -196,7 +232,7 @@
 				<div class="form-group">
 				  <label class="col-md-4 control-label" for="phone">Phone number*</label>  
 				  <div class="col-md-2">
-				  <input id="phone" name="phone" type="text" placeholder="555123123" class="form-control input-md">
+				  <input id="phone" name="phone" type="text" placeholder="555123123" class="form-control input-md" th:value="${usuarioEdit.phone != null ? usuarioEdit.phone : ''}">
 				  <span class="help-block">The phone number to contact with the admin</span>  
 				  </div>
 				</div>
