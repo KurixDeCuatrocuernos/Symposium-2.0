@@ -25,6 +25,7 @@
 				<td th:text="${usuario.email}">Email del usuario</td>
 				<td th:text="${usuario.fechaNac}">Fecha de Nacimiento del usuario</td>
 				<td th:text="${usuario.role}">Rol del usuario</td>
+				<td><a th:href="@{/edit{id}(id=${usuario.id})}">Editar</a></td>
 				<td><a th:href="@{/admin-zone-user-edit/{id}(id=${usuario.id})}"></a></td>
 			</tr>
 		</tbody>
