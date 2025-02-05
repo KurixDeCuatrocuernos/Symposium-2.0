@@ -4,6 +4,43 @@
 <meta charset="UTF-8">
 <title>Lista Usuarios Admin</title>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmDelete(link) {
+    // Obtiene el href completo del enlace
+    const href = link.getAttribute('href');
+
+    // Analiza los parámetros de la URL
+    const urlParams = new URLSearchParams(href.split('?')[1]);
+    const username = urlParams.get('name'); // Obtiene el valor de "name"
+
+    // Muestra el cuadro de confirmación con el nombre del usuario
+    Swal.fire({
+        title: '¿Estás seguro de que deseas borrar este usuario?',
+        html: `Escribe el nombre del usuario <strong>${username}</strong> para confirmar.`,
+        icon: 'warning',
+        input: 'text',
+        inputPlaceholder: 'Escribe el nombre del usuario aquí...',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (value !== username) {
+                return 'El nombre ingresado no coincide. Inténtalo de nuevo.';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = href; // Redirige solo si la confirmación es correcta
+        }
+    });
+
+    return false; // Prevenir la redirección automática del enlace
+}
+</script>
 <body>
 	<h2><a th:href="@{/}">Inicio</a></h2>
 	<table>
@@ -26,7 +63,13 @@
 				<td th:text="${usuario.fechaNac}">Fecha de Nacimiento del usuario</td>
 				<td th:text="${usuario.role}">Rol del usuario</td>
 				<td><a th:href="@{/edit{id}(id=${usuario.id})}">Editar</a></td>
-				<td><a th:href="@{/admin-zone-user-edit/{id}(id=${usuario.id})}"></a></td>
+				<td>
+				    <a th:href="@{/userlist/delete(id=${usuario.id}, name=${usuario.name})}" 
+				       onclick="return confirmDelete(this);">
+				       Borrar
+				    </a>
+				</td>
+				<td><a th:href="@{/edit{id}(id=${usuario.id})}"></a></td>
 			</tr>
 		</tbody>
 	</table>
