@@ -22,7 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sympos2.models.Usuario;
 import com.sympos2.repositories.UserRepository;
-import com.sympos2.securities.SessionUtils;
 import com.sympos2.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -112,7 +111,7 @@ public class MainController {
 	@GetMapping("/admin-zone-users-list")
 	public String listado(Model model) {
 		String retorno = "";
-		Usuario usuario = SessionUtils.getCurrentUsuario();
+		Usuario usuario = getCurrentUsuario();
 		if (usuario != null && "ADMIN".equals(usuario.getRole())) {
 			retorno = "/admin-zone-users-list";
 			model.addAttribute("listaUsuarios", UserRepo.findAll());
@@ -230,4 +229,14 @@ public class MainController {
 		return "redirect:/admin-zone-users-list";
 		
 	}
+	
+	public Usuario getCurrentUsuario() {
+        Usuario retorno=null;
+        
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Usuario) {
+            retorno = (Usuario) authentication.getPrincipal();
+        }
+        return retorno;
+    }
 }
