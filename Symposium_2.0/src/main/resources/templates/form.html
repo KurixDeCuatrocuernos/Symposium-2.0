@@ -14,11 +14,11 @@
     // Mostrar solo los campos que corresponden al rol seleccionado
     var selectedRole = document.querySelector('input[name="role"]:checked').value;
     
-    if (selectedRole === 'ROLE_STUDENT') {
+    if (selectedRole === 'STUDENT') {
       document.getElementById('studentFields').style.display = 'block';
-    } else if (selectedRole === 'ROLE_TITLED') {
+    } else if (selectedRole === 'TITLED') {
       document.getElementById('titledFields').style.display = 'block';
-    } else if (selectedRole === 'ROLE_ADMIN') {
+    } else if (selectedRole === 'ADMIN') {
       document.getElementById('adminFields').style.display = 'block';
     }
   }
@@ -69,8 +69,8 @@
 			<div class="form-group" th:if="${usuarioEdit != null}">
 			  <label class="col-md-4 control-label" for="name">ID*</label>  
 			  <div class="col-md-4">
-			  <input id="idInput" name="id" type="text" th:readonly="${usuarioEdit != null}" placeholder="adfafdfyt1465fjgh" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.id}">
-			  <span class="help-block">ID of the user</span>  
+				  <input id="idInput" name="id" type="text" th:readonly="${usuarioEdit != null}" placeholder="adfafdfyt1465fjgh" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.id}">
+				  <span class="help-block">ID of the user</span>  
 			  </div>
 			</div>
 			
@@ -133,15 +133,15 @@
 				  <label class="col-md-4 control-label" for="role">Role</label>
 				  <div class="col-md-4"> 
 				    <label class="radio-inline" for="role-0">
-				      <input type="radio" name="role" id="role-0" value="ROLE_STUDENT" onclick="toggleFields()"> 
+				      <input type="radio" name="role" id="role-0" value="STUDENT" onclick="toggleFields()"> 
 				      Student
 				    </label> 
 				    <label class="radio-inline" for="role-1">
-				      <input type="radio" name="role" id="role-1" value="ROLE_TITLED"  onclick="toggleFields()"> 
+				      <input type="radio" name="role" id="role-1" value="TITLED"  onclick="toggleFields()"> 
 				      Titled
 				    </label> 
 				    <label class="radio-inline" for="role-2">
-				      <input type="radio" name="role" id="role-2" value="ROLE_ADMIN"  onclick="toggleFields()"> 
+				      <input type="radio" name="role" id="role-2" value="ADMIN"  onclick="toggleFields()"> 
 				      Admin
 				    </label>
 				  </div>
@@ -168,8 +168,9 @@
 				</div>
 			</div>
 			
-			<!-- Specific fields for the role: "Student" -->
-			<div id="studentFields" >
+			<div th:if="${usuarioEdit != null}">
+				<!-- Specific fields for the role: "Student" -->
+			<div id="studentFields">
 			  <!-- Text input-->
 				<div class="form-group">
 				  <label class="col-md-4 control-label" for="studies">Studies</label>  
@@ -201,7 +202,7 @@
 				</div>
 				
 				<!-- Text input-->
-				<div class="form-group">
+				<div class="form-group" >
 				  <label class="col-md-4 control-label" for="titlePlace">Title Place: </label>  
 				  <div class="col-md-5">
 				  <input id="titlePlace" name="study_place" type="text" placeholder="Nebrija High School" class="form-control input-md" th:value="${usuarioEdit.study_place != null ? usuarioEdit.study_place : ''}">
@@ -227,7 +228,7 @@
 			</div>
 			
 			<!-- Specific fields for the role "Admin" -->
-			<div id="adminFields">
+			<div id="adminFields" >
 				<!-- Text input-->
 				<div class="form-group">
 				  <label class="col-md-4 control-label" for="phone">Phone number*</label>  
@@ -237,13 +238,14 @@
 				  </div>
 				</div>
 			</div>
+			</div>
 			
 			<!-- Button (Double) -->
 			<div class="form-group">
 			  <label class="col-md-4 control-label" for="saveUser"></label>
 			  <div class="col-md-8">
 			    <button id="saveUser" name="saveUser" class="btn btn-success">Save</button>
-			    <button id="cancelSave" name="cancelSave" class="btn btn-danger" th:href="@{/}">Cancel</button>
+			   	<button id="cancelSave" name="cancelSave" class="btn btn-danger" type="reset" onclick="window.history.back()">Cancel</button>
 			  </div>
 			</div>
 

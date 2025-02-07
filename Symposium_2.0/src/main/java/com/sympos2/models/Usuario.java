@@ -1,16 +1,21 @@
 package com.sympos2.models;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 /**
  *  This Class is the model to create User objects and map into DB entities.
  */
 @Document(collection="users")
-public class Usuario {
+public class Usuario implements UserDetails {
 	@Id
 	private String id;
 	
@@ -76,7 +81,7 @@ public class Usuario {
 		this.avatar = avatar;
 		this.studies = studies;
 		this.school = school;
-		this.role = "ROLE_STUDENT";
+		this.role = "STUDENT";
 	}
 	/**
 	 * Constructor for creating an "Administrator" user with the specified attributes.
@@ -102,7 +107,19 @@ public class Usuario {
 		this.password = password;
 		this.avatar = avatar;
 		this.phone = phone;
-		this.role = "ROLE_ADMIN";
+		this.role = "ADMIN";
+	}
+	
+	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
+			Long phone) {
+		this.id = id;
+		this.name = name;
+		this.fechaNac = fechaNac;
+		this.email = email;
+		this.password = password;
+		this.avatar = avatar;
+		this.phone = phone;
+		this.role = role;
 	}
 	
 	/**
@@ -135,7 +152,7 @@ public class Usuario {
 		this.study_place = study_place;
 		this.title_date = title_date;
 		this.title_img = title_img;
-		this.role="ROLE_TITLED";
+		this.role="TITLED";
 	}
 	// Getters and Setters
 	public String getId() {
@@ -258,9 +275,37 @@ public class Usuario {
 				.append(", title_img=").append(title_img).append("]");
 		return builder.toString();
 	}
+	
+	// METHODS FOR SPRING SECURITY 
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+	}
 
-	
-	
+    @Override
+    public String getUsername() {
+        return email; // We use the email as username
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 	
 	
 	

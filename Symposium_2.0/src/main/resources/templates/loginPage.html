@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Iniciar sesión</h2>
+    <form  id="loginForm" method="post" th:action="@{/loginPage/submit}">
+        <div>
+            <label for="username">Nombre de usuario:</label>
+            <input th:value="${userEmail != null ? userEmail : '' }" type="text" id="username" name="username" required />
+        </div>
+        <div>
+            <label for="password">Contraseña:</label>
+            <input th:value="${userPassword != null ? UserPassword : ''}" type="password" id="password" name="password" required />
+        </div>
+        <div>
+            <button type="submit">Iniciar sesión</button>
+            <button type="reset" onclick="window.location.href='/'">Cancelar</button>
+        </div>
+        <div>
+            <p th:if="${param.error}">Credenciales incorrectas. Por favor, intentalo de nuevo.</p>
+            <p th:if="${param.logout}">Has cerrado sesión exitosamente.</p>
+        </div>
+    </form>
+</body>
+</html>
