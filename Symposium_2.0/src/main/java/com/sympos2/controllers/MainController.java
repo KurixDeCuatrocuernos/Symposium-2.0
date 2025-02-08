@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
+import com.sympos2.repositories.ObraRepository;
 import com.sympos2.repositories.UserRepository;
 import com.sympos2.services.UserService;
 
@@ -33,6 +35,9 @@ public class MainController {
 	
 	@Autowired
 	private UserRepository UserRepo;
+	
+	@Autowired
+	private ObraRepository obraRepo;
 	
 	@Autowired
 	private UserService service;
@@ -108,12 +113,12 @@ public class MainController {
 	}
 	
 	// mappings for user
-	@GetMapping("/admin-zone-users-list")
+	@GetMapping("/usersList")
 	public String listado(Model model) {
 		String retorno = "";
 		Usuario usuario = getCurrentUsuario();
 		if (usuario != null && "ADMIN".equals(usuario.getRole())) {
-			retorno = "/admin-zone-users-list";
+			retorno = "/usersList";
 			model.addAttribute("listaUsuarios", UserRepo.findAll());
 		} else {
 			System.out.println("El usuario no es administrador");
@@ -212,7 +217,7 @@ public class MainController {
 			retorno = "form";
 		} else {
 			service.edit(editarUsuario);
-			retorno="redirect:/admin-zone-users-list";
+			retorno="redirect:/usersList";
 		}
 		
 		return retorno;
@@ -226,7 +231,7 @@ public class MainController {
 			System.out.println(user.get().getId().toString());
 			UserRepo.deleteById(user.get().getId());
 		} 
-		return "redirect:/admin-zone-users-list";
+		return "redirect:/usersList";
 		
 	}
 	
@@ -239,4 +244,79 @@ public class MainController {
         }
         return retorno;
     }
+	
+	@GetMapping("/workList")
+	public String listarObras(Model model) {
+		String retorno = "";
+		Usuario usuario = getCurrentUsuario();
+		if (usuario != null && "ADMIN".equals(usuario.getRole())) {
+			retorno = "/workList";
+			model.addAttribute("obraList", obraRepo.findAll());
+		} else {
+			System.out.println("El usuario no es administrador");
+			retorno = "/";
+		}
+		return retorno;
+	}
+	
+	@GetMapping("/workForm/book")
+	public String insertarLibro(@RequestParam(required=false) String failure, Model model) {
+		if (failure != null) {
+			model.addAttribute("failure",failure);
+		}
+		model.addAttribute("type","BOOK");
+		return "workForm";
+	}
+	
+	@PostMapping("/workForm/bookSubmit")
+	public String insertarLibroSubmit(@Valid @ModelAttribute("WorkForm") Obra insertarObra, BindingResult br) {
+		String retorno = "";
+		System.out.println("Insertando "+insertarObra.toString());
+		Optional<Obra> test = obraRepo.findByIsbn(insertarObra.getIsbn());
+		if (br.hasErrors() || test.isPresent()){
+			// This could use to give mor information to the user
+			retorno = "redirect:/workForm/book?failure=Problems to insert the new book or it exist";
+		} else {
+			insertarObra.setTipo("BOOK");
+			obraRepo.save(insertarObra);
+			retorno="redirect:/workList";
+		}
+		
+		return retorno;
+	}
+	
+	@GetMapping("/workForm/article")
+	public String insertarArticulo(Model model) {
+		model.addAttribute("type","ARTICLE");
+		return "workForm";
+	}
+	
+	@PostMapping("/workForm/articleSubmit")
+	public String insertarArticuloSubmit(@Valid @ModelAttribute("WorkForm") Obra insertarObra, BindingResult br) {
+		String retorno = "";
+		System.out.println("Insertando "+insertarObra.toString());
+		Optional<Obra> test = obraRepo.findByIsbn(insertarObra.getIsbn());
+		if (br.hasErrors() || test.isPresent()){
+			// This could use to bring mor information to the user
+			retorno = "redirect:/workForm/book?failure=Problems to insert the new book or it exist";
+		} else {
+			insertarObra.setTipo("ARTICLE");
+			obraRepo.save(insertarObra);
+			retorno="redirect:/workList";
+		}
+		
+		return retorno;
+	}
+		
+	@GetMapping("/workList/delete{id}")
+	public String borrarObra(Long id) {
+		Optional<Obra> obra = obraRepo.findById(id);
+		if (obra.isPresent()) {
+			System.out.println("Se ha borrado la obra: ");
+			System.out.println(obra.get().getIsbn()+obra.get().getTitulo());
+			obraRepo.deleteByIsbn(obra.get().getIsbn());
+		} 
+		return "redirect:/workList";
+	}
+	
 }
