@@ -46,6 +46,7 @@ function confirmDelete(link) {
 	<table>
 		<thead>
 			<tr>
+			
 				<th>Avatar</th>
 				<th>ID</th>
 				<th>Username</th>
@@ -53,23 +54,20 @@ function confirmDelete(link) {
 				<th>Birth Date</th>
 				<th>Role</th>
 				
+			</tr>	
 		</thead>
 		<tbody>
 			<tr th:each="usuario: ${listaUsuarios}">
+			
 				<td><img src="" th:src="usuario.png" width="64px" alt=""><a href="https://www.flaticon.es/iconos-gratis/usuario" title="usuario iconos"></a></td>
 				<td th:text="${usuario.id}">ID</td>
 				<td th:text="${usuario.name}" >Nombre del usuario</td>
 				<td th:text="${usuario.email}">Email del usuario</td>
 				<td th:text="${usuario.fechaNac}">Fecha de Nacimiento del usuario</td>
 				<td th:text="${usuario.role}">Rol del usuario</td>
-				<td><a th:href="@{/edit{id}(id=${usuario.id})}">Editar</a></td>
-				<td>
-				    <a th:href="@{/userlist/delete(id=${usuario.id}, name=${usuario.name})}" 
-				       onclick="return confirmDelete(this);">
-				       Borrar
-				    </a>
-				</td>
-				<td><a th:href="@{/edit{id}(id=${usuario.id})}"></a></td>
+				<td><button type="button" th:onclick="'window.location.href=\''+@{/edit{id}(id=${usuario.id})}+'\''">Editar</button></td>
+				<td><button th:href="@{/userlist/delete(id=${usuario.id}, name=${usuario.name})}" onclick="return confirmDelete(this);">Borrar</button></td>
+			
 			</tr>
 		</tbody>
 	</table>
