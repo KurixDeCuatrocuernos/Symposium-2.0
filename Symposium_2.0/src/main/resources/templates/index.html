@@ -12,7 +12,8 @@
 		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/form}">Registrarse</a></li>
 		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/login}">Login</a></li>
 		<li th:if="${username != 'anonymousUser'}"><a th:href="@{/logout}">Cerrar Sesión</a></li>
-		<li><a th:href="@{/admin-zone-users-list}">Users List</a></li>
+		<li><a th:href="@{/usersList}">Users List</a></li>
+		<li><a th:href="@{/workList}">Works List</a></li>
 	</ul>
 </body>
 </html>
