@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Nueva Obra</title>
+</head>
+
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script>
+    new Tagify(document.querySelector('input[name=tags]'));
+</script>
+
+<body>
+	<h1 th:text="'NEW '+${type}"></h1>
+	<h2 th:text="${failure != null} ? ${failure} : '' "></h2>
+	<form class="form-horizontal" id="workForm" method="post" th:action="${type == 'BOOK'} ? @{/workForm/bookSubmit} : @{/workForm/articleSubmit}">
+		<fieldset>
+		
+			<!-- Form Name -->
+			<legend>Form Name</legend>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="isbn">ISBN*</label>  
+			  <div class="col-md-5">
+				  <input id="isbn" name="isbn" type="text" placeholder="987654321" class="form-control input-md" required="">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's ISBN</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's ISBN/ISSN</span>
+			  </div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="fechaPubplicacion">Publication Date*</label>
+				<div class="col-md-4">
+					<input id="fechaPublicacion" name="fechaPublicacion" type="date" placeholder="1990-2-1" class="form-control input-md" required="">
+					<span class="help-block">The publication's date of the piece (only cares the year)</span>
+				</div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="titulo">Piece's title*</label>  
+			  <div class="col-md-5">
+				  <input id="titulo" name="titulo" type="text" placeholder="La Obra Fantástica" class="form-control input-md" required="">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's title</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's title</span>
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="autor">Author's name*</label>  
+			  <div class="col-md-5">
+				  <input id="autor" name="autor" type="text" placeholder="John Smith" class="form-control input-md" required="">
+				  <span class="help-block">The author's name and surname</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="abstracto">Abstract</label>  
+			  <div class="col-md-6">
+				  <input id="abstracto" name="abstracto" type="text" placeholder="Esta obra es muy buena porque cuenta tal y cual..." class="form-control input-md">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's resume (if has not, you can put "Sin Abstracto")</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's resume or abstract (if has not, you can put "Sin Abstracto")</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="lugarPublicacion">Publication Place* </label>  
+			  <div class="col-md-5">
+				  <input id="lugarPublicacion" name="lugarPublicacion" type="text" placeholder="País / Revista del país" class="form-control input-md" required="">
+				  <span class="help-block" th:if="${type == 'BOOK'}">Place where the piece was published (country)</span>
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">Place where the article was published (the magazine or the book where it can be found)</span>    
+			  </div>
+			</div>
+			
+			<!-- Tags input -->
+			<div class="form-group">
+				<label class="col-md-4 control-label">Themes</label>
+				<div class="col-md-4">
+					<input name='tags' placeholder='Añade etiquetas...'>
+					<span class="help-block">Add the categories or the themes which the piece could talk (Ética, Filosofía Política, Filosofía de la religión, etc.)</span>
+				</div>
+				
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="editorial">Editorial*</label>  
+			  <div class="col-md-4">
+				  <input id="editorial" name="editorial" type="text" placeholder="NombreDeEditorial Editorial" class="form-control input-md" required="">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The name of the editorial who published the book</span>
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The name of the editorial who published the article or who published the book where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group" th:if="${type == 'ARTICLE'}">
+			  <label class="col-md-4 control-label" for="paginaini">Initial Page</label>  
+			  <div class="col-md-2">
+				  <input id="paginaini" name="paginaini" type="text" placeholder="100" class="form-control input-md">
+				  <span class="help-block">The main page number of the book or magazine where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group" th:if="${type == 'ARTICLE'}">
+			  <label class="col-md-4 control-label" for="paginafin">Last Page</label>  
+			  <div class="col-md-2">
+				  <input id="paginafin" name="paginafin" type="text" placeholder="200" class="form-control input-md">
+				  <span class="help-block">The last page number of the book or magazine where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Button (Double) -->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="saveWork"></label>
+			  <div class="col-md-8">
+			    <button id="saveWork" name="saveWork" class="btn btn-success">Save</button>
+			   	<button id="cancelWork" name="cancelWork" class="btn btn-danger" type="reset" onclick="window.history.back()">Cancel</button>
+			  </div>
+			</div>
+		
+		</fieldset>
+	</form>
+</body>
+</html>
