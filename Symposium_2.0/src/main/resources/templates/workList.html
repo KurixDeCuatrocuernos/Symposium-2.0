@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Lista de Obras</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmDelete(link) {
+    // Obtiene el href completo del enlace
+    const href = link.getAttribute('href');
+
+    // Analiza los parámetros de la URL
+    const urlParams = new URLSearchParams(href.split('?')[1]);
+    const titulo = urlParams.get('name'); // Obtiene el valor de "name"
+
+    // Muestra el cuadro de confirmación con el nombre del usuario
+    Swal.fire({
+        title: '¿Estás seguro de que deseas borrar este usuario?',
+        html: `Escribe el nombre del usuario <strong>${titulo}</strong> para confirmar.`,
+        icon: 'warning',
+        input: 'text',
+        inputPlaceholder: 'Escribe el nombre del usuario aquí...',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (value !== titulo) {
+                return 'El nombre ingresado no coincide. Inténtalo de nuevo.';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = href; // Redirige solo si la confirmación es correcta
+        }
+    });
+
+    return false; // Prevenir la redirección automática del enlace
+}
+</script>
+<body>
+	<h1>Obras</h1>
+	<h1><button type="button" th:onclick="'window.location.href=\''+@{/workForm/book}+'\''">Nuevo Libro</button></h1>
+	<h1><button type="button" th:onclick="'window.location.href=\''+@{/workForm/article}+'\''">Nuevo Artículo</button></h1>
+	
+	<table>
+		<thead>
+			<tr>
+				<th>ISBN</th>
+				<th>TITULO</th>
+				<th>AUTOR</th>
+				<th>FECHA DE PUBLICACION</th>
+				<th>TIPO</th>
+				<th>EDITORIAL</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="obra: ${obraList}">
+				<td th:text="${obra.isbn}"></td>
+				<td th:text="${obra.titulo}"></td>
+				<td th:text="${obra.autor}"></td>
+				<td th:text="${obra.fechaPublicacion}"></td>
+				<td th:text="${obra.tipo}"></td>
+				<td th:text="${obra.editorial}"></td>
+				<td><button type="button" th:onclick="'window.location.href=\''+@{/workList/edit{id}(id=${obra.isbn})} + '\''">Editar</button></td>
+				<td><button type="button" th:href="@{workList/delete(id=${obra.isbn}, name=${obra.titulo})}" onclick="return confirmDelete(this);">Borrar</button></td>
+			
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
