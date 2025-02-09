@@ -55,6 +55,7 @@ function confirmDelete(link) {
 				<th>FECHA DE PUBLICACION</th>
 				<th>TIPO</th>
 				<th>EDITORIAL</th>
+				<th>LUGAR DE PUBLICACION</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -65,6 +66,7 @@ function confirmDelete(link) {
 				<td th:text="${obra.fechaPublicacion}"></td>
 				<td th:text="${obra.tipo}"></td>
 				<td th:text="${obra.editorial}"></td>
+				<td th:text="${obra.lugar_publicacion}"></td>
 				<td><button type="button" th:onclick="'window.location.href=\''+@{/workList/edit{id}(id=${obra.isbn})} + '\''">Editar</button></td>
 				<td><button type="button" th:href="@{workList/delete(id=${obra.isbn}, name=${obra.titulo})}" onclick="return confirmDelete(this);">Borrar</button></td>
 			
