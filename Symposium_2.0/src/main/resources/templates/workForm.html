@@ -5,11 +5,95 @@
 <title>Nueva Obra</title>
 </head>
 
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-<script>
-    new Tagify(document.querySelector('input[name=tags]'));
-</script>
+<script th:inline="javascript"> 
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.querySelector('#temas');
+    const container = document.querySelector('#tags-container');
+    const suggestionsContainer = document.querySelector('#suggestions-container');
+    const tagsInput = document.querySelector('#tags-input');  // Campo oculto para los tags
+    let tags = [];
+    let suggestions = /*[[${tagsJson}]]*/ [];  // Los tags vienen desde el backend
 
+    // Función para agregar un tag
+    function addTag(tag) {
+        // Evitar agregar un tag vacío o repetido
+        if (tag && !tags.includes(tag)) {
+            tags.push(tag);
+            const tagElement = document.createElement('span');
+            tagElement.classList.add('tag');
+            tagElement.textContent = tag;
+            
+            // Al hacer clic en un tag, lo eliminamos
+            tagElement.addEventListener('click', function () {
+                removeTag(tag);
+            });
+            
+            container.appendChild(tagElement);
+            input.value = '';  // Limpiar el input
+            suggestionsContainer.innerHTML = '';  // Limpiar las sugerencias
+            updateTagsInput();  // Actualizar el campo oculto con los tags seleccionados
+        }
+    }
+
+    // Función para eliminar un tag
+    function removeTag(tag) {
+        tags = tags.filter(t => t !== tag);
+        const tagElements = container.querySelectorAll('.tag');
+        tagElements.forEach(tagElement => {
+            if (tagElement.textContent === tag) {
+                container.removeChild(tagElement);
+            }
+        });
+        updateTagsInput();  // Actualizar el campo oculto con los tags seleccionados
+    }
+
+    // Función para mostrar las sugerencias
+    function showSuggestions(value) {
+        // Filtrar las sugerencias que coinciden con lo que el usuario ha escrito
+        const filteredSuggestions = suggestions.filter(s => s.toLowerCase().includes(value.toLowerCase()));
+        suggestionsContainer.innerHTML = ''; // Limpiar las sugerencias previas
+
+        filteredSuggestions.forEach(suggestion => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.classList.add('suggestion');
+            suggestionElement.textContent = suggestion;
+
+            // Al hacer clic en una sugerencia, la añadimos
+            suggestionElement.addEventListener('click', function () {
+                addTag(suggestion);
+            });
+
+            suggestionsContainer.appendChild(suggestionElement);
+        });
+    }
+
+    // Función para actualizar el valor del campo oculto con los tags seleccionados
+    function updateTagsInput() {
+        tagsInput.value = tags.join(',');  // Convertir el array de tags en una cadena separada por comas
+    }
+
+    // Agregar el tag cuando el usuario presiona Enter
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();  // Evitar que se haga un "Enter" normal
+            const newTag = input.value.trim();
+            addTag(newTag);
+        }
+    });
+
+    // Mostrar las sugerencias cuando el usuario escribe
+    input.addEventListener('input', function () {
+        const value = input.value.trim();
+        if (value) {
+            showSuggestions(value);
+        } else {
+            suggestionsContainer.innerHTML = '';  // Limpiar las sugerencias si no hay texto
+        }
+    });
+});
+
+
+</script>
 <body>
 	<h1 th:text="'NEW '+${type}"></h1>
 	<h2 th:text="${failure != null} ? ${failure} : '' "></h2>
@@ -30,7 +114,7 @@
 			</div>
 			
 			<div class="form-group">
-				<label class="col-md-4 control-label" for="fechaPubplicacion">Publication Date*</label>
+				<label class="col-md-4 control-label" for="fechaPublicacion">Publication Date*</label>
 				<div class="col-md-4">
 					<input id="fechaPublicacion" name="fechaPublicacion" type="date" placeholder="1990-2-1" class="form-control input-md" required="">
 					<span class="help-block">The publication's date of the piece (only cares the year)</span>
@@ -58,34 +142,15 @@
 			
 			<!-- Text input-->
 			<div class="form-group">
-			  <label class="col-md-4 control-label" for="abstracto">Abstract</label>  
-			  <div class="col-md-6">
-				  <input id="abstracto" name="abstracto" type="text" placeholder="Esta obra es muy buena porque cuenta tal y cual..." class="form-control input-md">
-				  <span class="help-block" th:if="${type == 'BOOK'}">The book's resume (if has not, you can put "Sin Abstracto")</span>  
-				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's resume or abstract (if has not, you can put "Sin Abstracto")</span>  
-			  </div>
-			</div>
-			
-			<!-- Text input-->
-			<div class="form-group">
-			  <label class="col-md-4 control-label" for="lugarPublicacion">Publication Place* </label>  
+			  <label class="col-md-4 control-label" for="lugar_publicacion">Publication Place* </label>  
 			  <div class="col-md-5">
-				  <input id="lugarPublicacion" name="lugarPublicacion" type="text" placeholder="País / Revista del país" class="form-control input-md" required="">
+				  <input id="lugar_publicacion" name="lugar_publicacion" type="text" placeholder="País / Revista del país" class="form-control input-md" required="">
 				  <span class="help-block" th:if="${type == 'BOOK'}">Place where the piece was published (country)</span>
 				  <span class="help-block" th:if="${type == 'ARTICLE'}">Place where the article was published (the magazine or the book where it can be found)</span>    
 			  </div>
 			</div>
 			
-			<!-- Tags input -->
-			<div class="form-group">
-				<label class="col-md-4 control-label">Themes</label>
-				<div class="col-md-4">
-					<input name='tags' placeholder='Añade etiquetas...'>
-					<span class="help-block">Add the categories or the themes which the piece could talk (Ética, Filosofía Política, Filosofía de la religión, etc.)</span>
-				</div>
-				
-			</div>
-			
+						
 			<!-- Text input-->
 			<div class="form-group">
 			  <label class="col-md-4 control-label" for="editorial">Editorial*</label>  
@@ -94,6 +159,19 @@
 				  <span class="help-block" th:if="${type == 'BOOK'}">The name of the editorial who published the book</span>
 				  <span class="help-block" th:if="${type == 'ARTICLE'}">The name of the editorial who published the article or who published the book where the article can be found</span>  
 			  </div>
+			</div>
+			
+			<!-- Tags input -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="temas">Themes</label>
+				<div class="col-md-4">
+					<input id="temas" name='temas' placeholder='Añade etiquetas...'>
+					<span class="help-block">Add the categories or the themes which the piece could talk (Ética, Filosofía Política, Filosofía de la religión, etc.)</span>
+					<div id="tags-container"></div>
+					<div id="suggestions-container"></div>		
+					<!-- Campo oculto para almacenar los tags seleccionados -->
+            		<input type="hidden" id="tags-input" name="tags" value="">	
+				</div>
 			</div>
 			
 			<!-- Text input-->
@@ -111,6 +189,16 @@
 			  <div class="col-md-2">
 				  <input id="paginafin" name="paginafin" type="text" placeholder="200" class="form-control input-md">
 				  <span class="help-block">The last page number of the book or magazine where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="abstracto">Abstract</label>  
+			  <div class="col-md-6">
+				  <textarea id="abstracto" name="abstracto" placeholder="Esta obra es muy buena porque cuenta tal y cual..." class="form-control input-md"></textarea>
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's resume (if has not, you can put "Sin Abstracto")</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's resume or abstract (if has not, you can put "Sin Abstracto")</span>  
 			  </div>
 			</div>
 			
