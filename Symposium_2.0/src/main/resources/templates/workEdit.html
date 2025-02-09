@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Edit Work</title>
+</head>
+
+<script th:inline="javascript"> 
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.querySelector('#temas');
+    const container = document.querySelector('#tags-container');
+    const suggestionsContainer = document.querySelector('#suggestions-container');
+    const tagsInput = document.querySelector('#tags-input');
+    let tags = [];
+    let suggestions = /*[[${tagsJson}]]*/ [];  
+
+    // Limpiar corchetes y espacios
+    const existingTags = input.getAttribute('value');
+    if (existingTags) {
+        existingTags
+            .replace(/[\[\]]/g, '') // Eliminar corchetes
+            .split(',')
+            .forEach(tag => addTag(tag.trim()));
+    }
+
+    function addTag(tag) {
+        if (tag && !tags.includes(tag)) {
+            tags.push(tag);
+            const tagElement = document.createElement('span');
+            tagElement.classList.add('tag');
+            tagElement.textContent = tag;
+
+            tagElement.addEventListener('click', function () {
+                removeTag(tag);
+            });
+
+            container.appendChild(tagElement);
+            input.value = '';  
+            suggestionsContainer.innerHTML = '';  
+            updateTagsInput();  
+        }
+    }
+
+    function removeTag(tag) {
+        tags = tags.filter(t => t !== tag);
+        const tagElements = container.querySelectorAll('.tag');
+        tagElements.forEach(tagElement => {
+            if (tagElement.textContent === tag) {
+                container.removeChild(tagElement);
+            }
+        });
+        updateTagsInput();
+    }
+
+    function showSuggestions(value) {
+        const filteredSuggestions = suggestions.filter(s => s.toLowerCase().includes(value.toLowerCase()));
+        suggestionsContainer.innerHTML = '';
+
+        filteredSuggestions.forEach(suggestion => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.classList.add('suggestion');
+            suggestionElement.textContent = suggestion;
+
+            suggestionElement.addEventListener('click', function () {
+                addTag(suggestion);
+            });
+
+            suggestionsContainer.appendChild(suggestionElement);
+        });
+    }
+
+    function updateTagsInput() {
+        tagsInput.value = tags.join(',');
+    }
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const newTag = input.value.trim();
+            addTag(newTag);
+        }
+    });
+
+    input.addEventListener('input', function () {
+        const value = input.value.trim();
+        if (value) {
+            showSuggestions(value);
+        } else {
+            suggestionsContainer.innerHTML = '';
+        }
+    });
+});
+
+
+
+</script>
+
+<body>
+<h1 th:text="'EDIT '+${type}+': '+${obraEdit.titulo}"></h1>
+	<h2 th:text="${failure != null} ? ${failure} : '' "></h2>
+	<form class="form-horizontal" id="workEdit" method="post" th:action="${type == 'BOOK'} ? @{/workEdit/bookSubmit} : @{/workEdit/articleSubmit}">
+		<fieldset>
+		
+			<!-- Form Name -->
+			<legend>Form Name</legend>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="isbn">ISBN*</label>  
+			  <div class="col-md-5">
+				  <input id="isbn" name="isbn" type="text" placeholder="987654321" class="form-control input-md" required="" th:value="${obraEdit != null} ? ${obraEdit.isbn} : ''" th:readonly="${obraEdit != null}">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's ISBN can't be changed</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's ISBN/ISSN can't be changed</span>
+			  </div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="fechaPublicacion">Publication Date*</label>
+				<div class="col-md-4">
+					<input id="fechaPublicacion" name="fechaPublicacion" type="date" placeholder="1990-2-1" class="form-control input-md" required="" th:value="${obraEdit.fechaPublicacion}">
+					<span class="help-block">The publication's date of the piece (only cares the year)</span>
+				</div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="titulo">Piece's title*</label>  
+			  <div class="col-md-5">
+				  <input id="titulo" name="titulo" type="text" placeholder="La Obra Fantástica" class="form-control input-md" required="" th:value="${obraEdit.titulo}">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's title</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's title</span>
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="autor">Author's name*</label>  
+			  <div class="col-md-5">
+				  <input id="autor" name="autor" type="text" placeholder="John Smith" class="form-control input-md" required="" th:value="${obraEdit.autor}">
+				  <span class="help-block">The author's name and surname</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="lugar_publicacion">Publication Place* </label>  
+			  <div class="col-md-5">
+				  <input id="lugar_publicacion" name="lugar_publicacion" type="text" placeholder="País / Revista del país" class="form-control input-md" required="" th:value="${obraEdit.lugar_publicacion}">
+				  <span class="help-block" th:if="${type == 'BOOK'}">Place where the piece was published (country)</span>
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">Place where the article was published (the magazine or the book where it can be found)</span>    
+			  </div>
+			</div>
+						
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="editorial">Editorial*</label>  
+			  <div class="col-md-4">
+				  <input id="editorial" name="editorial" type="text" placeholder="NombreDeEditorial Editorial" class="form-control input-md" required="" th:value="${obraEdit.editorial}">
+				  <span class="help-block" th:if="${type == 'BOOK'}">The name of the editorial who published the book</span>
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The name of the editorial who published the article or who published the book where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Tags input -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="temas">Themes</label>
+				<div class="col-md-4">
+					<input id="temas" name='temas' placeholder='Añade etiquetas...' th:value="${obraEdit.temas}">
+					<span class="help-block">Add the categories or the themes which the piece could talk (Ética, Filosofía Política, Filosofía de la religión, etc.)</span>
+					<div id="tags-container"></div>
+					<div id="suggestions-container"></div>		
+					<!-- Campo oculto para almacenar los tags seleccionados -->
+            		<input type="hidden" id="tags-input" name="tags" value="">	
+				</div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group" th:if="${type == 'ARTICLE'}">
+			  <label class="col-md-4 control-label" for="paginaini">Initial Page</label>  
+			  <div class="col-md-2">
+				  <input id="paginaini" name="paginaini" type="text" placeholder="100" class="form-control input-md" th:value="${obraEdit.paginaini}">
+				  <span class="help-block">The main page number of the book or magazine where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group" th:if="${type == 'ARTICLE'}">
+			  <label class="col-md-4 control-label" for="paginafin">Last Page</label>  
+			  <div class="col-md-2">
+				  <input id="paginafin" name="paginafin" type="text" placeholder="200" class="form-control input-md" th:value="${obraEdit.paginafin}">
+				  <span class="help-block">The last page number of the book or magazine where the article can be found</span>  
+			  </div>
+			</div>
+			
+			<!-- Text input-->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="abstracto">Abstract</label>  
+			  <div class="col-md-6">
+				  <textarea id="abstracto" name="abstracto" placeholder="Esta obra es muy buena porque cuenta tal y cual..." class="form-control input-md" th:text="${obraEdit.abstracto}"></textarea>
+				  <span class="help-block" th:if="${type == 'BOOK'}">The book's resume (if has not, you can put "Sin Abstracto")</span>  
+				  <span class="help-block" th:if="${type == 'ARTICLE'}">The article's resume or abstract (if has not, you can put "Sin Abstracto")</span>  
+			  </div>
+			</div>
+			
+			
+			<!-- Button (Double) -->
+			<div class="form-group">
+			  <label class="col-md-4 control-label" for="saveWork"></label>
+			  <div class="col-md-8">
+			    <button id="saveWork" name="saveWork" class="btn btn-success">Save</button>
+			   	<button id="cancelWork" name="cancelWork" class="btn btn-danger" type="reset" onclick="window.history.back()">Cancel</button>
+			  </div>
+			</div>
+		
+		</fieldset>
+	</form>
+</body>
+</html>
