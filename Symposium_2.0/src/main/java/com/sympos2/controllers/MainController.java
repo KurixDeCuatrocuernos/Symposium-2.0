@@ -1,9 +1,12 @@
 package com.sympos2.controllers;
 
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +27,7 @@ import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
 import com.sympos2.repositories.ObraRepository;
 import com.sympos2.repositories.UserRepository;
+import com.sympos2.services.ObraService;
 import com.sympos2.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +42,9 @@ public class MainController {
 	
 	@Autowired
 	private ObraRepository obraRepo;
+	
+	@Autowired
+	private ObraService obraService;
 	
 	@Autowired
 	private UserService service;
@@ -264,19 +271,29 @@ public class MainController {
 		if (failure != null) {
 			model.addAttribute("failure",failure);
 		}
+		
+		List<String> tags = obraService.findAllDifferentTemas();
+		System.out.println("Tags recogidos: "+tags.toString());
+
+		model.addAttribute("tagsJson", tags);		
 		model.addAttribute("type","BOOK");
 		return "workForm";
 	}
 	
 	@PostMapping("/workForm/bookSubmit")
-	public String insertarLibroSubmit(@Valid @ModelAttribute("WorkForm") Obra insertarObra, BindingResult br) {
+	public String insertarLibroSubmit(@Valid @ModelAttribute("WorkForm") Obra insertarObra,@RequestParam("tags") String tags, BindingResult br) {
 		String retorno = "";
-		System.out.println("Insertando "+insertarObra.toString());
+		
 		Optional<Obra> test = obraRepo.findByIsbn(insertarObra.getIsbn());
 		if (br.hasErrors() || test.isPresent()){
 			// This could use to give mor information to the user
 			retorno = "redirect:/workForm/book?failure=Problems to insert the new book or it exist";
 		} else {
+			// converts the string in a List of strings separated by comas and insert in the object
+			List<String> tagsList = Arrays.asList(tags.split(","));
+			insertarObra.setTemas(tagsList);
+			
+			System.out.println("Insertando "+insertarObra.toString());
 			insertarObra.setTipo("BOOK");
 			obraRepo.save(insertarObra);
 			retorno="redirect:/workList";
@@ -286,20 +303,34 @@ public class MainController {
 	}
 	
 	@GetMapping("/workForm/article")
-	public String insertarArticulo(Model model) {
+	public String insertarArticulo(@RequestParam(required=false) String failure, Model model) {
+		if (failure != null) {
+			model.addAttribute("failure",failure);
+		}
+		
+		List<String> tags = obraService.findAllDifferentTemas();
+		System.out.println("Tags recogidos: "+tags.toString());
+
+		model.addAttribute("tagsJson", tags);
 		model.addAttribute("type","ARTICLE");
 		return "workForm";
 	}
 	
 	@PostMapping("/workForm/articleSubmit")
-	public String insertarArticuloSubmit(@Valid @ModelAttribute("WorkForm") Obra insertarObra, BindingResult br) {
+	public String insertarArticuloSubmit(@Valid @ModelAttribute("WorkForm") Obra insertarObra,@RequestParam("tags") String tags, BindingResult br) {
 		String retorno = "";
-		System.out.println("Insertando "+insertarObra.toString());
+		
 		Optional<Obra> test = obraRepo.findByIsbn(insertarObra.getIsbn());
 		if (br.hasErrors() || test.isPresent()){
 			// This could use to bring mor information to the user
 			retorno = "redirect:/workForm/book?failure=Problems to insert the new book or it exist";
 		} else {
+			
+			// converts the string in a List of strings separated by comas and insert in the object
+			List<String> tagsList = Arrays.asList(tags.split(","));
+			insertarObra.setTemas(tagsList);
+			
+			System.out.println("Insertando "+insertarObra.toString());
 			insertarObra.setTipo("ARTICLE");
 			obraRepo.save(insertarObra);
 			retorno="redirect:/workList";
@@ -317,6 +348,141 @@ public class MainController {
 			obraRepo.deleteByIsbn(obra.get().getIsbn());
 		} 
 		return "redirect:/workList";
+	}
+	
+	@GetMapping("/workList/edit{id}")
+	public String editarObra(@PathVariable("id") Long id, Model model) {
+		String retorno="";
+		if (id!=null) {
+			
+			Optional<Obra> obra = obraRepo.findById(id);	
+		
+			if (obra!=null && obra.isPresent()) {
+				if (obra.get().getTipo().equalsIgnoreCase("BOOK")) {
+					retorno="redirect:/workEdit/book?id="+id;
+				} else {
+					retorno="redirect:/workEdit/article?id="+id;
+				}
+			} else {
+				System.out.println("No se encontró la obra con el isbn: "+id);
+				retorno="redirect:/workList";
+			}
+		} else {
+			System.out.println("No se ha recibido id");
+			retorno="redirect:/workList";
+		}
+		return retorno;
+	}
+
+
+	
+	@GetMapping("/workEdit/book")
+	public String editarLibro(@RequestParam Long id, Model model) {
+		String retorno="";
+		if (id != null) {
+			Optional<Obra> obra = obraRepo.findById(id);
+			if (obra != null && obra.isPresent()) {
+					
+				List<String> tags = obraService.findAllDifferentTemas();
+				System.out.println("Tags recogidos: "+tags.toString());
+
+				model.addAttribute("tagsJson", tags);
+				model.addAttribute("obraEdit", obra.get());
+				model.addAttribute("type", obra.get().getTipo().toUpperCase());
+				retorno = "workEdit";
+			} else {
+				System.out.println("No se ha encontrado la obra para editar");
+				retorno = "redirect:/workList";
+			}
+		} else {
+			System.out.println("No se ha recibido id para editar");
+			retorno = "redirect:/workList";
+		}
+		
+		return retorno;
+	}
+	
+	@PostMapping("/workEdit/bookSubmit")
+	public String editarLibroSubmit(@Valid @ModelAttribute("workEdit") Obra editedWork,@RequestParam("tags") String tags, BindingResult br) {
+		String retorno="";
+		
+		System.out.println("Insertando "+editedWork.toString());
+		Optional<Obra> test = obraRepo.findByIsbn(editedWork.getIsbn());
+		if (br.hasErrors()){
+			// This could use to give more information to the user
+			retorno = "redirect:/workEdit/book?failure=Problems to update the book or it exist";
+		} else  if (test.isPresent()){
+			
+			// converts the string in a List of strings separated by comas and insert in the object
+			List<String> tagsList = Arrays.asList(tags.split(","));
+			editedWork.setTemas(tagsList);
+			
+			obraRepo.deleteByIsbn(editedWork.getIsbn());
+			editedWork.setTipo("BOOK");
+			obraRepo.save(editedWork);
+			retorno="redirect:/workList";
+			
+		} else {
+			
+			editedWork.setTipo("BOOK");
+			obraRepo.save(editedWork);
+			retorno="redirect:/workList";
+		}
+		
+		return retorno;
+	}
+	
+	@GetMapping("/workEdit/article{id}")
+	public String editarArticulo(@RequestParam Long id, Model model) {
+		String retorno="";
+		if (id != null) {
+			Optional<Obra> obra = obraRepo.findById(id);
+			if (obra != null && obra.isPresent()) {
+				
+				List<String> tags = obraService.findAllDifferentTemas();
+				System.out.println("Tags recogidos: "+tags.toString());
+
+				model.addAttribute("tagsJson", tags);
+				model.addAttribute("obraEdit", obra.get());
+				model.addAttribute("type", obra.get().getTipo().toUpperCase());
+				retorno = "workEdit";
+			}
+		} else {
+			System.out.println("no se ha recibido id para editar");
+			retorno = "redirect:/workList";
+		}
+		
+		return retorno;
+	}
+	
+	@PostMapping("/workEdit/articleSubmit")
+	public String editarArticuloSubmit(@Valid @ModelAttribute("workEdit") Obra editedWork,@RequestParam("tags") String tags, BindingResult br) {
+		String retorno="";
+		
+		System.out.println("Insertando "+editedWork.toString());
+		Optional<Obra> test = obraRepo.findByIsbn(editedWork.getIsbn());
+		if (br.hasErrors()){
+			// This could use to give more information to the user
+			retorno = "redirect:/workEdit/article?failure=Problems to update the book or it exist";
+		} else  if (test.isPresent()){
+			
+			// converts the string in a List of strings separated by comas and insert in the object
+			List<String> tagsList = Arrays.asList(tags.split(","));
+			editedWork.setTemas(tagsList);
+			
+			obraRepo.deleteByIsbn(editedWork.getIsbn());
+			editedWork.setTipo("ARTICLE");
+			obraRepo.save(editedWork);
+			retorno="redirect:/workList";
+			
+		} else {
+			
+			editedWork.setTipo("ARTICLE");
+			obraRepo.save(editedWork);
+			retorno="redirect:/workList";
+		}
+		
+		return retorno;
 	}
 	
 }

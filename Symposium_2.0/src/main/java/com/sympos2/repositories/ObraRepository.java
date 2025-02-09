@@ -37,6 +37,4 @@ public interface ObraRepository extends MongoRepository<Obra, Long>{
 	@Query(value="{}", fields="{titulo:1, Autor:1}")
 	Optional<Obra> findByIsbnOnlyTituloAndAutor(Long isbn);
 	
-	
-	
 }
