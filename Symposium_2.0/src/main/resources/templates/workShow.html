@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Symposium 2.0.com</title>
+<title th:text="${obra.titulo}"></title>
 </head>
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function() {
@@ -61,8 +61,9 @@ document.addEventListener("DOMContentLoaded", function() {
 }
 </style>
 <body>
-	<h1>Hello World!</h1>
+
 	<nav>
+		<h1><a th:href="@{/}">Main</a></h1>
 		<div>
 			<input id="nav-search" name="search" type="search">
 			<div id="nav-suggest">
@@ -70,14 +71,39 @@ document.addEventListener("DOMContentLoaded", function() {
 			</div>
 		</div>
 	</nav>
-	<div th:if="${username != 'anonymousUser'}"><h2 th:text="${username}"></h2></div>
-	<div th:if="${username == 'anonymousUser'}"><h2>Invitado</h2></div>
-	<ul>
-		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/form}">Registrarse</a></li>
-		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/login}">Login</a></li>
-		<li th:if="${username != 'anonymousUser'}"><a th:href="@{/logout}">Cerrar Sesión</a></li>
-		<li><a th:href="@{/usersList}">Users List</a></li>
-		<li><a th:href="@{/workList}">Works List</a></li>
-	</ul>
+	<table>
+		<thead>
+			<tr >
+				<th>ISBN</th>
+				<th>Title</th>
+				<th>Author</th>
+				<th>Publication Date</th>
+				<th>Publication Place</th>
+				<th>Editorial</th>
+				<th>Type</th>
+				<th>Abstract</th>
+				<th>Themes</th>
+				<th th:if="${obra.tipo == 'ARTICLE'}">First page</th>
+				<th th:if="${obra.tipo == 'ARTICLE'}">End page</th>
+				
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td th:text="${obra.isbn}"></td>
+				<td th:text="${obra.titulo}"></td>
+				<td th:text="${obra.autor}"></td>
+				<td th:text="${obra.fechaPublicacion}"></td>
+				<td th:text="${obra.lugar_publicacion}"></td>
+				<td th:text="${obra.editorial}"></td>
+				<td th:text="${obra.tipo}"></td>
+				<td th:text="${obra.abstracto}"></td>
+				<td th:text="${obra.temas}"></td>
+				<td th:text="${obra.paginaini}"></td>
+				<td th:text="${obra.paginafin}"></td>
+				
+			</tr>
+		</tbody>
+	</table>
 </body>
 </html>
