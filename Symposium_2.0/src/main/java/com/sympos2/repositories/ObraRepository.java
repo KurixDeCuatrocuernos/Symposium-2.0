@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import com.sympos2.dto.ObraIsbnTituloProjection;
 import com.sympos2.models.Obra;
 
 public interface ObraRepository extends MongoRepository<Obra, Long>{
@@ -37,4 +38,6 @@ public interface ObraRepository extends MongoRepository<Obra, Long>{
 	@Query(value="{}", fields="{titulo:1, Autor:1}")
 	Optional<Obra> findByIsbnOnlyTituloAndAutor(Long isbn);
 	
+	@Query(value= "{}", fields="{ 'isbn': 1, 'titulo' : 1}")
+	List<ObraIsbnTituloProjection> findAllIsbnAndTitulo();
 }
