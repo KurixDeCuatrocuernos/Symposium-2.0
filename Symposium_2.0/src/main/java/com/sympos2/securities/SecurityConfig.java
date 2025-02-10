@@ -65,7 +65,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/index/**", "/login/**", "/register/**", "/submit/**", "/form/**").permitAll() // here we can add the URL we want to have a free access.
+                                .requestMatchers("/", "/index/**", "/login/**", "/register/**", "/submit/**", "/form/**", "/workShow").permitAll() // here we can add the URL we want to have a free access.
                                 .requestMatchers("/admin-zone-users-list/**","/edit/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
