@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.sympos2.dto.ObraIsbnTituloProjection;
 import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
 import com.sympos2.repositories.ObraRepository;
@@ -71,7 +72,39 @@ public class MainController {
 		} else {
 			model.addAttribute("username", "invitado");
 		}
+		List<ObraIsbnTituloProjection> suggestions = obraRepo.findAllIsbnAndTitulo();
+		System.out.println("sugerencias: "+suggestions.toString());
+		
+		model.addAttribute("suggestWorks",suggestions);
+		
 		return "/index";
+	}
+	
+	@GetMapping("/workShow")
+	public String mostrarObra(@RequestParam() Long id, Model model) {
+		String retorno = "";
+		if (id != null) {
+			Optional<Obra> obra = obraRepo.findById(id);
+			if (obra != null && !obra.isEmpty()) {
+				List<ObraIsbnTituloProjection> suggestions = obraRepo.findAllIsbnAndTitulo();
+				System.out.println("sugerencias: "+suggestions.toString());
+				model.addAttribute("suggestWorks",suggestions);
+				
+				System.out.println("mostrando obra: "+obra.get().toString());
+				model.addAttribute("obra", obra.get());
+				
+				retorno="workShow";		
+			} else {
+				System.out.println("No se ha encontrado la obra con isbn: "+id);
+				retorno="/";
+			}
+		} else {
+			System.out.println("No se ha recibido id");
+			retorno="/";
+		}
+		
+		
+		return retorno;
 	}
 	
 	@GetMapping("/login")
