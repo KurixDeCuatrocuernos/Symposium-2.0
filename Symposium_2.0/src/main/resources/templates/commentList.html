@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>List Comments</title>
+</head>
+<body>
+	<table>
+		<thead>
+			<tr>
+				<th>USER</th>
+				<th>WORK</th>
+				<th>TITLE</th>
+				<th>TEXT</th>
+				<th>DATE</th>
+				<th>TYPE</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="comment: ${comments}">
+				<td th:text="${comment.usuario}"></td>
+				<td th:text="${comment.obra}"></td>
+				<td th:text="${comment.titulo}"></td>
+				<td th:text="${comment.texto}"></td>
+				<td th:text="${comment.fecha}"></td>
+				<td th:text="${comment.tipo}"></td>
+				
+				<td>
+					<!-- Aquí hubo que mezclar Thymeleaf con JavaScript porque Thymeleaf no leía una expresión ternaria tan compleja con urls -->
+				    <button type="button" href="#" 
+				       th:onclick="|if(${#strings.startsWith(comment.tipo, 'BANNED')}) {
+				                       window.location.href='@{/unbanComment{id}(id=${comment.id})}';
+				                   } else {
+				                       window.location.href='@{/banComment{id}(id=${comment.id})}';
+				                   }|"
+				       th:text="${#strings.startsWith(comment.tipo, 'BANNED') ? 'Unban Comment' : 'Ban Comment'}">
+				        Cambiar Estado
+				    </button>
+				</td>
+
+	
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

@@ -24,10 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sympos2.dto.ObraIsbnTituloProjection;
+import com.sympos2.models.Comentario;
 import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
+import com.sympos2.repositories.ComentarioRepository;
 import com.sympos2.repositories.ObraRepository;
 import com.sympos2.repositories.UserRepository;
+import com.sympos2.services.ComentarioService;
 import com.sympos2.services.ObraService;
 import com.sympos2.services.UserService;
 
@@ -39,16 +42,22 @@ import jakarta.validation.Valid;
 public class MainController {
 	
 	@Autowired
-	private UserRepository UserRepo;
+	private UserRepository userRepo;
 	
 	@Autowired
 	private ObraRepository obraRepo;
 	
 	@Autowired
+	private ComentarioRepository commentRepo;
+	
+	@Autowired
 	private ObraService obraService;
 	
 	@Autowired
-	private UserService service;
+	private UserService userService;
+	
+	@Autowired
+	private ComentarioService commentService;
 	
 	@Autowired
 	private AuthenticationManager authManager;
@@ -159,7 +168,7 @@ public class MainController {
 		Usuario usuario = getCurrentUsuario();
 		if (usuario != null && "ADMIN".equals(usuario.getRole())) {
 			retorno = "/usersList";
-			model.addAttribute("listaUsuarios", UserRepo.findAll());
+			model.addAttribute("listaUsuarios", userRepo.findAll());
 		} else {
 			System.out.println("El usuario no es administrador");
 			retorno = "/";
@@ -204,7 +213,7 @@ public class MainController {
 			nuevoUsuario.setRole("STUDENT");
 			String rawPassword = nuevoUsuario.getPassword();
 			nuevoUsuario.setPassword(encoder.encode(rawPassword));
-			UserRepo.save(nuevoUsuario);
+			userRepo.save(nuevoUsuario);
 			System.out.println(nuevoUsuario.getEmail());
 			
 			try {
@@ -238,7 +247,7 @@ public class MainController {
 	@GetMapping("/edit{id}")
 	public String editarUsuarioForm(@PathVariable("id") String id, Model model) {
 		String retorno="";
-		Optional<Usuario> user = UserRepo.findById(id);
+		Optional<Usuario> user = userRepo.findById(id);
 		System.out.println("recogiendo el usuario"+ user.get().toString());
 		if (user.isPresent()) {
 			model.addAttribute("usuarioEdit", user.get());
@@ -256,7 +265,7 @@ public class MainController {
 		if (br.hasErrors()){
 			retorno = "form";
 		} else {
-			service.edit(editarUsuario);
+			userService.edit(editarUsuario);
 			retorno="redirect:/usersList";
 		}
 		
@@ -265,11 +274,11 @@ public class MainController {
 	
 	@GetMapping("/userlist/delete")
 	public String deleteUser(@RequestParam String id, Model model) {
-		Optional<Usuario> user = UserRepo.findById(id);
+		Optional<Usuario> user = userRepo.findById(id);
 		if (user.isPresent()) {
 			System.out.println("Se ha borrado al usuario: ");
 			System.out.println(user.get().getId().toString());
-			UserRepo.deleteById(user.get().getId());
+			userRepo.deleteById(user.get().getId());
 		} 
 		return "redirect:/usersList";
 		
@@ -517,5 +526,33 @@ public class MainController {
 		
 		return retorno;
 	}
+	
+	@GetMapping("/commentList")
+	public String listarComentarios(Model model) {
+		String retorno="";
+		List<Comentario> comments = commentRepo.findAll();
+		if (comments != null && !comments.isEmpty()) {
+			model.addAttribute("comments", comments);
+			retorno="commentList";
+		} else {
+			System.out.println("No se encontraron comentarios volviendo a index");
+			retorno="/";
+		}
+		return retorno;
+	}
+	
+	@GetMapping("/banComment{id}")
+	public String bannearComentario(@PathVariable String id) {
+		commentService.banComment(id);
+		return "redirect:/commentList";
+	}
+	
+	@GetMapping("/unbanComment{id}")
+	public String desbannearComentario(@PathVariable String id) {
+		commentService.unbanComment(id);
+		return "redirect:/commentList";
+	}
+	
+	
 	
 }
