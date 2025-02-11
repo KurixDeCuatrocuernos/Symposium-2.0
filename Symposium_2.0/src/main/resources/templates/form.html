@@ -105,8 +105,8 @@
 			<div class="form-group">
 			  <label class="col-md-4 control-label" for="password">Password*</label>
 			  <div class="col-md-5">
-			    <input id="password" name="password" type="password" placeholder="My_pasword-123" class="form-control input-md" th:value="${usuarioEdit == null ? '' : usuarioEdit.password}">
-			    <span class="help-block">Password with you want to log-in </span>
+			    <input id="password" name="password" type="password" placeholder="My_pasword-123" class="form-control input-md">
+			    <span class="help-block" th:text="${usuarioEdit != null ? 'If you don´t want to change it, let it in blank' : 'Password with you want to log-in'}"></span>
 			  </div>
 			</div>
 			
@@ -115,7 +115,7 @@
 			  <label class="col-md-4 control-label" for="repeatedPassword">Repeat Password*</label>
 			  <div class="col-md-5">
 			    <input id="repeatedPassword" name="repeatedPassword" type="password" placeholder="My_password-123" class="form-control input-md">
-			    <span class="help-block">Repeat your password for security</span>
+			    <span class="help-block" th:text="${usuarioEdit != null ? 'If you changed the password, repeat it, otherwise let it in black' : 'Repeat your password for security'}"></span>
 			  </div>
 			</div>
 			
