@@ -47,10 +47,20 @@ public class UserService implements UserDetailsService{
 		Optional<Usuario> user = userRepo.findById(edit.getId());
 		
 		if(user.isPresent()) {
+			
+			System.out.println("Contraseña recogida: "+edit.getPassword());
+			if(edit.getPassword().isBlank()) {
+				System.out.println("No se insertó contraseña, recuperando la anterior...");
+				// En caso de no modificar la contraseña se deja la que tenía
+				Optional<Usuario> userpass = userRepo.findById(edit.getId());
+				edit.setPassword(userpass.get().getPassword());
+			} else {
+				System.out.println("Cambiando contraseña...");
+				String pass = encoder.encode(edit.getPassword());
+				edit.setPassword(pass);
+				System.out.println("Se guardará la contraseña: "+pass);
+			}
 			userRepo.deleteById(user.get().getId());
-			String pass = encoder.encode(edit.getPassword());
-			edit.setPassword(pass);
-			System.out.println("Se guardará la contraseña: "+pass);
 			userRepo.save(edit);
 		} else {userRepo.save(edit);}
 		
