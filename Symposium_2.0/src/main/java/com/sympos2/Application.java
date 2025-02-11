@@ -1,7 +1,10 @@
 package com.sympos2;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,8 +12,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.sympos2.dto.RespuestaComentario;
+import com.sympos2.models.Comentario;
 import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
+import com.sympos2.repositories.ComentarioRepository;
 import com.sympos2.repositories.ObraRepository;
 import com.sympos2.repositories.UserRepository;
 
@@ -21,26 +27,28 @@ public class Application {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(Application.class, args);
 		
-		// Test of Usuario insertion in DB 
+		// Test for Usuario insertion in DB 
 		
 		var userRepo = context.getBean(UserRepository.class);
 		
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		
 		userRepo.deleteAll();
-		
-		var user1 = new Usuario(null, "Juan", LocalDate.of(1998, 3, 4), "juan@correo.com", encoder.encode("12345"), null, "estudiantePrueba", "escuelaPrueba");
-		var user2 = new Usuario(null, "Elena", LocalDate.of(2002, 2, 6), "elena@correo.com", encoder.encode("12345"), null, "estudiantePrueba", "escuelaPrueba");
-		var user3 = new Usuario(null, "Lucas", LocalDate.of(2980, 2, 9), "lucas@correo.com", encoder.encode("12345"), null, "estudiantePrueba", "escuelaPrueba");
-		var user4 = new Usuario(null, "Adam", LocalDate.of(1996, 7, 9), "adam@correo.com", encoder.encode("12345"), null, "estudiantePrueba", "escuelaPrueba");
+		// Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role, String studies, String school)
+		var user1 = new Usuario(null, "Juan", LocalDate.of(1998, 3, 4), "juan@correo.com", encoder.encode("12345"), null, "student", "estudiantePrueba", "escuelaPrueba");
+		var user2 = new Usuario(null, "Elena", LocalDate.of(2002, 2, 6), "elena@correo.com", encoder.encode("12345"), null, "TITLED", "estudiantePrueba", "escuelaPrueba");
+		var user3 = new Usuario(null, "Lucas", LocalDate.of(2980, 2, 9), "lucas@correo.com", encoder.encode("12345"), null, "STUDENT", "estudiantePrueba", "escuelaPrueba");
+		var user4 = new Usuario(null, "Adam", LocalDate.of(1996, 7, 9), "adam@correo.com", encoder.encode("12345"), null, "titled", "estudiantePrueba", "escuelaPrueba");
 		// String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role, Long phone
-		var user5 = new Usuario(null, "UsuarioAdmin", LocalDate.of(1998, 2, 1), "admin@correo.com", encoder.encode("admin"),null, "ADMIN", 555555555L);
+		var user5 = new Usuario(null, "UsuarioAdmin", LocalDate.of(1998, 2, 1), "admin@correo.com", encoder.encode("admin"),null, "ADmin", 555555555L);
 		
 		userRepo.saveAll(List.of(user1, user2, user3, user4, user5));
 		
-		System.out.println("Usuarios: \n"+userRepo.findAll());
+		System.out.println("Usuarios:");
+		userRepo.findAll().forEach(System.out::println);
+
 		
-		// Test of Obra insertion in DB
+		// Test for Obra insertion in DB
 		
 		var obraRepo = context.getBean(ObraRepository.class);
 		
@@ -68,10 +76,59 @@ public class Application {
 		
 		obraRepo.saveAll(List.of(Obra1, Obra2, Obra3, Obra4, Obra5, Obra6, Obra7, Obra8, Obra9, Obra10, Obra11, Obra12, Obra13, Obra14, Obra15, Obra16, Obra17, Obra18, Obra19));
 		
-		System.out.println("Obras: \n"+obraRepo.findAll());
+		System.out.println("Obras:");
+		obraRepo.findAll().forEach(System.out::println);
+
 		
-		// Revisar que las comillas y la List no de fallo
-	
+		// test for Comentario
+		
+		var commentRepo = context.getBean(ComentarioRepository.class);
+		
+		commentRepo.deleteAll();
+		
+		var com1 = new Comentario(null, "Me encanta este libro", "Qué bueno es El Banquete de Platón, es el mejor libro que he leído", LocalDateTime.now(), 100, "COMMENT", 9788424926373L, "67aa2b4b445b6647f1a2dad4");
+		var com2 = new Comentario(null, "Está bien este libro", "Propone perspectivas interesantes respecto al amor y sus aplicaciones en otros campos", LocalDateTime.now(), 80, "COMMENT", 9788424926373L,"67aa2b4b445b6647f1a2dad6");
+		var com3 = new Comentario(null, "Es una obra famosa y ya", "Su fama se debe a que unos pedantes les gusta y ya, es aburrido y monótono, no entiendo quién querría leerlo", LocalDateTime.now(), 0, "Comment", 9788424926373L, "67aa2b4b445b6647f1a2dad7");
+		var com4 = new Comentario(null, "Un clásico, eso es exactamente", "Sin duda fue importante y abrió camino a otras obras futuras, pero hay autres que han cambiado las perspectivas que propone, como Herbert Marcuse en Eros y civilización (si bien debe su origen a esta obra, claro)", LocalDateTime.now(), 65, "COmmenT", 9788424926373L, "67aa2b4b445b6647f1a2dad5");
+		
+		var com5 = new Comentario(null, "Un artículo clave para entender la obra original", "Expone una interpretación nueva respecto a la intervención de Aristófanes, el enemigo de Platón, en principio, mostrando que eso no es exactamente así, de hecho abre una nueva mirada respecto al diálogo precisamente a partir de la intervención de Aristófanes en el diálogo, un 10", LocalDateTime.now(), 100, "comment", 9788499402147L, "67aa2b4b445b6647f1a2dad4");
+		var com6 = new Comentario(null, "Una ayuda para entender El Banquete", "Una ayuda tanto para entender la obra original, como para entendernos a nosotros mismos", LocalDateTime.now(), 90, "comment", 9788499402147L, "67aa2b4b445b6647f1a2dad6");
+		var com7 = new Comentario(null, "Es un Plomazo", "Me pidieron leerlo y aún no sé por qué", LocalDateTime.now(), 0, "comment", 9788499402147L, "67aa2b4b445b6647f1a2dad7");
+		var com8 = new Comentario(null, "Muy útil y estimulante", "Aporta una vision diferente respecto al Banquete de Platón, aporta una interpretación antropológica al mito que cuenta el personaje Aristófanes y explica el por qué Platón lo dibuja de la manera en que lo hace y aporta otras posibilidades interpretativas al mismo tiempo, si buscas entender por qué Platón nos muestra al poeta Aristófanes de la manera en que lo hace, te será muy útil", LocalDateTime.now(), 95, "COMMENT", 9788499402147L, "67aa2b4b445b6647f1a2dad5");
+		
+		commentRepo.saveAll(List.of(com1, com2, com3, com4, com5, com6, com7, com8));
+		
+		//Comentario(String id, String texto, LocalDate fecha, String tipo, Long obra, String usuario, String comment)
+		Optional<Comentario> commentId;
+		Optional<RespuestaComentario> answerId;
+		
+		commentId = commentRepo.findByObraAndUsuario(9788424926373L, "67aa2b4b445b6647f1a2dad4");
+		// Responde a com1
+		var resp1 = new Comentario(null, "No estoy para nada de acuerdo con lo que dices respecto a este libro, es aburrido, si te gusta eres tonto", LocalDateTime.now(), "ANSWER", "67aa2b4b445b6647f1a2dad7", commentId.get().getId());
+		commentRepo.save(resp1);
+		
+		answerId = commentRepo.findByUsuarioAndTipo("67aa2b4b445b6647f1a2dad7", "ANSWER");
+		System.out.println("Comentario Recogido: "+commentId.get().toString());
+		// Responde a resp1
+		var resp2 = new Comentario(null, "Entiendo que no te guste, pero aquí no venimos a insultar a los demás, sino a hablar acerca de los libros y artículos, si no te gusta haz un comentario exponiendo tu opinión, no vengas a criticar las opiniones de los demás", LocalDateTime.now(), "Answer", "67aa2b4b445b6647f1a2dad4", commentId.get().getId());
+		commentRepo.save(resp2);
+		
+		commentId = commentRepo.findByObraAndUsuario(9788499402147L, "67aa2b4b445b6647f1a2dad5");
+		// Responde a com8
+		var resp3 = new Comentario(null, "¿No crees que fuerza la interpretación del personaje de Aristófanes al modelo popular?", LocalDateTime.now(), "ANSWER", "67aa2b4b445b6647f1a2dad6", commentId.get().getId());
+		commentRepo.save(resp3);
+		
+		answerId = commentRepo.findByUsuarioAndTipo("67aa2b4b445b6647f1a2dad6", "ANSWER");
+		// Responde a resp3
+		var resp4 = new Comentario(null, "Su interpretación quizá, pero sigue siendo útil para entender tanto el contexto de la obra, como para abrir una nueva interpretación, aunque, por supuesto, no está exento de crítica", LocalDateTime.now(), "ANSWER", "67aa2b4b445b6647f1a2dad5", commentId.get().getId());
+		commentRepo.save(resp4);
+		
+		System.out.println("Comentarios:");
+		commentRepo.findAll().forEach(System.out::println);
+		
+		System.out.println("Mostrando todos los comentarios del libro El Banquete: ");
+		System.out.println(commentRepo.findAllByObra(9788424926373L).toString());
+		
 	}
 	
 
