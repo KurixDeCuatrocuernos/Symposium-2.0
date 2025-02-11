@@ -71,7 +71,7 @@ public class Usuario implements UserDetails {
 	 * @param school the institution where the user is studying
 	 */
 
-	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar,
+	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
 			String studies, String school) {
 		this.id = id;
 		this.name = name;
@@ -81,7 +81,7 @@ public class Usuario implements UserDetails {
 		this.avatar = avatar;
 		this.studies = studies;
 		this.school = school;
-		this.role = "STUDENT";
+		this.role = role.toUpperCase();
 	}
 	/**
 	 * Constructor for creating an "Administrator" user with the specified attributes.
@@ -98,18 +98,6 @@ public class Usuario implements UserDetails {
 	 * @param avatar the avatar image URL of the user
 	 * @param phone the phone number of the user
 	 */
-	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar,
-			Long phone) {
-		this.id = id;
-		this.name = name;
-		this.fechaNac = fechaNac;
-		this.email = email;
-		this.password = password;
-		this.avatar = avatar;
-		this.phone = phone;
-		this.role = "ADMIN";
-	}
-	
 	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
 			Long phone) {
 		this.id = id;
@@ -119,7 +107,7 @@ public class Usuario implements UserDetails {
 		this.password = password;
 		this.avatar = avatar;
 		this.phone = phone;
-		this.role = role;
+		this.role = role.toUpperCase();
 	}
 	
 	/**
@@ -140,7 +128,7 @@ public class Usuario implements UserDetails {
 	 * @param title_date the date when the user obtained their title
 	 * @param title_img the image associated with the user's title
 	 */
-	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar,
+	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
 			String studies_title, String study_place, LocalDate title_date, String title_img) {
 		this.id = id;
 		this.name = name;
@@ -152,7 +140,7 @@ public class Usuario implements UserDetails {
 		this.study_place = study_place;
 		this.title_date = title_date;
 		this.title_img = title_img;
-		this.role="TITLED";
+		this.role= role.toUpperCase();
 	}
 	// Getters and Setters
 	public String getId() {
