@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title th:text="${obra.titulo}"></title>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function() {
     
@@ -41,6 +42,98 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+function confirmLogin(link) {
+    // Muestra el cuadro de confirmación para iniciar sesión
+    Swal.fire({
+        title: '¿Quieres iniciar sesión?',
+        text: 'Para comentar, necesitas iniciar sesión. ¿Quieres ir a la página de login?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, llevarme a login',
+        cancelButtonText: 'No, cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirige a la página de login
+            window.location.href = '/login'; 
+        }
+    });
+
+    return false; // Prevenir la redirección automática del enlace
+}
+
+function workComment(button) {
+    // Obtener los valores de obra y user desde los atributos data-*
+    const obraIsbn = button.getAttribute('data-obra');
+    const userId = button.getAttribute('data-user');
+
+    // Muestra el cuadro para comentar
+    Swal.fire({
+        title: 'Comentario: ',
+        html: `
+            <p>Escribe el título: <input id="titulo" type="text" placeholder="Título"></p>
+            <p>Escribe el texto: <textarea id="texto" placeholder="Texto"></textarea></p>
+            <p>Selecciona un número (0-100): 
+                <input id="slider" type="range" min="0" max="100" value="50" step="1" style="width: 100%;">
+                <span id="sliderValue">50</span>
+            </p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        didOpen: () => {
+            const slider = document.getElementById('slider');
+            const sliderValue = document.getElementById('sliderValue');
+            
+            // Actualiza el valor mostrado en tiempo real
+            slider.addEventListener('input', () => {
+                sliderValue.textContent = slider.value;
+            });
+        },
+        preConfirm: () => {
+            const tituloInput = document.getElementById('titulo').value;
+            const textoInput = document.getElementById('texto').value;
+            const numeroInput = document.getElementById('slider').value;
+
+            // Validación de los campos
+            if (!tituloInput || !textoInput || numeroInput === '') {
+                Swal.showValidationMessage('Todos los campos deben ser completados.');
+                return false;
+            }
+
+            // Imprimir resultados (opcional, puedes eliminar esto después)
+            console.log('Título:', tituloInput);
+            console.log('Texto:', textoInput);
+            console.log('Número:', numeroInput);
+
+            return {
+                titulo: tituloInput,
+                texto: textoInput,
+                numero: numeroInput
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Aquí hacemos la redirección con los parámetros que obtuvimos
+            const titulo = result.value.titulo;
+            const texto = result.value.texto;
+            const valoracion = result.value.numero;
+
+            // Redirigir a la URL con los parámetros correctos, usando '?' al principio y '&' entre ellos
+            const url = `/workComment/submit?obraId=${encodeURIComponent(obraIsbn)}&userId=${encodeURIComponent(userId)}&titulo=${encodeURIComponent(titulo)}&texto=${encodeURIComponent(texto)}&valoracion=${encodeURIComponent(valoracion)}`;
+            
+            // Redirigir a la URL formada
+            window.location.href = url;
+        }
+    });
+
+    return false; // Prevenir la redirección automática del enlace
+}
+
 </script>
 <style>
 #nav-suggest {
@@ -70,40 +163,108 @@ document.addEventListener("DOMContentLoaded", function() {
 			
 			</div>
 		</div>
+		<div th:if="${username != 'anonymousUser'}"><h2 th:text="${username}"></h2></div>
+		<div th:if="${username != 'anonymousUser'}"><h2 th:text="${user.id}"></h2></div>
+		<div th:if="${username == 'anonymousUser'}"><h2>Invitado</h2></div>
+		<h2 th:text="${comentar}"></h2>
 	</nav>
-	<table>
-		<thead>
-			<tr >
-				<th>ISBN</th>
-				<th>Title</th>
-				<th>Author</th>
-				<th>Publication Date</th>
-				<th>Publication Place</th>
-				<th>Editorial</th>
-				<th>Type</th>
-				<th>Abstract</th>
-				<th>Themes</th>
-				<th th:if="${obra.tipo == 'ARTICLE'}">First page</th>
-				<th th:if="${obra.tipo == 'ARTICLE'}">End page</th>
+	<div>
+		<table>
+			<thead>
+				<tr >
+					<th>ISBN</th>
+					<th>Title</th>
+					<th>Author</th>
+					<th>Publication Date</th>
+					<th>Publication Place</th>
+					<th>Editorial</th>
+					<th>Type</th>
+					<th>Abstract</th>
+					<th>Themes</th>
+					<th th:if="${obra.tipo == 'ARTICLE'}">First page</th>
+					<th th:if="${obra.tipo == 'ARTICLE'}">End page</th>
+					
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td th:text="${obra.isbn}"></td>
+					<td th:text="${obra.titulo}"></td>
+					<td th:text="${obra.autor}"></td>
+					<td th:text="${obra.fechaPublicacion}"></td>
+					<td th:text="${obra.lugar_publicacion}"></td>
+					<td th:text="${obra.editorial}"></td>
+					<td th:text="${obra.tipo}"></td>
+					<td th:text="${obra.abstracto}"></td>
+					<td th:text="${obra.temas}"></td>
+					<td th:text="${obra.paginaini}"></td>
+					<td th:text="${obra.paginafin}"></td>
+					
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<br>
+	<div th:if="${username != 'anonymousUser'}"> <!-- Si el usuario está logueado mostramos estos botones -->
+		<div th:if="${comentar == false}">
+			<button th:href="@{/workComment/submit}" th:onclick="workComment(this)" th:data-obra="${obra.isbn}" th:data-user="${user.id}">Comentar</button>
+		</div>
+	</div>
+	<div th:if="${username == 'anonymousUser'}"> <!-- Si el usuario no está logueado mostramos estos -->
+	<!-- th:onclick="'window.location.href=\''+@{/edit{id}(id=${usuario.id})}+'\''" -->
+		<button type="button" onclick="confirmLogin(this);" >Comentar</button>
+	</div>
+	<br>
+	<div>
+		<table>
+			<thead>
+				<!-- id, titulo, texto, fecha, valoracion, tipo, obra, id_usuario, usuario, comment -->
+				<tr>
+					<th>Titulo</th>
+					<th>Texto</th>
+					<th>Fecha</th>
+					<th>Valoración</th>
+					<th>Usuario: </th>
+					<th>Rol del usuario</th>
+					<th>Tipo</th>
+					<th>Respuestas</th>
+					
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="comentario : ${comments}">
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.comment.titulo : ''}"></td>
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.comment.texto : ''}"></td>
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.comment.fecha : ''}"></td>
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.comment.valoracion : ''}"></td>
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.username : ''}"></td>
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.userrole : ''}"></td>
+					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.comment.tipo : ''}"></td>
+					<td th:if="${username != 'anonymousUser'}">
+						<div th:if="${comentario.userid != user.id}">
+							<button>Responder</button>
+						</div>
+						<div th:if="${comentario.userid == user.id}">
+							<button>Editar</button>
+						</div>
+					</td>
+					<td th:if="${username == 'anonymousUser'}">
+						<button type="button" onclick="confirmLogin(this);" >Responder</button>
+					</td>
+					
+					<td id=answers th:each="answer : ${answers}">
+						<strong th:text="${answer.comment.comment == comentario.comment.id ? answer.username : ''}"></strong>
+						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.comment.texto : ''}"></p>
+						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.comment.fecha : ''}"></p>
+						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.userrole : ''}"></p>
+					</td>
+				</tr>
 				
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td th:text="${obra.isbn}"></td>
-				<td th:text="${obra.titulo}"></td>
-				<td th:text="${obra.autor}"></td>
-				<td th:text="${obra.fechaPublicacion}"></td>
-				<td th:text="${obra.lugar_publicacion}"></td>
-				<td th:text="${obra.editorial}"></td>
-				<td th:text="${obra.tipo}"></td>
-				<td th:text="${obra.abstracto}"></td>
-				<td th:text="${obra.temas}"></td>
-				<td th:text="${obra.paginaini}"></td>
-				<td th:text="${obra.paginafin}"></td>
-				
-			</tr>
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	</div>
+	
+	
+
 </body>
 </html>

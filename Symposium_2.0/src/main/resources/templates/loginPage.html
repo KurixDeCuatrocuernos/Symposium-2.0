@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
     <title>Login</title>
 </head>
@@ -23,5 +23,7 @@
             <p th:if="${param.logout}">Has cerrado sesión exitosamente.</p>
         </div>
     </form>
+    
+    <a th:href="@{/form}">¿Don't have account?, Register here</a>
 </body>
 </html>

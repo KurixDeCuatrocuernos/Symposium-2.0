@@ -24,24 +24,13 @@ public class Comentario {
 	
 	private Long obra;
 	
-	// these are optional (id_usuario only for testing)
+	// these are optional
 	
 	private String usuario;
-		
+	
 	private String comment;
 	
 	public Comentario() { }
-
-	public Comentario(String id, String titulo, String texto, LocalDateTime fecha, int valoracion, String tipo,
-			Long obra) {
-		this.id = id;
-		this.titulo = titulo;
-		this.texto = texto;
-		this.fecha = fecha;
-		this.valoracion = valoracion;
-		this.tipo = tipo.toUpperCase();
-		this.obra = obra;
-	}
 
 	public Comentario(String id, String titulo, String texto, LocalDateTime fecha, int valoracion, String tipo,
 			Long obra, String usuario) {
@@ -57,12 +46,13 @@ public class Comentario {
 	
 	// Constructor for Respuesta
 	
-	public Comentario(String id, String texto, LocalDateTime fecha, String tipo,
+	public Comentario(String id, String texto, LocalDateTime fecha, String tipo, Long obra,
 			String usuario, String comment) {
 		this.id = id;
 		this.texto = texto;
 		this.fecha = fecha;
 		this.tipo = tipo.toUpperCase();
+		this.obra = obra;
 		this.usuario = usuario;
 		this.comment = comment;
 	}
