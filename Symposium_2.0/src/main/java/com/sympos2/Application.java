@@ -2,7 +2,6 @@ package com.sympos2;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,48 +85,47 @@ public class Application {
 		
 		commentRepo.deleteAll();
 		
-		var com1 = new Comentario(null, "Me encanta este libro", "Qué bueno es El Banquete de Platón, es el mejor libro que he leído", LocalDateTime.now(), 100, "COMMENT", 9788424926373L, "67aa2b4b445b6647f1a2dad4");
-		var com2 = new Comentario(null, "Está bien este libro", "Propone perspectivas interesantes respecto al amor y sus aplicaciones en otros campos", LocalDateTime.now(), 80, "COMMENT", 9788424926373L,"67aa2b4b445b6647f1a2dad6");
-		var com3 = new Comentario(null, "Es una obra famosa y ya", "Su fama se debe a que unos pedantes les gusta y ya, es aburrido y monótono, no entiendo quién querría leerlo", LocalDateTime.now(), 0, "Comment", 9788424926373L, "67aa2b4b445b6647f1a2dad7");
-		var com4 = new Comentario(null, "Un clásico, eso es exactamente", "Sin duda fue importante y abrió camino a otras obras futuras, pero hay autres que han cambiado las perspectivas que propone, como Herbert Marcuse en Eros y civilización (si bien debe su origen a esta obra, claro)", LocalDateTime.now(), 65, "COmmenT", 9788424926373L, "67aa2b4b445b6647f1a2dad5");
 		
-		var com5 = new Comentario(null, "Un artículo clave para entender la obra original", "Expone una interpretación nueva respecto a la intervención de Aristófanes, el enemigo de Platón, en principio, mostrando que eso no es exactamente así, de hecho abre una nueva mirada respecto al diálogo precisamente a partir de la intervención de Aristófanes en el diálogo, un 10", LocalDateTime.now(), 100, "comment", 9788499402147L, "67aa2b4b445b6647f1a2dad4");
-		var com6 = new Comentario(null, "Una ayuda para entender El Banquete", "Una ayuda tanto para entender la obra original, como para entendernos a nosotros mismos", LocalDateTime.now(), 90, "comment", 9788499402147L, "67aa2b4b445b6647f1a2dad6");
-		var com7 = new Comentario(null, "Es un Plomazo", "Me pidieron leerlo y aún no sé por qué", LocalDateTime.now(), 0, "comment", 9788499402147L, "67aa2b4b445b6647f1a2dad7");
-		var com8 = new Comentario(null, "Muy útil y estimulante", "Aporta una vision diferente respecto al Banquete de Platón, aporta una interpretación antropológica al mito que cuenta el personaje Aristófanes y explica el por qué Platón lo dibuja de la manera en que lo hace y aporta otras posibilidades interpretativas al mismo tiempo, si buscas entender por qué Platón nos muestra al poeta Aristófanes de la manera en que lo hace, te será muy útil", LocalDateTime.now(), 95, "COMMENT", 9788499402147L, "67aa2b4b445b6647f1a2dad5");
+		var com1 = new Comentario(null, "Me encanta este libro", "Qué bueno es El Banquete de Platón, es el mejor libro que he leído", LocalDateTime.now(), 100, "COMMENT", 9788424926373L, user1.getId());
+		var com2 = new Comentario(null, "Está bien este libro", "Propone perspectivas interesantes respecto al amor y sus aplicaciones en otros campos", LocalDateTime.now(), 80, "COMMENT", 9788424926373L,user4.getId());
+		var com3 = new Comentario(null, "Es una obra famosa y ya", "Su fama se debe a que unos pedantes les gusta y ya, es aburrido y monótono, no entiendo quién querría leerlo", LocalDateTime.now(), 0, "Comment", 9788424926373L, user3.getId());
+		var com4 = new Comentario(null, "Un clásico, eso es exactamente", "Sin duda fue importante y abrió camino a otras obras futuras, pero hay autres que han cambiado las perspectivas que propone, como Herbert Marcuse en Eros y civilización (si bien debe su origen a esta obra, claro)", LocalDateTime.now(), 65, "COmmenT", 9788424926373L, user2.getId());
+		
+
+		var com5 = new Comentario(null, "Un artículo clave para entender la obra original", "Expone una interpretación nueva respecto a la intervención de Aristófanes, el enemigo de Platón, en principio, mostrando que eso no es exactamente así, de hecho abre una nueva mirada respecto al diálogo precisamente a partir de la intervención de Aristófanes en el diálogo, un 10", LocalDateTime.now(), 100, "comment", 9788499402147L, user1.getId());
+		var com6 = new Comentario(null, "Una ayuda para entender El Banquete", "Una ayuda tanto para entender la obra original, como para entendernos a nosotros mismos", LocalDateTime.now(), 90, "comment", 9788499402147L, user4.getId());
+		var com7 = new Comentario(null, "Es un Plomazo", "Me pidieron leerlo y aún no sé por qué", LocalDateTime.now(), 0, "comment", 9788499402147L, user3.getId());
+		var com8 = new Comentario(null, "Muy útil y estimulante", "Aporta una vision diferente respecto al Banquete de Platón, aporta una interpretación antropológica al mito que cuenta el personaje Aristófanes y explica el por qué Platón lo dibuja de la manera en que lo hace y aporta otras posibilidades interpretativas al mismo tiempo, si buscas entender por qué Platón nos muestra al poeta Aristófanes de la manera en que lo hace, te será muy útil", LocalDateTime.now(), 95, "COMMENT", 9788499402147L, user2.getId());
 		
 		commentRepo.saveAll(List.of(com1, com2, com3, com4, com5, com6, com7, com8));
 		
-		//Comentario(String id, String texto, LocalDate fecha, String tipo, Long obra, String usuario, String comment)
-		Optional<Comentario> commentId;
-		Optional<RespuestaComentario> answerId;
 		
-		commentId = commentRepo.findByObraAndUsuario(9788424926373L, "67aa2b4b445b6647f1a2dad4");
 		// Responde a com1
-		var resp1 = new Comentario(null, "No estoy para nada de acuerdo con lo que dices respecto a este libro, es aburrido, si te gusta eres tonto", LocalDateTime.now(), "ANSWER", "67aa2b4b445b6647f1a2dad7", commentId.get().getId());
-		commentRepo.save(resp1);
+		var resp1 = new Comentario(null, "No estoy para nada de acuerdo con lo que dices respecto a este libro, es aburrido, si te gusta eres tonto", LocalDateTime.now(), "ANSWER", com1.getObra(), user3.getId(), com1.getId());
 		
-		answerId = commentRepo.findByUsuarioAndTipo("67aa2b4b445b6647f1a2dad7", "ANSWER");
-		System.out.println("Comentario Recogido: "+commentId.get().toString());
 		// Responde a resp1
-		var resp2 = new Comentario(null, "Entiendo que no te guste, pero aquí no venimos a insultar a los demás, sino a hablar acerca de los libros y artículos, si no te gusta haz un comentario exponiendo tu opinión, no vengas a criticar las opiniones de los demás", LocalDateTime.now(), "Answer", "67aa2b4b445b6647f1a2dad4", commentId.get().getId());
-		commentRepo.save(resp2);
+		var resp2 = new Comentario(null, "Entiendo que no te guste, pero aquí no venimos a insultar a los demás, sino a hablar acerca de los libros y artículos, si no te gusta haz un comentario exponiendo tu opinión, no vengas a criticar las opiniones de los demás", LocalDateTime.now(), "Answer", resp1.getObra(), user1.getId(), com1.getId());
 		
-		commentId = commentRepo.findByObraAndUsuario(9788499402147L, "67aa2b4b445b6647f1a2dad5");
 		// Responde a com8
-		var resp3 = new Comentario(null, "¿No crees que fuerza la interpretación del personaje de Aristófanes al modelo popular?", LocalDateTime.now(), "ANSWER", "67aa2b4b445b6647f1a2dad6", commentId.get().getId());
-		commentRepo.save(resp3);
+		var resp3 = new Comentario(null, "¿No crees que fuerza la interpretación del personaje de Aristófanes al modelo popular?", LocalDateTime.now(), "ANSWER", com8.getObra(), user4.getId(), com8.getId());
 		
-		answerId = commentRepo.findByUsuarioAndTipo("67aa2b4b445b6647f1a2dad6", "ANSWER");
 		// Responde a resp3
-		var resp4 = new Comentario(null, "Su interpretación quizá, pero sigue siendo útil para entender tanto el contexto de la obra, como para abrir una nueva interpretación, aunque, por supuesto, no está exento de crítica", LocalDateTime.now(), "ANSWER", "67aa2b4b445b6647f1a2dad5", commentId.get().getId());
-		commentRepo.save(resp4);
+		var resp4 = new Comentario(null, "Su interpretación quizá, pero sigue siendo útil para entender tanto el contexto de la obra, como para abrir una nueva interpretación, aunque, por supuesto, no está exento de crítica", LocalDateTime.now(), "ANSWER", resp3.getObra(), user2.getId(), com8.getId());
 		
+		
+		
+		commentRepo.saveAll(List.of(resp1, resp2, resp3, resp4));
 		System.out.println("Comentarios:");
 		commentRepo.findAll().forEach(System.out::println);
 		
-		System.out.println("Mostrando todos los comentarios del libro El Banquete: ");
-		System.out.println(commentRepo.findAllByObra(9788424926373L).toString());
+		
+		List<Comentario> comments = commentRepo.findAll();
+		Optional<Usuario> user;
+		for (Comentario comment : comments) {
+			user = userRepo.findById(comment.getUsuario());
+			System.out.println("Usuario recogido: "+user.toString());
+		}
+		
 		
 	}
 	
