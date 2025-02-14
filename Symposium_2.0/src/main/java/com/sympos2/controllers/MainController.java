@@ -1,16 +1,23 @@
 package com.sympos2.controllers;
 
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
@@ -23,7 +30,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.sympos2.dto.ComentarioPintado;
 import com.sympos2.dto.ObraIsbnTituloProjection;
+import com.sympos2.dto.UsuarioComentarioPintado;
 import com.sympos2.models.Comentario;
 import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
@@ -78,6 +87,7 @@ public class MainController {
 		System.out.println("Estoy en la página principal");
 		if (auth != null && auth.isAuthenticated()) {
 			model.addAttribute("username", auth.getName());
+			model.addAttribute("userId", auth.getPrincipal());
 		} else {
 			model.addAttribute("username", "invitado");
 		}
@@ -91,6 +101,25 @@ public class MainController {
 	
 	@GetMapping("/workShow")
 	public String mostrarObra(@RequestParam() Long id, Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Usuario user = new Usuario();
+		if (auth != null && auth.isAuthenticated()) {
+			model.addAttribute("username", auth.getName());
+			if(auth.getName().equals("anonymousUser")) {
+				System.out.println("Usuario anónimo, credenciales predeterminados");
+				model.addAttribute("user", user);
+			} else {
+				System.out.println("usuario identificado");
+				user = (Usuario) auth.getPrincipal();
+				model.addAttribute("user", auth.getPrincipal());
+			}
+			
+		} else {
+			user = new Usuario();
+			user.setId("invitado");
+			model.addAttribute("username", "invitado");
+			model.addAttribute("user", user);
+		}
 		String retorno = "";
 		if (id != null) {
 			Optional<Obra> obra = obraRepo.findById(id);
@@ -101,6 +130,57 @@ public class MainController {
 				
 				System.out.println("mostrando obra: "+obra.get().toString());
 				model.addAttribute("obra", obra.get());
+				
+				Sort sortByDate = Sort.by(Order.desc("fecha"));
+				
+				List<Comentario> comments= commentRepo.findAllByObraAndTipo(obra.get().getIsbn(), "COMMENT", sortByDate);
+				model.addAttribute("comments", comments);
+				
+				List<ComentarioPintado> paintcomments = new ArrayList<ComentarioPintado>();
+				Optional<UsuarioComentarioPintado> userToPaint;
+				if (!comments.isEmpty()) {
+					for(Comentario comment : comments) {
+						
+						userToPaint = userRepo.findByIdOnlyIdAndNameAndRole(comment.getUsuario());
+						
+						if(userToPaint.isPresent()) {
+							paintcomments.add(new ComentarioPintado(comment,userToPaint.get().id(), userToPaint.get().name(), userToPaint.get().role()));
+						}
+					}
+					System.out.println("Comentarios enviados al modelo: ");
+					paintcomments.forEach(System.out::println);
+					model.addAttribute("comments", paintcomments);
+				} else {
+					System.out.println("No se encontraron comentarios para esa obra");
+				}
+				
+				sortByDate = Sort.by(Order.asc("fecha"));
+				List<ComentarioPintado> paintanswers = new ArrayList<ComentarioPintado>();
+				List<Comentario> answers = commentRepo.findAllByObraAndTipo(obra.get().getIsbn(), "ANSWER", sortByDate);
+				if (!answers.isEmpty()) {
+					for(Comentario answer : answers) {
+						userToPaint= userRepo.findByIdOnlyIdAndNameAndRole(answer.getUsuario());
+						
+						if(userToPaint.isPresent()) {
+							paintanswers.add(new ComentarioPintado(answer, userToPaint.get().id(), userToPaint.get().name(), userToPaint.get().role()));
+						}
+					}
+					System.out.println("Respuestas enviadas al modelo: ");
+					paintanswers.forEach(System.out::println);
+					model.addAttribute("answers", paintanswers);
+				} else {
+					System.out.println("No se encontraron respuestas para esa obra");
+				}
+				
+				boolean comentado=false;
+				for(Comentario comment : comments) {
+					System.out.println("Comparando el idUsuario del comentario: "+comment.getUsuario()+" con el id del usuario: "+user.getId());
+					if (comment.getUsuario().equals(user.getId())) {
+						comentado=true;
+					}
+				}
+				model.addAttribute("comentar", comentado);
+				
 				
 				retorno="workShow";		
 			} else {
@@ -115,6 +195,25 @@ public class MainController {
 		
 		return retorno;
 	}
+	
+	@GetMapping("/workComment/submit")
+	public String comentarObra(@RequestParam Long obraId, @RequestParam String userId, @RequestParam String titulo, @RequestParam String texto, @RequestParam int valoracion) {
+		String retorno = "";
+		
+		System.out.println("obra: "+obraId+" userId: "+userId+" titulo: "+titulo+" texto: "+texto+" valoracion: "+valoracion);
+		
+		Comentario comment = new Comentario(null, titulo, texto, LocalDateTime.now(), valoracion, "COMMENT", obraId, userId);
+		try {
+			commentRepo.save(comment);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		retorno = "redirect:/workShow?id="+obraId;
+		
+		return retorno;
+	}
+	
 	
 	@GetMapping("/login")
 	public String login(Model model) {
@@ -164,6 +263,13 @@ public class MainController {
 	// mappings for user
 	@GetMapping("/usersList")
 	public String listado(Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		System.out.println("Estoy en la página principal");
+		if (auth != null && auth.isAuthenticated()) {
+			model.addAttribute("username", auth.getName());
+		} else {
+			model.addAttribute("username", "invitado");
+		}
 		String retorno = "";
 		Usuario usuario = getCurrentUsuario();
 		if (usuario != null && "ADMIN".equals(usuario.getRole())) {
@@ -246,6 +352,7 @@ public class MainController {
 	
 	@GetMapping("/edit{id}")
 	public String editarUsuarioForm(@PathVariable("id") String id, Model model) {
+		
 		String retorno="";
 		Optional<Usuario> user = userRepo.findById(id);
 		System.out.println("recogiendo el usuario"+ user.get().toString());
