@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		</div>
 	</nav>
 	<div th:if="${username != 'anonymousUser'}"><h2 th:text="${username}"></h2></div>
+	<div th:if="${username != 'anonymousUser'}"><h2 th:text="${userId.id}"></h2></div>
 	<div th:if="${username == 'anonymousUser'}"><h2>Invitado</h2></div>
 	<ul>
 		<li th:if="${username == 'anonymousUser'}"><a th:href="@{/form}">Registrarse</a></li>
