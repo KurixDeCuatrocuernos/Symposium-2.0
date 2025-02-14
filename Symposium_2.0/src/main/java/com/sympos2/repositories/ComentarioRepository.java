@@ -3,6 +3,7 @@ package com.sympos2.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.sympos2.dto.RespuestaComentario;
@@ -17,6 +18,8 @@ public interface ComentarioRepository extends MongoRepository<Comentario, String
 	Optional<RespuestaComentario> findByUsuarioAndTipo(String usuario, String tipo);
 	
 	List<Comentario> findAllByObra(Long obra);
+	
+	List<Comentario> findAllByObraAndTipo(Long obra, String tipo, Sort sort);
 	
 	List<Comentario> findAllByUsuario(String usuario);
 	
