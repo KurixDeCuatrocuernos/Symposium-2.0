@@ -60,7 +60,6 @@ public class UserService implements UserDetailsService{
 				edit.setPassword(pass);
 				System.out.println("Se guardará la contraseña: "+pass);
 			}
-			userRepo.deleteById(user.get().getId());
 			userRepo.save(edit);
 		} else {userRepo.save(edit);}
 		
