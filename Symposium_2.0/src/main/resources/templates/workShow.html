@@ -105,11 +105,6 @@ function workComment(button) {
                 return false;
             }
 
-            // Imprimir resultados (opcional, puedes eliminar esto después)
-            console.log('Título:', tituloInput);
-            console.log('Texto:', textoInput);
-            console.log('Número:', numeroInput);
-
             return {
                 titulo: tituloInput,
                 texto: textoInput,
@@ -118,21 +113,202 @@ function workComment(button) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Aquí hacemos la redirección con los parámetros que obtuvimos
             const titulo = result.value.titulo;
             const texto = result.value.texto;
             const valoracion = result.value.numero;
 
-            // Redirigir a la URL con los parámetros correctos, usando '?' al principio y '&' entre ellos
-            const url = `/workComment/submit?obraId=${encodeURIComponent(obraIsbn)}&userId=${encodeURIComponent(userId)}&titulo=${encodeURIComponent(titulo)}&texto=${encodeURIComponent(texto)}&valoracion=${encodeURIComponent(valoracion)}`;
-            
-            // Redirigir a la URL formada
-            window.location.href = url;
+            // Crear un formulario con los parámetros necesarios
+            const formData = new FormData();
+            formData.append('obraId', obraIsbn);
+            formData.append('userId', userId); 
+            formData.append('titulo', titulo);
+            formData.append('texto', texto);
+            formData.append('valoracion', valoracion);
+
+            // Enviar los datos usando fetch con método POST
+            fetch('/workComment/submit', {
+                method: 'POST',
+                body: formData // Enviar los datos como formulario
+            })
+            .then(response => response.text())  // Procesar la respuesta del servidor
+            .then(data => {
+                // Mostrar el mensaje de éxito
+                Swal.fire('Comentario enviado', '', 'success').then(() => {
+                    // Redirigir después de un pequeño retraso
+                    window.location.href = data;  // Aquí data es la URL que nos ha enviado el servidor
+                });
+            })
+            .catch(error => {
+                // Manejo de errores
+                Swal.fire('Error', 'Ocurrió un error al enviar el comentario', 'error');
+                console.error('Error:', error);
+            });
         }
     });
 
     return false; // Prevenir la redirección automática del enlace
 }
+
+function answerComment(button) {
+    // Obtener los valores de obra, usuario y comentario desde los atributos data-*
+    const obraIsbn = button.getAttribute('data-obra');
+    const userId = button.getAttribute('data-user');
+    const commentId = button.getAttribute('data-comment');
+
+    // Muestra el cuadro para responder al comentario
+    Swal.fire({
+        title: 'Respuesta: ',
+        html: `
+            <p>Escribe el texto: <textarea id="texto" placeholder="Texto"></textarea></p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            const textoInput = document.getElementById('texto').value;
+
+            // Validación de los campos
+            if (!textoInput) {
+                Swal.showValidationMessage('El texto no puede estar vacío.');
+                return false;
+            }
+
+            // Retornar el texto ingresado
+            return { texto: textoInput };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const texto = result.value.texto;
+
+            // Crear un formulario con los parámetros necesarios
+            const formData = new FormData();
+            formData.append('obraId', obraIsbn);
+            formData.append('userId', userId);
+            formData.append('commentId', commentId);
+            formData.append('texto', texto);
+
+            // Enviar los datos usando fetch con método POST
+            fetch('/answerComment/submit', {
+                method: 'POST',
+                body: formData // Enviar los datos como formulario
+            })
+            .then(response => response.text())  // Procesar la respuesta del servidor
+            .then(data => {
+                // Mostrar el mensaje de éxito y luego redirigir
+                Swal.fire('Respuesta enviada', '', 'success').then(() => {
+                    window.location.href = data;  // Redirigir a la URL que devuelve el backend
+                });
+            })
+            .catch(error => {
+                // Manejo de errores
+                Swal.fire('Error', 'Ocurrió un error al enviar la respuesta', 'error');
+                console.error('Error:', error);
+            });
+        }
+    });
+
+    return false;  // Prevenir la redirección automática del enlace
+}
+
+function editComment(button) {
+    const commentId = button.getAttribute('data-comment'); // Obtiene el commentId desde el atributo data-comment
+    const obraId = button.getAttribute('data-obra');
+
+    // Realizamos la petición al servidor usando fetch
+    fetch('/editComment?commentId=' + commentId + '&obraId=' + obraId, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',  // Queremos recibir JSON del servidor
+        }
+    })
+    .then(response => response.json())  // Convierte la respuesta en JSON
+    .then(data => {
+        if (data) {
+            // Usamos los datos del comentario en la ventana Swal.fire
+            Swal.fire({
+                title: 'Editar Comentario',
+                html: `
+                    <input id="titulo" type="text" class="swal2-input" value="${data.titulo}" placeholder="Título">
+                    <textarea id="texto" class="swal2-textarea" placeholder="Texto">${data.texto}</textarea>
+                    <p>Selecciona un número (0-100): 
+                        <input id="slider" type="range" min="0" max="100" value="${data.valoracion}" step="1" style="width: 100%;">
+                        <span id="sliderValue" value="${data.valoracion}"></span>
+                    </p>
+                `,
+                confirmButtonText: 'Guardar',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                didOpen: () => {
+                    const slider = document.getElementById('slider');
+                    const sliderValue = document.getElementById('sliderValue');
+                    
+                    // Actualiza el valor mostrado en tiempo real
+                    slider.addEventListener('input', () => {
+                        sliderValue.textContent = slider.value;
+                    });
+                },
+                preConfirm: () => {
+                    const titulo = document.getElementById('titulo').value;
+                    const texto = document.getElementById('texto').value;
+                    const valor = document.getElementById('slider').value;
+
+                    // Validación del formulario
+                    if (!titulo || !texto || !valor) {
+                        Swal.showValidationMessage('Por favor completa todos los campos');
+                        return false;
+                    }
+
+                    return {
+                        titulo: titulo,
+                        texto: texto,
+                        valor: valor
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, enviar los datos actualizados al servidor
+                    const formData = new FormData();
+                    formData.append('commentId', commentId);  // Añadir commentId
+                    formData.append('titulo', result.value.titulo);  // Nuevo título
+                    formData.append('texto', result.value.texto);  // Nuevo texto
+                    formData.append('valoracion', result.value.valor);  // Nueva valoracion
+
+                    // Enviar los datos con fetch
+                    fetch('/updateComment', {
+                        method: 'POST',
+                        body: formData  // Enviamos los datos del formulario
+                    })
+                    .then(response => response.text())  // Procesamos la respuesta
+                    .then(data => {
+                        if (data.includes('Comentario actualizado')) {
+                            Swal.fire('Comentario actualizado', '', 'success')
+                            .then(() => {
+                                window.location.reload(); // Recargamos la página
+                            });
+                        } else {
+                            Swal.fire('Error', 'Hubo un problema al actualizar el comentario', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'Ocurrió un error al actualizar el comentario', 'error');
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        } else {
+            Swal.fire('Error', 'No se encontró el comentario', 'error');
+        }
+    })
+    .catch(error => {
+        Swal.fire('Error', 'Ocurrió un error al obtener el comentario', 'error');
+        console.error('Error:', error);
+    });
+}
+
+
 
 </script>
 <style>
@@ -152,6 +328,14 @@ function workComment(button) {
 #nav-suggest a:hover {
     background-color: #f0f0f0; /* Cambia el color al pasar el ratón */
 }
+  #answers {
+    display: block;
+  }
+
+  #answers p {
+    display: block;
+    margin: 10px 0;
+  }
 </style>
 <body>
 
@@ -241,11 +425,11 @@ function workComment(button) {
 					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.userrole : ''}"></td>
 					<td th:text="${comentario.comment.tipo == 'COMMENT' ? comentario.comment.tipo : ''}"></td>
 					<td th:if="${username != 'anonymousUser'}">
-						<div th:if="${comentario.userid != user.id}">
-							<button>Responder</button>
-						</div>
+					
+						<button th:href="@{/workAnswer/submit}" th:onclick="answerComment(this)" th:data-obra="${obra.isbn}" th:data-user="${user.id}" th:data-comment="${comentario.comment.id}">Responder</button>
+							
 						<div th:if="${comentario.userid == user.id}">
-							<button>Editar</button>
+							<button th:href="@{/editComment}" th:onclick="editComment(this)" th:data-obra="${obra.isbn}" th:data-comment="${comentario.comment.id}">Editar</button>
 						</div>
 					</td>
 					<td th:if="${username == 'anonymousUser'}">
@@ -257,14 +441,12 @@ function workComment(button) {
 						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.comment.texto : ''}"></p>
 						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.comment.fecha : ''}"></p>
 						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.userrole : ''}"></p>
+						<p th:if="${answer.comment.comment == comentario.comment.id and username == 'anonymousUser'}"><button type="button" onclick="confirmLogin(this);" >Responder</button></p>
+						<p th:if="${answer.comment.comment == comentario.comment.id and username != 'anonymousUser'}"><button th:href="@{/workAnswer/submit}" th:onclick="answerComment(this)" th:data-obra="${obra.isbn}" th:data-user="${user.id}" th:data-comment="${comentario.comment.id}">Responder</button></p>
 					</td>
 				</tr>
-				
 			</tbody>
 		</table>
 	</div>
-	
-	
-
 </body>
 </html>

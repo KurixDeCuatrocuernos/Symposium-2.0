@@ -1,23 +1,22 @@
 package com.sympos2.controllers;
 
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sympos2.dto.ComentarioPintado;
@@ -106,10 +106,10 @@ public class MainController {
 		if (auth != null && auth.isAuthenticated()) {
 			model.addAttribute("username", auth.getName());
 			if(auth.getName().equals("anonymousUser")) {
-				System.out.println("Usuario anónimo, credenciales predeterminados");
+//				System.out.println("Usuario anónimo, credenciales predeterminados");
 				model.addAttribute("user", user);
 			} else {
-				System.out.println("usuario identificado");
+//				System.out.println("usuario identificado");
 				user = (Usuario) auth.getPrincipal();
 				model.addAttribute("user", auth.getPrincipal());
 			}
@@ -125,10 +125,10 @@ public class MainController {
 			Optional<Obra> obra = obraRepo.findById(id);
 			if (obra != null && !obra.isEmpty()) {
 				List<ObraIsbnTituloProjection> suggestions = obraRepo.findAllIsbnAndTitulo();
-				System.out.println("sugerencias: "+suggestions.toString());
+//				System.out.println("sugerencias: "+suggestions.toString());
 				model.addAttribute("suggestWorks",suggestions);
 				
-				System.out.println("mostrando obra: "+obra.get().toString());
+//				System.out.println("mostrando obra: "+obra.get().toString());
 				model.addAttribute("obra", obra.get());
 				
 				Sort sortByDate = Sort.by(Order.desc("fecha"));
@@ -147,8 +147,8 @@ public class MainController {
 							paintcomments.add(new ComentarioPintado(comment,userToPaint.get().id(), userToPaint.get().name(), userToPaint.get().role()));
 						}
 					}
-					System.out.println("Comentarios enviados al modelo: ");
-					paintcomments.forEach(System.out::println);
+//					System.out.println("Comentarios enviados al modelo: ");
+//					paintcomments.forEach(System.out::println);
 					model.addAttribute("comments", paintcomments);
 				} else {
 					System.out.println("No se encontraron comentarios para esa obra");
@@ -165,8 +165,8 @@ public class MainController {
 							paintanswers.add(new ComentarioPintado(answer, userToPaint.get().id(), userToPaint.get().name(), userToPaint.get().role()));
 						}
 					}
-					System.out.println("Respuestas enviadas al modelo: ");
-					paintanswers.forEach(System.out::println);
+//					System.out.println("Respuestas enviadas al modelo: ");
+//					paintanswers.forEach(System.out::println);
 					model.addAttribute("answers", paintanswers);
 				} else {
 					System.out.println("No se encontraron respuestas para esa obra");
@@ -174,7 +174,7 @@ public class MainController {
 				
 				boolean comentado=false;
 				for(Comentario comment : comments) {
-					System.out.println("Comparando el idUsuario del comentario: "+comment.getUsuario()+" con el id del usuario: "+user.getId());
+//					System.out.println("Comparando el idUsuario del comentario: "+comment.getUsuario()+" con el id del usuario: "+user.getId());
 					if (comment.getUsuario().equals(user.getId())) {
 						comentado=true;
 					}
@@ -196,25 +196,91 @@ public class MainController {
 		return retorno;
 	}
 	
-	@GetMapping("/workComment/submit")
-	public String comentarObra(@RequestParam Long obraId, @RequestParam String userId, @RequestParam String titulo, @RequestParam String texto, @RequestParam int valoracion) {
-		String retorno = "";
+	@PostMapping("/workComment/submit")
+	public ResponseEntity<String> comentarObra(@RequestParam Long obraId, @RequestParam String userId, @RequestParam String titulo, @RequestParam String texto, @RequestParam int valoracion) {
+
+	    String retorno = "";
+	    try {
+	    	
+	        Comentario comment = new Comentario(null, titulo, texto, LocalDateTime.now(), valoracion, "COMMENT", obraId, userId);
+	        commentRepo.save(comment);
+
+	        // en este caso no recargamos la página para poder hacerlo en ella y mandar una confirmación
+	        retorno = "/workShow?id=" + obraId;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar el comentario.");
+	    }
+
+	    return ResponseEntity.ok(retorno);
+	}
+
+	
+	@PostMapping("/answerComment/submit")
+	public ResponseEntity<String> responderComentario(@RequestParam Long obraId, @RequestParam String userId, @RequestParam String commentId, @RequestParam String texto) {
+		String retorno = "/workShow?id="+obraId;
+		System.out.println("obra: "+obraId+" userId: "+userId+" commentId: "+" texto: "+texto);
 		
-		System.out.println("obra: "+obraId+" userId: "+userId+" titulo: "+titulo+" texto: "+texto+" valoracion: "+valoracion);
-		
-		Comentario comment = new Comentario(null, titulo, texto, LocalDateTime.now(), valoracion, "COMMENT", obraId, userId);
 		try {
+			/*String id, String texto, LocalDateTime fecha, String tipo, Long obra,
+			String usuario, String comment)*/
+			Comentario comment = new Comentario (null, texto, LocalDateTime.now(), "ANSWER", obraId, userId, commentId);
 			commentRepo.save(comment);
-		} catch(Exception e) {
+		} catch (Exception e){
 			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar el comentario.");
 		}
 		
-		retorno = "redirect:/workShow?id="+obraId;
 		
-		return retorno;
+		return ResponseEntity.ok(retorno);
+		
 	}
 	
+	@GetMapping("/editComment")
+	@ResponseBody
+	public ResponseEntity<Comentario> editarComentario(@RequestParam Long obraId, @RequestParam String commentId) {
+	    Optional<Comentario> comment;
+	    try {
+	        comment = commentRepo.findById(commentId);
+	        if (comment.isPresent()) {
+	            return ResponseEntity.ok(comment.get()); // Devuelve el comentario como JSON
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Si no se encuentra el comentario
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // Si hay un error
+	    }
+	}
 	
+	@PostMapping("/updateComment")
+	@ResponseBody
+	public ResponseEntity<String> updateComment(@RequestParam String commentId, @RequestParam String titulo, @RequestParam String texto, @RequestParam int valoracion) {
+	    ResponseEntity<String> retorno = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el comentario");
+		try {
+	    	System.out.println("actualizando comentario");
+	        Optional<Comentario> oldComment = commentRepo.findById(commentId);
+	        if (oldComment.isPresent()) {
+	        	Comentario newComment = oldComment.get();
+	        	try {
+	        		newComment.setTitulo(titulo);
+	        		newComment.setTexto(texto);
+	        		newComment.setValoracion(valoracion);
+	        		commentRepo.save(newComment); 
+	        	} catch (Exception e) {
+	        		e.printStackTrace();
+	        	} 
+	            retorno = ResponseEntity.ok("Comentario actualizado");
+	        } else {
+	        	System.out.println("no se puede actualizar el comentario");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        retorno = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el comentario");
+	    }
+		return retorno;
+	}
+		
 	@GetMapping("/login")
 	public String login(Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -384,7 +450,11 @@ public class MainController {
 		Optional<Usuario> user = userRepo.findById(id);
 		if (user.isPresent()) {
 			System.out.println("Se ha borrado al usuario: ");
-			System.out.println(user.get().getId().toString());
+			System.out.println(user.get().getId().toString()+" y los comentarios y asociados");
+			List<Comentario> commentsDelete = commentRepo.findAllByUsuario(id);
+			for (Comentario comment : commentsDelete) {
+				commentRepo.deleteById(comment.getId());
+			}
 			userRepo.deleteById(user.get().getId());
 		} 
 		return "redirect:/usersList";
@@ -493,7 +563,12 @@ public class MainController {
 		Optional<Obra> obra = obraRepo.findById(id);
 		if (obra.isPresent()) {
 			System.out.println("Se ha borrado la obra: ");
-			System.out.println(obra.get().getIsbn()+obra.get().getTitulo());
+			System.out.println(obra.get().getIsbn()+obra.get().getTitulo()+"\n y los comentarios y respuestas asociados a ella");
+			
+			List<Comentario> commentsDelete = commentRepo.findAllByObra(id); // recogemos todos los comentarios y respuestas de esa obra para borrarlos y evitar entradas fantasma
+			for (Comentario comment : commentsDelete) {
+				commentRepo.deleteById(comment.getId());
+			}
 			obraRepo.deleteByIsbn(obra.get().getIsbn());
 		} 
 		return "redirect:/workList";

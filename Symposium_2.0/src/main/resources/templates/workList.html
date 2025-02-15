@@ -17,11 +17,11 @@ function confirmDelete(link) {
 
     // Muestra el cuadro de confirmación con el nombre del usuario
     Swal.fire({
-        title: '¿Estás seguro de que deseas borrar este usuario?',
-        html: `Escribe el nombre del usuario <strong>${titulo}</strong> para confirmar.`,
+        title: '¿Estás seguro de que deseas borrar esta obra? (se borrarán también los comentarios asociados)',
+        html: `Escribe el nombre de la obra <strong>${titulo}</strong> para confirmar.`,
         icon: 'warning',
         input: 'text',
-        inputPlaceholder: 'Escribe el nombre del usuario aquí...',
+        inputPlaceholder: 'Escribe el nombre de la obra aquí...',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
