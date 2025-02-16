@@ -17,6 +17,8 @@ public interface ComentarioRepository extends MongoRepository<Comentario, String
 	
 	Optional<RespuestaComentario> findByUsuarioAndTipo(String usuario, String tipo);
 	
+	List<Comentario> findAllByComment(String comment);
+	
 	List<Comentario> findAllByObra(Long obra);
 	
 	List<Comentario> findAllByObraAndTipo(Long obra, String tipo, Sort sort);

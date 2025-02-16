@@ -214,7 +214,28 @@ public class MainController {
 
 	    return ResponseEntity.ok(retorno);
 	}
-
+	
+	@GetMapping("/workShow/deleteComment")
+	public String borrarComentario(@RequestParam String id, @RequestParam String obraId) {
+		String retorno ="redirect:/workShow?id="+obraId;
+		
+		try {
+			List<Comentario> answers = commentRepo.findAllByComment(id);
+			if(!answers.isEmpty()) {
+				System.out.println("Respuestas asociadas borradas");
+				commentRepo.deleteAll(answers);
+			} else {
+				System.out.println("No se encontraron respuestas asociadas que borrar");
+			}
+			commentRepo.deleteById(id);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			retorno="/errorPage";
+		}
+		
+		return retorno;
+	}
 	
 	@PostMapping("/answerComment/submit")
 	public ResponseEntity<String> responderComentario(@RequestParam Long obraId, @RequestParam String userId, @RequestParam String commentId, @RequestParam String texto) {
@@ -723,14 +744,20 @@ public class MainController {
 		return retorno;
 	}
 	
-	@GetMapping("/banComment{id}")
-	public String bannearComentario(@PathVariable String id) {
-		commentService.banComment(id);
-		return "redirect:/commentList";
+	@GetMapping("/banComment")
+	public String bannearComentario(@RequestParam String commentId, @RequestParam Long obraId, @RequestParam String origin) {
+		String retorno="";
+		commentService.banComment(commentId);
+		if (origin.equals("workShow")) {
+			retorno = "redirect:/workShow?id="+obraId; 
+		} else {
+			retorno = "redirect:/commentList";
+		}
+		return retorno;
 	}
 	
-	@GetMapping("/unbanComment{id}")
-	public String desbannearComentario(@PathVariable String id) {
+	@GetMapping("/unbanComment")
+	public String desbannearComentario(@RequestParam String id) {
 		commentService.unbanComment(id);
 		return "redirect:/commentList";
 	}

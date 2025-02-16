@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <title>List Comments</title>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+function banComment(button){
+	const comment = button.getAttribute('data-comment');
+	const obraId = button.getAttribute('data-obra');
+	
+	 Swal.fire({
+	        title: '¿Seguro que quieres bannear este comentario?',
+	        text: 'Sólo podrá ser desbanneado en workList y se ocultarán las respuestas asociadas almacenadas',
+	        icon: 'question',
+	        showCancelButton: true,
+	        confirmButtonColor: '#3085d6',
+	        cancelButtonColor: '#d33',
+	        confirmButtonText: 'Sí, bannear el comentario',
+	        cancelButtonText: 'No, cancelar'
+	    }).then((result) => {
+	        if (result.isConfirmed) {
+	            // Redirige a la url para bannear
+	            window.location.href = '/banComment?commentId='+comment+'&obraId=0000000&origin=commentList'; 
+	        }
+	    });
+}
+function unbanComment(button){
+	const comment = button.getAttribute('data-comment');
+	
+	window.location.href = '/unbanComment?id='+comment; 
+}
+</script>
 <body>
 	<table>
 		<thead>
@@ -26,19 +54,14 @@
 				<td th:text="${comment.tipo}"></td>
 				
 				<td>
-					<!-- Aquí hubo que mezclar Thymeleaf con JavaScript porque Thymeleaf no leía una expresión ternaria tan compleja con urls -->
-				    <button type="button" href="#" 
-				       th:onclick="|if(${#strings.startsWith(comment.tipo, 'BANNED')}) {
-				                       window.location.href='@{/unbanComment{id}(id=${comment.id})}';
-				                   } else {
-				                       window.location.href='@{/banComment{id}(id=${comment.id})}';
-				                   }|"
-				       th:text="${#strings.startsWith(comment.tipo, 'BANNED') ? 'Unban Comment' : 'Ban Comment'}">
-				        Cambiar Estado
-				    </button>
+				<!-- Aquí hubo que mezclar Thymeleaf con JavaScript porque Thymeleaf no leía una expresión ternaria tan compleja con urls -->    
+					<div th:if="${!#strings.startsWith(comment.tipo, 'BANNED')}">
+					    <button type="button" th:onclick="banComment(this)" th:data-comment="${comment.id}">Ban Comment</button>
+					</div>
+					<div th:if="${#strings.startsWith(comment.tipo, 'BANNED')}">
+					   <button type="button" th:onclick="unbanComment(this)" th:data-comment="${comment.id}">Unban Comment</button>
+					</div>
 				</td>
-
-	
 			</tr>
 		</tbody>
 	</table>

@@ -230,6 +230,7 @@ function editComment(button) {
             // Usamos los datos del comentario en la ventana Swal.fire
             Swal.fire({
                 title: 'Editar Comentario',
+                icon:'question',
                 html: `
                     <input id="titulo" type="text" class="swal2-input" value="${data.titulo}" placeholder="Título">
                     <textarea id="texto" class="swal2-textarea" placeholder="Texto">${data.texto}</textarea>
@@ -308,7 +309,47 @@ function editComment(button) {
     });
 }
 
+function deleteComment(button){
+	const comment = button.getAttribute('data-comment');
+	const obraId = button.getAttribute('data-obra');
+	
+	 Swal.fire({
+	        title: '¿Seguro que quieres borrar este comentario?',
+	        text: 'No podrás recuperarlo y se borrarán las respuestas asociadas almacenadas (si quieres modificar la valoración puedes editarlo)',
+	        icon: 'question',
+	        showCancelButton: true,
+	        confirmButtonColor: '#3085d6',
+	        cancelButtonColor: '#d33',
+	        confirmButtonText: 'Sí, borrar el comentario',
+	        cancelButtonText: 'No, cancelar'
+	    }).then((result) => {
+	        if (result.isConfirmed) {
+	            // Redirige a la página de login
+	            window.location.href = '/workShow/deleteComment?id='+comment+'&obraId='+obraId; 
+	        }
+	    });
+}
 
+function banComment(button){
+	const comment = button.getAttribute('data-comment');
+	const obraId = button.getAttribute('data-obra');
+	
+	 Swal.fire({
+	        title: '¿Seguro que quieres bannear este comentario?',
+	        text: 'Sólo podrá ser desbanneado en workList y se ocultarán las respuestas asociadas almacenadas',
+	        icon: 'question',
+	        showCancelButton: true,
+	        confirmButtonColor: '#3085d6',
+	        cancelButtonColor: '#d33',
+	        confirmButtonText: 'Sí, bannear el comentario',
+	        cancelButtonText: 'No, cancelar'
+	    }).then((result) => {
+	        if (result.isConfirmed) {
+	            // Redirige a la url para bannear
+	            window.location.href = '/banComment?commentId='+comment+'&obraId='+obraId+'&origin=workShow'; 
+	        }
+	    });
+}
 
 </script>
 <style>
@@ -430,6 +471,10 @@ function editComment(button) {
 							
 						<div th:if="${comentario.userid == user.id}">
 							<button th:href="@{/editComment}" th:onclick="editComment(this)" th:data-obra="${obra.isbn}" th:data-comment="${comentario.comment.id}">Editar</button>
+							<button th:href="@{/deleteComment}" th:onclick="deleteComment(this)" th:data-obra="${obra.isbn}" th:data-comment="${comentario.comment.id}">Borrar</button>
+						</div>
+						<div th:if="${user.role == 'ADMIN'}">
+							<button th:href="@{/banComment}" th:onclick="banComment(this)" th:data-comment="${comentario.comment.id}" th:data-obra="${obra.isbn}">Ban Comment</button>
 						</div>
 					</td>
 					<td th:if="${username == 'anonymousUser'}">
@@ -443,6 +488,9 @@ function editComment(button) {
 						<p th:text="${answer.comment.comment == comentario.comment.id ? answer.userrole : ''}"></p>
 						<p th:if="${answer.comment.comment == comentario.comment.id and username == 'anonymousUser'}"><button type="button" onclick="confirmLogin(this);" >Responder</button></p>
 						<p th:if="${answer.comment.comment == comentario.comment.id and username != 'anonymousUser'}"><button th:href="@{/workAnswer/submit}" th:onclick="answerComment(this)" th:data-obra="${obra.isbn}" th:data-user="${user.id}" th:data-comment="${comentario.comment.id}">Responder</button></p>
+						<div th:if="${answer.comment.comment == comentario.comment.id and user.id == answer.comment.usuario}">
+							<button th:href="@{/deleteComment}" th:onclick="deleteComment(this)" th:data-obra="${obra.isbn}" th:data-comment="${answer.comment.id}">Borrar</button>
+						</div>
 					</td>
 				</tr>
 			</tbody>
