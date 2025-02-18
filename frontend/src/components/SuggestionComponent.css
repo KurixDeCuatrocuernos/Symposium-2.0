@@ -1,0 +1,45 @@
+#searchContainer{
+    margin-top: 5px;
+    margin-left: 100px;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+#searchContainerInput{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+#buscadorObras{
+    background-color: rgb(114, 202, 253);
+    border: solid black 2px;
+    border-radius: 10%;
+    margin-top: 20px;
+    width: 31vw;
+    height: 25px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#searchResults {
+    background-color: azure;
+    width: max-content;
+    color: black;
+    border-radius: 2%;
+}
+
+#searchResults > div > a{
+    color: black;
+    text-decoration: none;
+    font-family: 'Baskerville';
+    font-weight: bold;
+    margin: 5px;
+}
+
+#searchImg{
+    width: 25px;
+    margin-left: 5px;
+    min-width: 25px;
+
+}
