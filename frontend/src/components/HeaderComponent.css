@@ -1,0 +1,103 @@
+/*HeaderComponent css*/
+#PrincipalLogoWeb{
+    margin-left:20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 5px;
+    width: 15vw;
+    height: 15vw;
+    min-width: 64px;
+    max-width: 128px;
+    min-height: 64px;
+    max-height: 128px;
+    border-radius: 25%;
+    border: solid black 2px
+}
+
+#PrincipalWelcomeText{
+    margin-top: 2vh;
+    max-height: 128px;
+    max-width: 20vw;
+    text-align: center;
+    font-family: "Baskerville";
+    font-style:italic;
+    color: azure;
+    width: 25vw;
+    height: 20vw;
+    font-size: clamp(16px, 5dvw, 55px);
+    text-decoration: underline;
+    text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black;
+
+}
+
+#nav-div-ancle{
+    display:flex;
+    flex-direction: row;
+}
+
+#nav-container{
+    height: 150px;
+    background-color: rgb(21,74,152);
+    display: flex;
+    flex-flow: row;
+}
+
+#nav-div-Linkcontainer{
+   display: flex;
+   flex-direction: row;
+}
+#nav-div-Linkcontainer-List{
+    display: flex; 
+    flex-direction: row;
+    list-style: none;
+    gap: 10px;
+}
+
+#nav-div-usercontainer{
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-right: 20px;
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#usuarioImagen{
+    float:inline-end;
+    width: 64px;
+    border: solid black 2px;
+    border-radius: 50%;
+    
+}
+
+#nonLoggedButtonContainer{
+    display:flex;
+    flex-direction: column;
+    margin: 5px;
+}
+
+#loginButton{
+    border: solid black 3px;
+    margin-bottom:5px;
+    padding: 5px;
+}
+
+#registerButton{
+    border: solid black 3px;
+    margin-top: 5px;
+    padding:5px;
+}
+
+#nav-div-adminTools{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 15vw;
+    width: 15vw; 
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+
+
