@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './AdminToolComponent.css'
 import React, { useState } from 'react';
 
@@ -25,9 +26,9 @@ function AdminToolComponent() {
             {isMenuOpen && (
                 <div id="devToolDropdown">
                     <ul  className={isMenuOpen ? 'open' : 'closed'}>
-                        <li><a href="/usersList">Users List</a></li>
-                        <li><a href="/workList">Writings List</a></li>
-                        <li><a href="/commentList">Comments List</a></li>
+                        <li><Link to="/UsersList">Users List</Link></li>
+                        <li><Link to="/WorkList">Writings List</Link></li>
+                        <li><Link to="/CommentList">Comments List</Link></li>
                     </ul>
                 </div>
             )}
