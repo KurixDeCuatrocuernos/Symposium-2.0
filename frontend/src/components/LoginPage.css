@@ -1,0 +1,54 @@
+#LoginContainer{
+    background-color: rgb(11, 87, 122);
+    border: solid black 5px;
+    border-radius: 9%;
+    min-width: 600px;
+    max-width: 700px;
+    min-height: 300px;
+    position: absolute;
+    left:25vw;
+    top: 25vh;
+}
+
+#formLogin{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.formLogin-label{
+    display: flex;
+    flex-direction: column;
+}
+
+.formLogin-input{
+    background-color: rgb(117, 174, 201);
+    color: black;
+    
+}
+
+.formLogin-span{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+#inputContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#submitButton{
+    color:azure;
+    background-color: rgba(6, 128, 6, 0.61);
+} 
+
+#cancelButton{
+    color:azure;
+    background-color: rgb(145, 0, 0);
+}
+
+.formLogin-message{
+    text-align: center;
+}
