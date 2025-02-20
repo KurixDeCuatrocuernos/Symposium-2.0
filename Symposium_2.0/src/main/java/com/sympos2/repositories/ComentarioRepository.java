@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
+import com.sympos2.dto.ComentarioValue;
 import com.sympos2.dto.RespuestaComentario;
 import com.sympos2.models.Comentario;
 
@@ -30,5 +32,8 @@ public interface ComentarioRepository extends MongoRepository<Comentario, String
 	List<Comentario> findAllByTipo(String tipo);
 	
 	List<Comentario> findAllOrderByFecha();
+	
+	@Query(value="{ 'obra' : ?0, 'tipo' : 'COMMENT' }", fields="{ 'valoracion' : 1 }")
+	List<Comentario> findAllByObraOnlyComment(Long obra);
 	
 }
