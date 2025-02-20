@@ -9,6 +9,9 @@ export default defineConfig({
       '/sugerencias': 'http://localhost:9000', // Redirige todas las peticiones a /sugerencias al backend
       '/getUserRole': 'http://localhost:9000', // Redirige todas las peticiones a /getUserRole al backend
       '/getUserAvatar': 'http://localhost:9000', // Redirige todas las peticiones a /getUserAvatar al backend
+      '/getLogin': 'http://localhost:9000',
+      '/getLogout': 'http://localhost:9000',
+      '/getWriting': 'http://localhost:9000',
     },
   },
 });

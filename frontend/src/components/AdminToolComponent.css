@@ -5,6 +5,10 @@
     z-index: 2;
     margin-top: 2px;
     transition: background-color 0.3s ease;
+    padding: 1px;
+    margin: 3px;
+    border: solid black 2px;
+    border-radius: 50%;
 }
 
 .open {
@@ -41,7 +45,7 @@
     padding: 2px;
 }
 
-#devToolDropdown > ul > li > a {
+#devToolDropdown > ul > li > a{
     color: black;
     text-decoration: none;
     font-family: 'Baskerville';

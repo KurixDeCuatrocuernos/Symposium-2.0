@@ -47,7 +47,8 @@ public interface UserRepository extends MongoRepository<Usuario, String> {
 	@Query(value="{}", fields="{id: 0, password: 0}")
 	List<Usuario> findAllExcludeIdAndPassword();
 	
-	@Query(value="{}", fields="{id: 1}")
-	Optional<Usuario> findByEmailOnlyId(String email); 
+	@Query(value="{ 'email' : ?0 }", fields="{ 'id' : 1 }")
+	Optional<Usuario> findByEmailOnlyId(String email);
+
 	
 }

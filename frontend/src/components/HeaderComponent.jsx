@@ -1,89 +1,72 @@
 import "./HeaderComponent.css";
-import SuggestionComponent from './SuggestionComponent';  // Asegúrate de importar SuggestionComponent correctamente
+import SuggestionComponent from './SuggestionComponent';
 import React, { useEffect, useState, useRef } from 'react';
-import AdminToolComponent from './AdminToolComponent'; // Asegúrate de importar tu componente
+import AdminToolComponent from './AdminToolComponent'; 
 
 function HeaderComponent() {
-    const devtool = true; // Solo por demostración, ajusta según tus necesidades.
+    const devtool = false;
     const adminDivRef = useRef(null);
     const userLoginRef = useRef(null);
 
-    // Estado para controlar si se debe mostrar las herramientas del admin
     const [showAdminTools, setShowAdminTools] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const [showLogoutMenu, setShowLogoutMenu] = useState(false);
 
-    // Definimos la función `tools` dentro del componente
-    const tools = async () => {
-        const adminDiv = adminDivRef.current;
-        const userLogin = userLoginRef.current;
-
-        // Función para obtener el rol del usuario
-        const fetchUserRole = async () => {
-            const response = await fetch(`/getUserRole`);
-            const data = await response.json();
-            if (data && data.role === 'ADMIN') {
-                console.log("El usuario es Administrador");
-                setShowAdminTools(true); // Activar la visualización de AdminToolComponent
-                paintUser(userLogin);
-            } else if (data && data.role === 'STUDENT') {
-                console.log("El usuario es estudiante");
-                paintUser(userLogin);
-            } else if (data && data.role === 'TITLED') {
-                console.log("El usuario es titulado");
-                paintUser(userLogin);
-            } else if (devtool === true) {
-                setShowAdminTools(true); // Activar la visualización de AdminToolComponent
-                paintUser(userLogin);
-            } else {
-                console.log("El usuario no se ha logueado");
-                paintLogin(userLogin);
-            }
-        }
-
-        // Llamamos a la función que obtiene el rol
-        await fetchUserRole();
-    };
-
-    // Llamamos a `tools` dentro del useEffect para que se ejecute una vez que el componente se haya montado
     useEffect(() => {
         tools();
     }, []);
 
-    // Pintar el contenido de login
-    const paintLogin = (userLogin) => {
-        if (userLogin) {
-            userLogin.innerHTML = `
-                <div id="nonLoggedButtonContainer">
-                    <button id="loginButton" onclick="window.location.href='/login'">Sign-up</button>
-                    <button id="registerButton" onclick="window.location.href='/register'">Register</button>
-                </div>
-            `;
+    const tools = async () => {
+        const fetchUserRole = async () => {
+            const response = await fetch(`/getUserRole`);
+            const data = await response.json();
+            
+            if (data === 'ADMIN') {
+                setShowAdminTools(true);
+                fetchUserAvatar();
+            } else if (['STUDENT', 'TITLED'].includes(data)) {
+                fetchUserAvatar();
+            } else if (devtool) {
+                setShowAdminTools(true);
+                fetchUserAvatar();
+            } else {
+                setUserData(null); // El usuario no está logueado
+            }
+        };
+        await fetchUserRole();
+    };
+
+    const fetchUserAvatar = async () => {
+        try {
+            const response = await fetch(`/getUserAvatar`);
+            const data = await response.json();
+            setUserData(data);
+        } catch (error) {
+            console.log('Error obteniendo avatar del usuario', error);
+            setUserData(null);
         }
     };
 
-    // Pintar el contenido del usuario
-    const paintUser = (userLogin) => {
-        try {
-            const fetchAvatar = async () => {
-                const response = await fetch(`/getUserAvatar`);
-                const data = await response.json();
-                if (data && data !== null) {
-                    userLogin.innerHTML = `
-                        <div id="userContainer">
-                            <img id="usuarioImagen" src="${data}" alt="Usuario" />
-                            <p id="userName">${data}</p> <!-- O usa un valor apropiado para el nombre -->
-                        </div>
-                    `;
-                } else {
-                    console.log("No se pudo acceder al avatar del usuario");
-                    userLogin.innerHTML = `
-                        <img id="usuarioImagen" src="./usuario.png" alt="Usuario" />
-                        <p>No UserName</p>
-                    `;
+    const handleLogoutClick = () => {
+        setShowLogoutMenu(!showLogoutMenu);
+    };
+
+    const handleLogout = () => {
+        const confirmLogout = window.confirm("¿Estás seguro de que quieres cerrar sesión?");
+        if (confirmLogout) {
+            const logout = async () => {
+                try {
+                    const response = await fetch("/getLogout", { method: "POST" });
+                    if (response.ok) {
+                        window.location.href = "/"; // Redirige a la página principal
+                    } else {
+                        console.error("Error al cerrar sesión");
+                    }
+                } catch (error) {
+                    console.error("Error en la petición de logout", error);
                 }
             };
-            fetchAvatar();  // Llamamos la función que obtiene el avatar
-        } catch (error) {
-            console.log('Error en paintUser', error);
+            logout(); // Llamamos a la función logout después de definirla
         }
     };
 
@@ -91,8 +74,8 @@ function HeaderComponent() {
         <header id="Header">
             <nav id="nav-container">
                 <div id="nav-div-LogoWelcome">
-                    <a id="nav-div-ancle" href="App.jsx">
-                        <img id="PrincipalLogoWeb" src="./IconoWeb.png" alt="Icono web Syposium creado a partir de imagenes web" />
+                    <a id="nav-div-ancle" href="/">
+                        <img id="PrincipalLogoWeb" src="./IconoWeb.png" alt="Icono web Syposium" />
                         <h1 id="PrincipalWelcomeText">Symposium Web 2.0</h1>
                     </a>
                 </div>
@@ -102,11 +85,36 @@ function HeaderComponent() {
                     </div>
                 </div>
                 <div id="nav-div-adminTools" ref={adminDivRef}>
-                    {/* Mostrar AdminToolComponent solo si showAdminTools es true */}
                     {showAdminTools && <AdminToolComponent />}
                 </div>
                 <div id="nav-div-usercontainer" ref={userLoginRef}>
-                    {/* Aquí se actualizará dinámicamente el contenido del usuario */}
+                    {userData ? (
+                        <div id="userProfile">
+                            <img id="logoutImg" 
+                                src="./engranaje.png" 
+                                alt="Configuración" 
+                                onClick={handleLogoutClick}
+                                style={{ cursor: "pointer", width: "40px" }} 
+                            />
+                            <img id="usuarioImagen" 
+                                src={userData.avatar || "./usuario.png"} 
+                                alt="Usuario" 
+                            />
+                            <p id="userName">{userData.username || "No UserName"}</p>
+
+                            {showLogoutMenu && (
+                                <div id="logoutMessage" className="logout-menu">
+                                    <p>¿Quieres cerrar sesión?</p>
+                                    <button onClick={handleLogout}>Cerrar sesión</button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div id="nonLoggedButtonContainer">
+                            <button id="loginButton" onClick={() => window.location.href='/Login'}>Sign-up</button>
+                            <button id="registerButton" onClick={() => window.location.href='/RegistryPage'}>Register</button>
+                        </div>
+                    )}
                 </div>
             </nav>
         </header>
@@ -114,6 +122,7 @@ function HeaderComponent() {
 }
 
 export default HeaderComponent;
+
 
 
 
