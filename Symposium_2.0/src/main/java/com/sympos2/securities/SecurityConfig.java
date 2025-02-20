@@ -65,14 +65,14 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/index/**", "/login/**", "/register/**", "/submit/**", "/form/**", "/workShow/**", "/App/**","/sugerencias/**","/getUserRole/**", "/getUserAvatar/**").permitAll() // here we can add the URL we want to have a free access.
+                                .requestMatchers("/", "/index/**", "/login/**", "/register/**", "/submit/**", "/form/**", "/workShow/**", "/App/**","/sugerencias/**","/getUserRole/**", "/getUserAvatar/**","/getLogin","/getLogout", "/getWriting/**").permitAll() // here we can add the URL we want to have a free access.
                                 .requestMatchers("/admin-zone-users-list/**","/edit/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
                         formLogin
 		                        .loginPage("/login")  // Define la URL de la página de login personalizada
-		                        .loginProcessingUrl("/loginPage/submit") // <- Este es el punto importante
+		                        .loginProcessingUrl("/login/submit") // <- Este es el punto importante
 		                        .defaultSuccessUrl("/")  // Redirige al index después de un login exitoso
 		                        .failureUrl("/login?error=true")  // URL a la que redirige si la autenticación falla
 		                        .permitAll()  // Permite acceso sin autenticación a la página de login
