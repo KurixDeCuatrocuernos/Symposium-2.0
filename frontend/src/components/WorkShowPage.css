@@ -1,0 +1,61 @@
+#workShowContainer {
+    position: relative; /* Se recomienda evitar position absolute si no es necesario */
+    display: flex;
+    flex-direction: column; /* Asegura que los hijos se apilen verticalmente */
+    gap: 10px; /* Opcional: Ajusta el espacio entre writingContainer y commentsContainer */
+}
+
+#writingContainer{
+    background-color: rgb(14, 38, 148);
+    margin-top: 20px;
+    align-self: center;
+    position: relative; /* Esto ayuda a mantenerlos en el flujo normal del documento */
+    width: 90vw; /* Ajusta según sea necesario */
+    min-height: 600px;
+}
+
+#commentTitle-value {
+    position: relative; 
+    width: 90vw; 
+    background-color: rgb(14, 38, 148);
+    justify-self: center;
+    display: flex;
+    justify-content: space-between; /* Distribuye los elementos a los extremos */
+    align-items: center; /* Alinea verticalmente */
+    padding: 10px; /* Añade espacio alrededor */
+}
+
+#valoracionStudents{
+    width:64px;
+    height: 64px;
+    background-color: green;
+    border: solid black 3px;
+    border-radius: 50%;
+    font-size: 35px;
+    align-content: center;
+    text-align: center;
+}
+/*
+#titleStudents{
+
+}
+*/
+#commentsContainer {
+    background-color: rgb(14, 38, 148);
+    margin-top: 20px;
+    align-self: center;
+    position: relative;
+    width: 90vw;
+    height: 1000px; /* Tamaño fijo */
+    padding-bottom: 20px;
+    display: flex; /* Faltaba definir display */
+    flex-direction: column;
+
+}
+/*
+#commentsPlacement{
+    width: 750px;
+    border: solid brown 5px;
+}
+*/
+
