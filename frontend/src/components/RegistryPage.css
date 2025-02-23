@@ -1,0 +1,125 @@
+#registerOverlay{
+    width: 90vw;
+    height: 90vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+     
+}
+#registerContainer{
+    background-color: rgb(11, 87, 122);
+    border: solid black 5px;
+    color: black;
+    border-radius: 9%;
+    width: 80%;
+    height: fit-content;
+    display:flex;
+    flex-direction: column;
+    padding: 20px;
+    margin-top: 20px;
+
+}
+.input{
+    background-color: rgb(118, 182, 211);
+    color:black;
+    padding: 5px;
+    font-size:medium;
+    font-weight: 750;
+    width:70%;
+}
+.advice{
+    
+    color: rgb(115, 255, 0);
+}
+#username{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+#birthdate{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+#email{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+#password{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+#password-inputs{
+    height:30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#checkBox{
+    height: 20px;
+    width: 20px;
+    cursor:pointer;
+}
+
+#password2{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+#studies{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+#school{
+    margin-left: 100px;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+#buttons{
+    margin-top: 50px;
+    height: 10%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+#buttons>button:first-child{
+    width:100px;
+    height: 50px;
+    background-color: green;
+    border: solid black 2px;
+    border-radius: 20%;
+}
+#buttons>button:last-child{
+    width:100px;
+    height: 50px;
+    background-color: rgba(255, 0, 0, 0.856);
+    border: solid black 2px;
+    border-radius: 20%;
+}
+#buttons>button:first-child:hover{
+    background-color: rgba(0, 128, 0, 0.527);
+    cursor: pointer;
+}
+#buttons>button:last-child:hover{
+    background-color: rgba(255, 0, 0, 0.473);
+    cursor: pointer;
+}

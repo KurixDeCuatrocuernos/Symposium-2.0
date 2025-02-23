@@ -4,6 +4,7 @@ import HeaderComponent from "./components/HeaderComponent";
 import WorkListPage from "./components/WorkListPage";
 import HomePage from "./components/HomePage";
 import LoginPage from "./components/LoginPage";
+import RegistryPage from "./components/RegistryPage";
 import ErrorPage from "./components/ErrorPage";
 import UsersListPage from"./components/UsersListPage";
 import CommentListPage from "./components/CommentListPage";
@@ -47,9 +48,11 @@ function App() {
        
         <Route path="/Login" element={<LoginPage />} />
         <Route path="/workShow" element={<WorkShowPage />}/>
+        <Route path="/Register" element={<RegistryPage />} />
+        
          {/*
         <Route path="/Logout" element={<LogoutPage />} />
-        <Route path="/Register" element={<RegistryPage />} />
+        
         
         <Route path="/Error404" element={<ErrorPage />} />
         */}

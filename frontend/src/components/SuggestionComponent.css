@@ -17,7 +17,7 @@
     border-radius: 10%;
     margin-top: 20px;
     width: 31vw;
-    height: 25px;
+    height: 30px;
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -42,4 +42,13 @@
     margin-left: 5px;
     min-width: 25px;
 
+}
+
+.searchResults-reference {
+    background-color: #f5f5f5; /* Color inicial */
+    transition: background-color 0.3s ease; /* Suaviza la transición */
+}
+
+.searchResults-reference:hover {
+    background-color: #dcdcdc; /* Color más oscuro al pasar el ratón */
 }

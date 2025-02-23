@@ -14,7 +14,7 @@
     min-height: 600px;
 }
 
-#commentTitle-value {
+.commentTitle-value {
     position: relative; 
     width: 90vw; 
     background-color: rgb(14, 38, 148);
@@ -25,7 +25,7 @@
     padding: 10px; /* Añade espacio alrededor */
 }
 
-#valoracionStudents{
+.valoracionStudents{
     width:64px;
     height: 64px;
     background-color: green;
@@ -36,26 +36,33 @@
     text-align: center;
 }
 /*
-#titleStudents{
+.titleStudents{
 
 }
 */
-#commentsContainer {
+.commentsContainer {
     background-color: rgb(14, 38, 148);
     margin-top: 20px;
     align-self: center;
     position: relative;
     width: 90vw;
-    height: 1000px; /* Tamaño fijo */
+    height: 600px; /* Tamaño fijo */
     padding-bottom: 20px;
     display: flex; /* Faltaba definir display */
     flex-direction: column;
+    margin-bottom: 20px;
 
 }
 /*
-#commentsPlacement{
+.commentsPlacement{
     width: 750px;
     border: solid brown 5px;
 }
 */
+
+#buttonContainer{
+    margin: 20px;
+    min-height: fit-content;
+}
+
 

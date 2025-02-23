@@ -7,7 +7,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import com.sympos2.dto.ComentarioValue;
 import com.sympos2.dto.RespuestaComentario;
 import com.sympos2.models.Comentario;
 

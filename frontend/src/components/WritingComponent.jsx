@@ -1,10 +1,10 @@
 import "./WritingComponent.css";
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
 
-function WritingComponent(){
 
-    const [titulo, setTitulo] = useState();
+function WritingComponent({isbn}){
+
+    const [titulo, setTitulo] = useState("");
     const [totalValue, setTotalValue] = useState(); // Estado del valor
     const valueColorRef = useRef(null); // Referencia al elemento
 
@@ -25,51 +25,58 @@ function WritingComponent(){
    {/*Long isbn, LocalDate fechaPublicacion, String titulo, String autor, 
     String tipo, String abstracto, String lugar_publicacion, 
     List<String> temas, String editorial, int paginaini, int paginafin;*/}
-    const [searchParams] = useSearchParams();
-    const isbn = searchParams.get("id");
-    const publicDate = "1999-2-23";
-    const [autor, setAutor] = useState();
-    const [place, setPlace] = useState();
-    const [edit, setEdit]= useState();
+
+    const [publicDate, setPublicDate] = useState("");
+    const [autor, setAutor] = useState("");
+    const [place, setPlace] = useState("");
+    const [edit, setEdit]= useState("");
     const [article, setArticle] = useState();
-    const [iniPage, setIniPage] = useState();
-    const [endPage, setEndPage] = useState();
-    const [abstract, setAbstract] = useState();
+    const [iniPage, setIniPage] = useState("");
+    const [endPage, setEndPage] = useState("");
+    const [abstract, setAbstract] = useState("");
 
-    const writing = async() =>{
-        if(!isbn) return;
-        try{
-            const response = await fetch('/getWriting?id='+isbn);
+    const writing = async() => {
+        if (!isbn) return;
+    
+        try {
+            const response = await fetch('/getWriting?id=' + isbn);
             const data = await response.json();
-
-            if (data && data !== null && data.type==="BOOK"){
+    
+            if (data && data.status === "true") {
                 console.log(data);
-                setArticle(false);
-                setTitulo(data.titulo);
-                setAutor(data.autor);
-                setPlace(data.place);
-                setEdit(data.edit);
-                setAbstract(data.abstract);
-                setTotalValue(data.valoracion);
-
-            } else if (data && data !== null && data.type==="ARTICLE") {
-                setArticle(true);
-                setTitulo(data.titulo)
-                setAutor(data.autor);
-                setPlace(data.place);
-                setEdit(data.edit);
-                setAbstract(data.abstract);
-                setTotalValue(data.valoracion);
-                setIniPage(data.paginaIni);
-                setEndPage(data.paginaEnd);
-            }else {
-                console.log("Server has not returned data");
+                if (data.type === "BOOK") {
+                    setArticle(false);
+                    console.log(data.type);
+                    setTitulo(data.titulo);  // Acceso directo a los datos
+                    setAutor(data.autor);
+                    setPlace(data.place);
+                    setEdit(data.edit);
+                    setAbstract(data.abstract);
+                    setTotalValue(data.valoracion);
+                    setPublicDate(data.fechaPub);
+                } else if (data && data.type === "ARTICLE") {
+                    setArticle(true);
+                    console.log(data.type);
+                    setTitulo(data.titulo);
+                    setAutor(data.autor);
+                    setPlace(data.place);
+                    setEdit(data.edit);
+                    setAbstract(data.abstract);
+                    setTotalValue(data.valoracion);
+                    setIniPage(data.paginaIni);
+                    setEndPage(data.paginaFin);
+                    setPublicDate(data.fechaPub);
+                }
+            } else {
+                console.log("Server has not returned data or error occurred" + data.message);
             }
-        } catch (error){
+        } catch (error) {
             console.log("There was an error getting the data from the server");
-            
         }
-    }
+    };
+    
+    
+    
 
     useEffect(()=>{
         writing();

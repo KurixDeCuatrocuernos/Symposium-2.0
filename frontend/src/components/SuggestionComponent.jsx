@@ -57,7 +57,7 @@ function SuggestionComponent() {
             
             <div id="searchResults">
                 {filteredSuggestions.map((option, index) => (
-                    <div key={index}>
+                    <div key={index} className="searchResults-reference">
                         <a className="searchResults-reference" href={`/workShow?id=${option.isbn}`}>
                             {option.titulo} 
                         </a>

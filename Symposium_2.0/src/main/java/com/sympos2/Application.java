@@ -11,13 +11,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.sympos2.dto.RespuestaComentario;
 import com.sympos2.models.Comentario;
 import com.sympos2.models.Obra;
 import com.sympos2.models.Usuario;
 import com.sympos2.repositories.ComentarioRepository;
 import com.sympos2.repositories.ObraRepository;
 import com.sympos2.repositories.UserRepository;
+
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackages="com.sympos2.repositories")
@@ -38,10 +38,11 @@ public class Application {
 		var user2 = new Usuario(null, "Elena", LocalDate.of(2002, 2, 6), "elena@correo.com", encoder.encode("12345"), null, "TITLED", "estudiantePrueba", "escuelaPrueba");
 		var user3 = new Usuario(null, "Lucas", LocalDate.of(2980, 2, 9), "lucas@correo.com", encoder.encode("12345"), null, "STUDENT", "estudiantePrueba", "escuelaPrueba");
 		var user4 = new Usuario(null, "Adam", LocalDate.of(1996, 7, 9), "adam@correo.com", encoder.encode("12345"), null, "titled", "estudiantePrueba", "escuelaPrueba");
+		var user5 = new Usuario(null, "usuario", LocalDate.of(2003, 8, 9), "usuario@correo.com", encoder.encode("12345"), null, "Student", "estudiantePrueba", "escuelaPrueba");
 		// String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role, Long phone
-		var user5 = new Usuario(null, "UsuarioAdmin", LocalDate.of(1998, 2, 1), "admin@correo.com", encoder.encode("admin"),null, "ADmin", 555555555L);
+		var user6 = new Usuario(null, "UsuarioAdmin", LocalDate.of(1998, 2, 1), "admin@correo.com", encoder.encode("admin"),null, "ADmin", 555555555L);
 		
-		userRepo.saveAll(List.of(user1, user2, user3, user4, user5));
+		userRepo.saveAll(List.of(user1, user2, user3, user4, user5, user6));
 		
 		System.out.println("Usuarios:");
 		userRepo.findAll().forEach(System.out::println);
@@ -69,7 +70,7 @@ public class Application {
 		var Obra14 = new Obra(9788420675978L, LocalDate.of(1995,01,01), "Caminos de Bosque", "Martin Heidegger", "BOOK", "Caminos de bosque nos lleva por seis sendas. El primer camino da vueltas en torno a la esencia y origen de la obra de arte; el segundo atiende a los fundamentos metafísicos de las concepciones del mundo; los dos siguientes versan sobre Hegel y Nietzsche; el quinto se plantea la pregunta de Hölderlin acerca de la razón de ser de la poesía en tiempos de tribulación y el último desciende a los orígenes del pensamiento primordial acerca del Ser.", "Germany", List.of("Estética"), "Alianza Editorial");
 		var Obra15 = new Obra(9788420647500L, LocalDate.of(2005,01,01), "Aclaraciones a la poesía de Hölderlin", "Martin Heidegger", "BOOK", "Las Aclaraciones a la poesía de Hölderlin fueron escritas entre 1936 y 1968. En el prólogo a la segunda edición escribió Heidegger: \"Dichas aclaraciones forman parte de un diálogo entre un pensar y un poetizar cuya singularidad histórica nunca podrá ser demostrada por la historia de la literatura, pero sí por ese diálogo pensante\". Este diálogo pensante con la poesía de Hölderlin se inició a principios de los años treinta, cuando Heidegger comenzó el pensar de la historia del ser, en cuya formulación no dejó de acompañarle Hölderlin.", "Germany", List.of("Metafísica", "Estética"), "Alianza Editorial");
 		var Obra16 = new Obra(9788491484813L, LocalDate.of(2017,01,01), "Ser en el tiempo: Desde el claro del ser", "Marco A. Arévalo", "ARTICLE", "La filosofía siempre es pregunta y enigma. Aquí nuestro pensar buscó una respuesta a algo con lo que el hombre convive, de lo que usa a diario, y de lo que reúsa preguntar, algo simple y banal, cercano y conocido, a la vez que misterio e intimidad; nuestro pensar se preguntó por el tiempo. Eso que lleva nuestros quehaceres, en lo que nos desenvolvemos, con lo que operamos, lo que medimos y aplicamos, lo que condiciona nuestras vidas… ¿ sabemos realmente si es? Es decir,¿ acaso hay un ens que vista el ropaje del tiempo?", "Hermenéuticas del Cuidado del Sí: Cuerpo Alma Mente Mundo", List.of("Hermenéutica", "Metafísica"), "Dykinson", 35, 86);
-		var Obra17 = new Obra(9788499402147L, LocalDate.of(2011,01,01), "Lectura antropológica del mito de Aristófanes en el diálogo \"El banquete\" de Platón'", "Ivan Dragoev", "ARTICLE", "Sin Abstracto", "La imagen del ser humano: historia, literatura y hermenéutica", List.of("Hermenéutica", "Literatura", "Historia"), "Biblioteca Nueva", 150, 158);
+		var Obra17 = new Obra(9788499402147L, LocalDate.of(2011,01,01), "Lectura antropológica del mito de Aristófanes en el diálogo \"El banquete\" de Platón", "Ivan Dragoev", "ARTICLE", "Sin Abstracto", "La imagen del ser humano: historia, literatura y hermenéutica", List.of("Hermenéutica", "Literatura", "Historia"), "Biblioteca Nueva", 150, 158);
 		var Obra18 = new Obra(9788499200231L, LocalDate.of(2010,01,01), "La religión de Kant", "Leonardo Rodriguez Duplá", "ARTICLE", "Sin Abstracto", "De nobis ipsis silemus: homenaje a Juan Miguel Palacio", List.of("Filosofia de la Religion", "Idealismo Trascendental", "Metafísica"), "Encuentro", 101, 129);
 		var Obra19 = new Obra(23862491L, LocalDate.of(2014,01,01), "El Gorgias como precedente a la República de Platón", "Alberto Medina González", "ARTICLE", "En este artículo consideramos el diálogo platónico Gorgias un antecedente de la República. A ese respecto analizamos los textos del Gorgias que critican la retórica aduladora, la injusticia tiránica y a los principales políticos de la democracia ateniense. Estos temas son desarrollados y ampliados por Platón en la República.", "La Albolafia: Revista de Humanidades y Cultura", List.of("Hermenéutica", "Filosofia política", "Epistemología"), "Instituto de Humanidades: La Albolafia: Asociación de Humanidades y Cultura", 155, 170);
 		

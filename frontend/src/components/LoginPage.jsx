@@ -39,13 +39,8 @@ function LoginPage() {
         const username = document.getElementById('email');
         const pass = document.getElementById('password');
         console.log("email:"+username.value+"pass: "+pass.value);
-        
-        const requestBody = JSON.stringify({
-            email: username.value,
-            password: pass.value,
-        });
     
-        console.log("Datos enviados:", requestBody); // Verifica qué se está enviando
+        //console.log("Datos enviados:", requestBody); // Verifica qué se está enviando
     
         try {
             const response = await fetch('/getLogin', {
@@ -53,23 +48,33 @@ function LoginPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: requestBody,
+                body: JSON.stringify({  // Convertir el objeto a JSON
+                  email: username.value,
+                  password: pass.value,
+                })
             });
-            const data = await response.json();
-            
-            if (response.ok && data){
-                console.log("se ha iniciado sesión");
-                setMessage(data);
-                window.location.href="/";
+            if (response.ok){
+              const data = await response.json();
+                if (data.status==="true"){
+                  setMessage(data);
+                  window.history.back();
+                } else {
+                  setMessage(data.message);
+                }
+
             } else {
                 console.error("error en el login: "+data.error);
-                setMessage("These credentials are not match, please check the password and email, and look caps and numbers");
+                setMessage("Error Getting the response, try it later or contact with an Admin");
             }
         } catch(exception){
             console.error("error en la petición: "+exception);
             setMessage("Cannot connect with Server, try to login later");
         }
         
+    };
+
+    const cancel = () => {
+      window.history.back();
     };
 
   return (
@@ -96,7 +101,7 @@ function LoginPage() {
 
         <div>
           <button type="button" className="formLogin-button" id="submitButton" onClick={verifyCreds}>Sign-In</button>
-          <button type="button" className="formLogin-button" id="cancelButton">Cancel</button>
+          <button type="button" className="formLogin-button" id="cancelButton" onClick={cancel}>Cancel</button>
         </div>
       </form>
       {message && <p className="formLogin-message">{message}</p>}
