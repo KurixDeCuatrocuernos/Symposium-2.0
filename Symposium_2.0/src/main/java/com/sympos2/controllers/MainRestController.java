@@ -1,5 +1,8 @@
 package com.sympos2.controllers;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,12 +10,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sympos2.dto.ComentarioValue;
 import com.sympos2.dto.ObraIsbnTituloProjection;
 import com.sympos2.dto.UserRequestBody;
 import com.sympos2.dto.UsuarioComentarioPintado;
@@ -56,7 +63,9 @@ public class MainRestController {
 	@Autowired
 	private HttpServletRequest request;
 	
-
+	@Autowired
+	private BCryptPasswordEncoder encoder;
+	
 	
 	@GetMapping("/sugerencias")
     public List<ObraIsbnTituloProjection> suggestList(@RequestParam(required = false) String searchTerm) {
@@ -81,8 +90,9 @@ public class MainRestController {
 	    if (auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
 	        try {
 	        	Optional<Usuario> user = userRepo.findByEmail(auth.getName());
-	        	System.out.println("role: "+user.get().getRole());
+	        	
 	        	if (user.isPresent()) {
+	        		System.out.println("role: "+user.get().getRole());
 	        		ObjectMapper toJson = new ObjectMapper();
 	        		String json = toJson.writeValueAsString(user.get().getRole());
 		            System.out.println("Json recogido: " + json);
@@ -140,45 +150,47 @@ public class MainRestController {
 
 	
 	@PostMapping("/getLogin")
-	public ResponseEntity<Map<String, String>> loginUser(@RequestBody UserRequestBody user) {
+	public ResponseEntity<String> loginUser(@RequestBody UserRequestBody user) throws JsonProcessingException {
 	    System.out.println("Tratando de iniciar sesión: " + user.email());
+	    Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
 	    
 	    if (user != null) {
 	        try {
 	            Optional<Usuario> userLogged = userRepo.findByEmail(user.email());
 	            if (userLogged.isPresent()) {
-	                UsernamePasswordAuthenticationToken authToken =
-	                        new UsernamePasswordAuthenticationToken(userLogged.get().getEmail(), user.password());
-	                System.out.println("Usuario encontrado en BD: " + userLogged.get().getEmail());
-	                Authentication authentication = authManager.authenticate(authToken);
-	                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-	                // Guardar en sesión HTTP
-	                HttpSession session = request.getSession(true);
-	                session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
-
-	                System.out.println("Sesión iniciada correctamente");
+	            	try {
+		            	UsernamePasswordAuthenticationToken authToken =
+		                     new UsernamePasswordAuthenticationToken(userLogged.get().getEmail(), user.password());
+		                System.out.println("Usuario encontrado en BD: " + userLogged.get().getEmail());
+		                Authentication authentication = authManager.authenticate(authToken);
+		                SecurityContextHolder.getContext().setAuthentication(authentication);
+	
+		                // Guardar en sesión HTTP
+		                HttpSession session = request.getSession(true);
+		                session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+						rs.put("status", "true");
+		                System.out.println("Sesión iniciada correctamente");
+	            	} catch (BadCredentialsException excec) {
+	            		rs.put("status", "false");
+	 	                rs.put("message", "These credentials don't match, please check the password and email, and look caps and numbers");
+	            	}
+	               
 	                
-	                // 🟢 Devolver un JSON válido
-	                Map<String, String> response = new HashMap<>();
-	                response.put("message", "Login successful");
-	                return ResponseEntity.ok(response);
+
+	                
 	            } else {
-	                // 🔴 Devolver JSON de error
-	                Map<String, String> response = new HashMap<>();
-	                response.put("error", "User not found");
-	                return ResponseEntity.badRequest().body(response);
+	                rs.put("status", "false");
+	                rs.put("message", "These credentials don't match, please check the password and email, and look caps and numbers");
 	            }
 	        } catch (Exception e) {
 	            e.printStackTrace();
-	            Map<String, String> response = new HashMap<>();
-	            response.put("error", "Internal server error");
-	            return ResponseEntity.internalServerError().body(response);
+	            rs.put("status", "false");
+	            rs.put("message", "Internal server error, try it later or contact with an Admin");
 	        }
 	    }
-	    Map<String, String> response = new HashMap<>();
-	    response.put("error", "Invalid request");
-	    return ResponseEntity.badRequest().body(response);
+	    String json = om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
 	}
 
 	
@@ -202,53 +214,430 @@ public class MainRestController {
 	}
 	
 	@GetMapping("/getWriting")
-	public ResponseEntity<String> getWriting(@RequestParam Long id) {
-		System.out.println("Buscando obra con isbn: "+id);
-		ResponseEntity<String> retorno = ResponseEntity.ok(null);
-		if(id!=null) {
-			try {
-				
-				Optional<Obra> obra = obraRepo.findById(id);
-				if(obra.isPresent()) {
-					
-					int valorMedia = getAVG(id);
-					
-					Map<String, String> responseData = new HashMap<>();
-					responseData.put("titulo", obra.get().getTitulo());
-                    responseData.put("autor", obra.get().getAutor());
-                    responseData.put("fechaPub", obra.get().getFechaPublicacion().toString());
-                    responseData.put("place", obra.get().getLugar_publicacion());
-                    responseData.put("edit", obra.get().getEditorial());
-                    responseData.put("type", obra.get().getTipo());
-                    responseData.put("abstract", obra.get().getAbstracto());
-                    responseData.put("valoracion", String.valueOf(valorMedia));
-                    if(!obra.get().getTemas().isEmpty()) {
-                    	responseData.put("temas", obra.get().getTemas().toString());
-                    }
-                    if(obra.get().getTipo().equals("ARTICLE")) {
-                    	responseData.put("paginaIni", String.valueOf(obra.get().getPaginaini()));
-                    	responseData.put("paginaFin", String.valueOf(obra.get().getPaginafin()));
-                    
-                    }
-                    
-                    ObjectMapper objectMapper = new ObjectMapper();
-					String json = objectMapper.writeValueAsString(responseData);
-					retorno = ResponseEntity.ok(json);
-					
-				} else {
-					retorno=ResponseEntity.internalServerError().body("No se ha encontrado obra con esa id");
+	public ResponseEntity<String> getWriting(@RequestParam Long id) throws JsonProcessingException {
+	    Map<String, String> response = new HashMap<>();
+	    ResponseEntity<String> retorno = ResponseEntity.ok("Entered to the back, but not completed");
+
+	    System.out.println("Buscando obra con isbn: " + id);
+
+	    if (id != null) {
+	        try {
+	            Optional<Obra> obra = obraRepo.findById(id);
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            if (obra.isPresent()) {
+	                int valorMedia = getAVG(id);
+
+//	                Map<String, String> data = new HashMap<>();
+	                
+	                response.put("titulo", obra.get().getTitulo());
+	                response.put("autor", obra.get().getAutor());
+	                response.put("fechaPub", obra.get().getFechaPublicacion().toString());
+	                response.put("place", obra.get().getLugar_publicacion());
+	                response.put("edit", obra.get().getEditorial());
+	                response.put("type", obra.get().getTipo());
+	                response.put("abstract", obra.get().getAbstracto());
+	                response.put("valoracion", String.valueOf(valorMedia));
+	                
+	                if (!obra.get().getTemas().isEmpty()) {
+	                    response.put("temas", obra.get().getTemas().toString());
+	                }
+
+	                if (obra.get().getTipo().equals("ARTICLE")) {
+	                    response.put("paginaIni", String.valueOf(obra.get().getPaginaini()));
+	                    response.put("paginaFin", String.valueOf(obra.get().getPaginafin()));
+	                }
+
+	                
+//	                String json = objectMapper.writeValueAsString(data);
+	                response.put("status", "true");
+	                response.put("message", "Obra encontrada con éxito");
+//	                response.put("data", json); // Añadir los datos en la respuesta
+	                retorno = ResponseEntity.ok(objectMapper.writeValueAsString(response));
+	            } else {
+	                response.put("status", "false");
+	                response.put("message", "No se ha encontrado obra con esa id");
+	                retorno = ResponseEntity.ok(objectMapper.writeValueAsString(response));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            response.put("status", "false");
+	            response.put("message", "Error al buscar la obra con esa id");
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            retorno = ResponseEntity.ok(objectMapper.writeValueAsString(response));
+	        }
+	    } else {
+	        response.put("status", "false");
+	        response.put("message", "No se ha recibido id para buscar");
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        retorno = ResponseEntity.ok(objectMapper.writeValueAsString(response));
+	    }
+
+	    return retorno;
+	}
+
+	@GetMapping("/getComentarios")
+	public ResponseEntity<String> getComentarios(Long id, String role) throws JsonProcessingException {
+	    System.out.println("Recogiendo los comentarios de la obra");
+
+	    Map<String, String> response = new HashMap<>();
+	    ResponseEntity<String> answer = ResponseEntity.ok("Entered to the back, but not completed");
+
+	    try {
+	        Sort sortByDate = Sort.by(Order.desc("fecha"));
+	        List<Comentario> comments = commentRepo.findAllByObraAndTipo(id, "COMMENT", sortByDate);
+	        
+	        if (!comments.isEmpty()) {
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+	            List<Map<String, String>> list = new ArrayList<>();
+
+	            for (Comentario comment : comments) {
+	                Optional<UsuarioComentarioPintado> userData = userRepo.findByIdOnlyIdAndNameAndRole(comment.getUsuario());
+	                
+	                if (userData.isPresent() && userData.get().role().equals(role)) {
+	                    Map<String, String> rd = new HashMap<>();
+	                    rd.put("title", comment.getTitulo());
+	                    rd.put("text", comment.getTexto());
+	                    rd.put("id", comment.getId());
+	                    rd.put("datetime", comment.getFecha().format(formatter));
+	                    rd.put("value", String.valueOf(comment.getValoracion()));
+	                    rd.put("username", userData.get().name());
+	                    rd.put("school", userData.get().school());
+	                    rd.put("role", userData.get().role());
+	                    list.add(rd);
+	                }
+	            }
+	            
+	            // Creando la respuesta JSON
+	            response.put("status", "true");
+	            response.put("message", "Comentarios encontrados con éxito");
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String json = objectMapper.writeValueAsString(list);
+	            
+	            answer = ResponseEntity.ok(json);  // Enviamos los comentarios encontrados como JSON
+
+	        } else {
+	            response.put("status", "false");
+	            response.put("message", "No se encontraron comentarios para esta obra.");
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String json = objectMapper.writeValueAsString(response);
+	            
+	            answer = ResponseEntity.ok(json);  // Respuesta de error si no se encuentran comentarios
+	        }
+	    } catch (Exception e) {
+	        response.put("status", "false");
+	        response.put("message", "Error al obtener los comentarios: " + e.getMessage());
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        String json = objectMapper.writeValueAsString(response);
+	        
+	        answer = ResponseEntity.ok(json);  // En caso de excepción, respondemos con el error
+	    }
+
+	    return answer;
+	}
+
+	
+	@GetMapping("/getCommented")
+	public ResponseEntity<String> getCommented(Long id, String user) {
+		System.out.println("Se va a buscar algún comentario del usuario: "+user+" en la obra : "+id);
+		ResponseEntity<String> response = ResponseEntity.ok("{\"commented\": \"false\"}");
+		Map <String, String> rd = new HashMap<>();
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			List<Comentario> comments = commentRepo.findAllByObraAndUsuario(id, user);
+			if (!comments.isEmpty()) {
+				boolean commented = false;
+				for (Comentario comment : comments) {
+					if (comment.getTipo().equals("COMMENT")) {
+						commented = true;
+						System.out.println("Has comentado");
+					}
 				}
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-				retorno = ResponseEntity.internalServerError().body("Error al buscar la obra con esa id");
+				rd.put("commented", String.valueOf(commented));
+				String json = objectMapper.writeValueAsString(rd);
+				response = ResponseEntity.ok(json);
 			}
-		} else {
-			retorno = ResponseEntity.internalServerError().body("No se ha recibido id para buscar");
+			
+		} catch (Exception e) {
+			response = ResponseEntity.internalServerError().body("Cannot get comments of user");
 		}
 		
-		return retorno;
+		
+		return response;
 	}
+	
+	@GetMapping("/getUserIdent")
+	public ResponseEntity<String> getUserId() throws JsonProcessingException {
+	    Map<String, String> response = new HashMap<>();
+	    ResponseEntity<String> answer = ResponseEntity.ok("Entered to the back, but not completed");
+	    
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    
+	    if (auth == null || auth.getName() == null || auth.getName().equals("anonymousUser")) {
+	        response.put("status", "false");
+	        response.put("message", "User not authenticated");
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        String json = objectMapper.writeValueAsString(response);
+	        answer = ResponseEntity.ok(json);
+	    } else {
+	        String id = null;
+	        try {
+	            System.out.println("Buscando al usuario con email: " + auth.getName());
+	            Optional<Usuario> user = userRepo.findByEmailOnlyId(auth.getName());
+	            if (user.isPresent()) {
+	                id = user.get().getId();
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            response.put("status", "false");
+	            response.put("message", "Error fetching user");
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String json = objectMapper.writeValueAsString(response);
+	            answer = ResponseEntity.ok(json);
+	        }
+
+	        if (id != null) {
+	            Map<String, String> rd = new HashMap<>();
+	            rd.put("status", "true");
+	            rd.put("message", "User found");
+	            rd.put("id", id);
+	            
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String json = objectMapper.writeValueAsString(rd);
+	            answer = ResponseEntity.ok(json);
+	        } else {
+	            response.put("status", "false");
+	            response.put("message", "Cannot get User Identity");
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String json = objectMapper.writeValueAsString(response);
+	            answer = ResponseEntity.ok(json);
+	        }
+	    }
+	    
+	    return answer;
+	}
+
+	
+	@PostMapping("/postCommentInserted")
+	public ResponseEntity<String> postCommentInserted(@RequestBody Comentario request) throws JsonProcessingException {
+	    System.out.println("Revisando datos del comentario");
+	    Map<String, String> response = new HashMap<>();
+	    ResponseEntity<String> answer = ResponseEntity.ok("Entered to the back, but not completed");
+
+	    // Validación de los campos del comentario
+	    if (request.getTitulo() != null && !request.getTitulo().isEmpty() && 
+	        request.getTexto() != null && !request.getTexto().isEmpty() &&  
+	        request.getUsuario() != null && !request.getUsuario().isEmpty() && 
+	        request.getObra() != null) {
+	        
+//	        System.out.println("titulo: " + request.getTitulo() + ", text: " + request.getTexto() +
+//	                ", value: " + request.getValoracion() + " user: " + request.getUsuario() + " isbn: " + request.getObra());
+	        	
+	    	try {
+	    		request.setFecha( LocalDateTime.now());
+	    		request.setId(null);
+	    		request.setTipo("COMMENT".toUpperCase());
+	    		commentRepo.save(request); 
+	    		response.put("status", "true");
+	    		response.put("message", "Datos recibidos con éxito");
+	    	} catch (Exception e) {
+	    		response.put("status", "false");
+		        response.put("message", "Error al enviar los datos a la base de datos");
+	    	}
+	    	
+	       
+	    } else {
+//	        System.out.println("No se han podido recibir los datos: \ntitulo: " + request.getTitulo() + 
+//	                           "\n text: " + request.getTexto() + "\n value: " + request.getValoracion() + 
+//	                           "\n user: " + request.getUsuario() + "\n isbn: " + request.getObra());
+	        
+	        response.put("status", "false");
+	        response.put("message", "Error al recibir los datos");
+	    }
+	    ObjectMapper om = new ObjectMapper();
+	    String json= om.writeValueAsString(response);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getIdComment")
+	public ResponseEntity<String> getIdComment(@RequestParam Long isbn, @RequestParam String usr) throws JsonProcessingException{
+		ResponseEntity<String> response = ResponseEntity.ok(null);
+		ObjectMapper om = new ObjectMapper();
+		Map<String, String> answer = new HashMap<>();
+		
+		if (isbn != null && usr != null) {
+			try {
+				Optional<Comentario> comment = commentRepo.findByObraAndUsuario(isbn, usr);
+				if (!comment.isEmpty()) {
+					answer.put("status", "true");
+					answer.put("idComment", comment.get().getId());
+				} else {
+					answer.put("status", "false");
+					answer.put("message", "There is not comment from that user in this writing");
+					
+				}
+			} catch (Exception e) {
+				answer.put("status", "false");
+				answer.put("message", "There was an error getting the comment's id: "+e);
+			}
+		}
+		String json = om.writeValueAsString(answer);
+		return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getCommentEdit")
+	public ResponseEntity<String> getCommentEdit(@RequestParam String id) throws JsonProcessingException{
+		ResponseEntity<String> response = ResponseEntity.ok(null);
+		ObjectMapper om = new ObjectMapper();
+		Map<String, String> answer = new HashMap<>();
+		System.out.println("searching comment with id: "+id);
+		if (id!=null) {
+			try {
+				Optional<Comentario> comment = commentRepo.findById(id);
+				if (!comment.isEmpty()) {
+					System.out.println("found the comment: "+comment.get().toString());
+					answer.put("status", "true");
+					answer.put("title", comment.get().getTitulo());
+					answer.put("text", comment.get().getTexto());
+					answer.put("value", String.valueOf(comment.get().getValoracion()));
+				} else {
+					answer.put("status", "false");
+					answer.put("message", "Couldn't found a comment with the id: "+id);
+				}
+			} catch (Exception e) {
+				answer.put("status", "false");
+				answer.put("message", "There was an error getting the comment from the database");
+			}
+		} else {
+			answer.put("status", "false");
+			answer.put("message", "server not recieve id to search");
+		}
+		
+		String json = om.writeValueAsString(answer);
+		return ResponseEntity.ok(json);
+	}
+	
+	@PostMapping("/postCommentEdited")
+	public ResponseEntity<String> postCommentEdited(@RequestBody Comentario request) throws JsonProcessingException {
+//	    System.out.println("Revisando datos del comentario");
+	    Map<String, String> response = new HashMap<>();
+	    ResponseEntity<String> answer = ResponseEntity.ok("Entered to the back, but not completed");
+
+	    // Validación de los campos del comentario
+	    if (request.getTitulo() != null && !request.getTitulo().isEmpty() && 
+	        request.getTexto() != null && !request.getTexto().isEmpty() &&  
+	        request.getUsuario() != null && !request.getUsuario().isEmpty() && 
+	        request.getObra() != null) {
+	        
+//	        System.out.println("titulo: " + request.getTitulo() + ", text: " + request.getTexto() +
+//	                ", value: " + request.getValoracion() + " user: " + request.getUsuario() + " isbn: " + request.getObra());
+	        	
+	    	try {
+	    		
+	    		Optional<Comentario> comment = commentRepo.findByObraAndUsuario(request.getObra(), request.getUsuario());
+	    		if(!comment.isEmpty()) {
+	    			request.setId(comment.get().getId());
+	    			request.setFecha( LocalDateTime.now());
+		    		request.setTipo(comment.get().getTipo());
+		    		commentRepo.save(request); 
+		    		response.put("status", "true");
+		    		response.put("message", "Datos recibidos con éxito");
+	    		} else {
+	    			response.put("status", "false");
+	    			response.put("message", "There wasn't a comment to edit in database");
+	    		}
+	    		
+	    		
+	    	} catch (Exception e) {
+	    		response.put("status", "false");
+		        response.put("message", "Error al enviar los datos a la base de datos");
+	    	}
+	    	
+	       
+	    } else {
+//	        System.out.println("No se han podido recibir los datos: \ntitulo: " + request.getTitulo() + 
+//	                           "\n text: " + request.getTexto() + "\n value: " + request.getValoracion() + 
+//	                           "\n user: " + request.getUsuario() + "\n isbn: " + request.getObra());
+	        
+	        response.put("status", "false");
+	        response.put("message", "Error al recibir los datos");
+	    }
+	    ObjectMapper om = new ObjectMapper();
+	    String json= om.writeValueAsString(response);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getEmails")
+	public ResponseEntity<String> getEmails(@RequestParam String email) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    if (email != null) {
+	    	
+	    	if(email.contains("@") && email.matches(".*\\.(com|es)$")) {
+	    		try {
+	    			List<Usuario> emails = userRepo.findAllEmailsOnly();
+	    			if (!emails.isEmpty()) {
+	    				/*Check emails and stops if finds any match*/
+	    				boolean isPresent = emails.stream().anyMatch(user -> user.getEmail().equals(email));
+	    				if(isPresent==true) {
+	    					rs.put("status", "true");
+	    					rs.put("checkEmail", "false");
+	    					rs.put("resp", "This email is already registered, try to log-in");
+	    				} else {
+	    					rs.put("status", "true");
+	    					rs.put("checkEmail", "true");
+	    				}
+	    			}
+		    	} catch (Exception e) {
+			    	rs.put("status", "false");
+			    	rs.put("message", "Error searching emails in database");
+		    	}
+	    	} else {
+	    		rs.put("status","true");
+	    		rs.put("checkEmail", "false");
+	    	}
+	 
+	    } else {
+	    	rs.put("status", "false");
+	    	rs.put("message", "The email received is null: "+email);
+	    }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@PostMapping("/postRegistryUser")
+	public ResponseEntity<String> postRegistryUser(@RequestBody Usuario user) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            rs.put("status", "false");
+            rs.put("message", "You are already logged!");
+        } else {
+        	if(user!=null && user.getName()!=null && user.getEmail()!=null && user.getPassword()!=null && user.getFechaNac()!=null && user.getSchool()!=null && user.getStudies()!=null) {
+        		user.setId(null);
+        		user.setPassword(encoder.encode(user.getPassword()));
+        		user.setRole("STUDENT");
+        		
+        		try {
+        			userRepo.save(user);
+        			rs.put("status", "true");
+        		} catch (Exception e) {
+                    rs.put("status", "false");
+                    rs.put("message", "Couldn't insert the new user in database");
+        		}
+        	} else {
+                rs.put("status", "false");
+                rs.put("message", "Server didn't recieve an user to log");
+        	}
+        }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
 	
 	private int getAVG(Long id) {
 		int valor=0;
@@ -262,8 +651,8 @@ public class MainRestController {
 				contador++;
 			}
 			valor=suma/contador;
-			System.out.println("valores recogidos: "+valores.toString());
-			System.out.println("media= "+valor);
+//			System.out.println("valores recogidos: "+valores.toString());
+//			System.out.println("media= "+valor);
 		}
 		
 		return valor;
