@@ -20,7 +20,7 @@ public interface UserRepository extends MongoRepository<Usuario, String> {
 	
 	Optional<Usuario> findById(String id);
 	
-	@Query(value = "{ '_id': ?0 }", fields = "{'_id': 1, 'name': 1, 'role': 1 }")
+	@Query(value = "{ '_id': ?0 }", fields = "{'_id': 1, 'name': 1, 'role': 1 , 'school': 1 }")
 	Optional<UsuarioComentarioPintado> findByIdOnlyIdAndNameAndRole(String id);
 	
 	Optional<Usuario> findIdByEmail(String email);
