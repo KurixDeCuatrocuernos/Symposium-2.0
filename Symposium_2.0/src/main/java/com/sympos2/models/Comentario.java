@@ -56,6 +56,8 @@ public class Comentario {
 		this.usuario = usuario;
 		this.comment = comment;
 	}
+	
+	
 
 	public String getId() {
 		return id;
@@ -126,7 +128,7 @@ public class Comentario {
 	}
 
 	public void setComment(String comment) {
-		this.comment = comment;
+		this.comment = comment.toUpperCase();
 	}
 
 	@Override
