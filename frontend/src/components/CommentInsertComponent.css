@@ -1,0 +1,105 @@
+#overlay{
+    position: fixed; /* Fijo para cubrir toda la pantalla */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo */
+    display: flex; /* Usamos flexbox para centrar el cartel */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#container{
+    background-color: rgb(110, 168, 235);
+    padding: 20px;
+    border: solid black 5px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    min-width: 700px; /* Puedes ajustar el tamaño */
+    min-height: 500px;
+}
+#container > button{
+    width:36px;
+    height: 38px;
+    border-radius: 20%;
+    border: solid black 2px;
+    font-size: 30px;
+    float: right;
+    margin-right: 3px;
+    background-color: rgb(184, 8, 8);
+}
+#container > button:hover{
+    background-color: rgba(184, 8, 8, 0.575);
+    cursor: pointer;
+}
+/*
+#title{
+    
+}
+*/
+#title h2{
+    color: black;
+    text-align: center;
+}
+#title input{
+    color:black;
+    background-color: rgba(187, 213, 241, 0.692);
+    padding: 10px;
+    width: 60%;
+}
+
+#text{
+    color: black;
+}
+#text textarea{
+    width: 60%;
+    height: 20vh;
+    padding: 10px;
+    background-color: rgba(187, 213, 241, 0.692);
+}
+
+/*
+#value {
+
+}
+*/
+#value h2{
+    color: black;
+}
+#slider{
+    width:100%;
+}
+#slider:hover{
+    cursor:pointer;
+}
+#sliderValue{
+    color: black;
+}
+
+#Savebutton{
+    width:60%;
+}
+#Savebutton button{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+    align-items: center;
+}
+#Savebutton > button{
+    background-color: rgb(0, 128, 0);
+    width: 85px;
+    border-radius: 20%;
+    border: solid black 2px;
+    font-size: 30px;
+    text-align: center;
+}
+#Savebutton > button:hover{
+    background-color: rgba(0, 128, 0, 0.438);
+    cursor: pointer;
+}
+
+
