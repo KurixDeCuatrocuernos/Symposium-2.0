@@ -112,7 +112,7 @@ function HeaderComponent() {
                     ) : (
                         <div id="nonLoggedButtonContainer">
                             <button id="loginButton" onClick={() => window.location.href='/Login'}>Sign-up</button>
-                            <button id="registerButton" onClick={() => window.location.href='/RegistryPage'}>Register</button>
+                            <button id="registerButton" onClick={() => window.location.href='/Register'}>Register</button>
                         </div>
                     )}
                 </div>
