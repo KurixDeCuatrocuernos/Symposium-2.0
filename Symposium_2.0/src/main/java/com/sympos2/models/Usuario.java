@@ -142,6 +142,44 @@ public class Usuario implements UserDetails {
 		this.title_img = title_img;
 		this.role= role.toUpperCase();
 	}
+		
+	/**
+	 * constructor to get an user from the front-end when Edits an User
+	 * @param id
+	 * @param name
+	 * @param fechaNac
+	 * @param email
+	 * @param password
+	 * @param avatar
+	 * @param role
+	 * @param studies
+	 * @param school
+	 * @param phone
+	 * @param studies_title
+	 * @param study_place
+	 * @param title_date
+	 * @param title_img
+	 */
+	
+	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar,
+			String role, String studies, String school, Long phone, String studies_title, String study_place,
+			LocalDate title_date, String title_img) {
+		this.id = id;
+		this.name = name;
+		this.fechaNac = fechaNac;
+		this.email = email;
+		this.password = password;
+		this.avatar = avatar;
+		this.role = role;
+		this.studies = studies;
+		this.school = school;
+		this.phone = phone;
+		this.studies_title = studies_title;
+		this.study_place = study_place;
+		this.title_date = title_date;
+		this.title_img = title_img;
+	}
+
 	// Getters and Setters
 	public String getId() {
 		return id;
