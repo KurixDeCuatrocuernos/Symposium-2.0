@@ -7,8 +7,8 @@ import LoginPage from "./components/LoginPage";
 import RegistryPage from "./components/RegistryPage";
 import ErrorPage from "./components/ErrorPage";
 import UsersListPage from"./components/UsersListPage";
-import CommentListPage from "./components/CommentListPage";
 import WorkShowPage from "./components/WorkShowPage";
+import ChatComponent from "./components/ChatComponent";
 
 function App() {
   const [access, setAccess] = useState(false); // Estado para manejar el acceso
@@ -50,28 +50,22 @@ function App() {
         <Route path="/workShow" element={<WorkShowPage />}/>
         <Route path="/Register" element={<RegistryPage />} />
         
-         {/*
-        <Route path="/Logout" element={<LogoutPage />} />
-        
-        
-        <Route path="/Error404" element={<ErrorPage />} />
-        */}
-        
         {access ? (
-      <>
-        <Route path="/WorkList" element={<WorkListPage />} />
-        <Route path="/UsersList" element={<UsersListPage />} />
-        <Route path="/CommentList" element={<CommentListPage />} />
-      </>
-    ) : (
-      <>
-        <Route path="/WorkList" element={<ErrorPage />} />
-        <Route path="/UsersList" element={<ErrorPage />} />
-        <Route path="/CommentList" element={<ErrorPage />} />
-      </>
-    )}
+          <>
+            <Route path="/WorkList" element={<WorkListPage />} />
+            <Route path="/UsersList" element={<UsersListPage />} />
+          </>
+        ) : (
+          <>
+            <Route path="/WorkList" element={<ErrorPage />} />
+            <Route path="/UsersList" element={<ErrorPage />} />
+          </>
+        )}
+        <Route path="*" element= {<ErrorPage />}/>
       </Routes>
+      <ChatComponent />
     </Router>
+    
   );
 }
 
