@@ -1,2 +1,69 @@
+#overlay-WorkList{
+    margin: 2%;
+    width: fit-content;
+    height: fit-content;
+    background-color: rgb(10, 110, 197);
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: solid black 2px;
+    border-radius: 5%;
+    z-index: 0;
+    padding-bottom: 20px;
+}
 
+#overlay-WorkList > h1{
+    color:azure;
+}
 
+#searchContainer-WorkList{
+    width: 90%;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+#searchContainer-WorkList > input{
+    margin-left: 20px;
+    background-color: rgb(130, 187, 236);
+}
+
+#searchContainer-WorkList > img{
+    margin-left: 10px;
+    width: 25px; 
+    height: 25px;
+}
+
+#dataContainer-WorkList{
+    width: 95%;
+    min-height: 50vh;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-WorkList{
+    border: solid black 2px;
+    background-color: rgb(112, 182, 243);
+    color: black;
+}
+
+#ButtonWorkInsert-WorkListPage{
+    width: 90px;
+    height: 50px;
+    text-align: center;
+    margin-left: auto;
+    background-color: rgb(231, 189, 0);
+    font-size: large;
+    font-weight: bold;
+    border: solid black 2px;
+    border-radius: 15%;
+}
+
+#ButtonWorkInsert-WorkListPage:hover{
+    cursor: pointer;
+    background-color: rgba(231, 189, 0, 0.527);
+}
