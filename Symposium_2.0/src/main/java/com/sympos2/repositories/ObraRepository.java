@@ -40,4 +40,18 @@ public interface ObraRepository extends MongoRepository<Obra, Long>{
 	
 	@Query(value= "{}", fields="{ 'isbn': 1, 'titulo' : 1}")
 	List<ObraIsbnTituloProjection> findAllIsbnAndTitulo();
+	
+	@Query(value= "{}", fields="{ 'isbn': 1 }")
+	List<Obra> findAllOnlyIsbn();
+	
+    @Query("{ '$or': [ " +
+            "{ 'isbn': { '$regex': ?0, '$options': 'i' } }, " +  // Para isbn, búsqueda insensible a mayúsculas y minúsculas
+            "{ 'titulo': { '$regex': ?0, '$options': 'i' } }, " + // Para titulo
+            "{ 'autor': { '$regex': ?0, '$options': 'i' } }, " +  // Para autor
+            "{ 'tipo': { '$regex': ?0, '$options': 'i' } }, " +   // Para tipo
+            "{ 'abstracto': { '$regex': ?0, '$options': 'i' } }, " +  // Para abstracto
+            "{ 'lugar_publicacion': { '$regex': ?0, '$options': 'i' } }, " + // Para lugar_publicacion
+            "{ 'editorial': { '$regex': ?0, '$options': 'i' } } " +  // Para editorial
+            "] }")
+    List<Obra> findAllParams(String search);
 }
