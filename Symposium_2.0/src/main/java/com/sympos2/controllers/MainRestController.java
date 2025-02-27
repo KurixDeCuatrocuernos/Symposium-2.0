@@ -1,6 +1,5 @@
 package com.sympos2.controllers;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sympos2.dto.ObraIsbnTituloProjection;
 import com.sympos2.dto.UserRequestBody;
 import com.sympos2.dto.UsuarioComentarioPintado;
@@ -606,6 +608,172 @@ public class MainRestController {
 	    return ResponseEntity.ok(json);
 	}
 	
+	@GetMapping("/getEmailsEdit")
+	public ResponseEntity<String> getEmailsEdit(@RequestParam String email, @RequestParam String currentEmail) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    if (email != null) {
+	    	
+	    	if(email.contains("@") && email.matches(".*\\.(com|es)$")) {
+	    		try {
+	    			List<Usuario> emails = userRepo.findAllEmailsOnly();
+	    			
+	    			if (!emails.isEmpty()) {
+	    				emails.removeIf(user -> user.getEmail().equals(currentEmail));
+	    				/*Check emails and stops if finds any match*/
+	    				boolean isPresent = emails.stream().anyMatch(user -> user.getEmail().equals(email));
+	    				if(isPresent==true) {
+	    					rs.put("status", "true");
+	    					rs.put("checkEmail", "false");
+	    					rs.put("resp", "This email is already registered, try to log-in");
+	    				} else {
+	    					rs.put("status", "true");
+	    					rs.put("checkEmail", "true");
+	    				}
+	    			}
+		    	} catch (Exception e) {
+			    	rs.put("status", "false");
+			    	rs.put("message", "Error searching emails in database");
+		    	}
+	    	} else {
+	    		rs.put("status","true");
+	    		rs.put("checkEmail", "false");
+	    	}
+	 
+	    } else {
+	    	rs.put("status", "false");
+	    	rs.put("message", "The email received is null: "+email);
+	    }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getUserToEdit")
+	public ResponseEntity<String> getUserToEdit(@RequestParam String id) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    try {
+	    	Optional<Usuario> user = userRepo.findById(id);
+	    	if(!user.isEmpty()) {
+	    		if(user.get().getRole().equals("STUDENT")) {
+		    		rs.put("status", "true");
+		    		rs.put("name", user.get().getName());
+		    		rs.put("email", user.get().getEmail());
+		    		rs.put("fechaNac", user.get().getFechaNac().toString());
+		    		rs.put("role", user.get().getRole());
+		    		
+		    		rs.put("studies", (user != null && user.get().getStudies() != null) ? user.get().getStudies() : "");
+		    		rs.put("school", (user != null && user.get().getSchool() != null) ? user.get().getSchool() : "");
+
+	    		} else if (user.get().getRole().equals("TITLED")) {
+		    		rs.put("status", "true");
+		    		rs.put("name", user.get().getName());
+		    		rs.put("email", user.get().getEmail());
+		    		rs.put("fechaNac", user.get().getFechaNac().toString());
+		    		rs.put("role", user.get().getRole());
+		    		
+		    		rs.put("studiesTitle", (user != null && user.get().getStudies_title() != null) ? user.get().getStudies_title() : "");
+		    		rs.put("studyPlace", (user != null && user.get().getStudy_place() != null) ? user.get().getStudy_place() : "");
+		    		rs.put("titleDate", (user != null && user.get().getTitle_date() != null) ? user.get().getTitle_date().toString() : "");
+	    		} else if (user.get().getRole().equals("ADMIN")) {
+		    		rs.put("status", "true");
+		    		rs.put("name", user.get().getName());
+		    		rs.put("email", user.get().getEmail());
+		    		rs.put("fechaNac", user.get().getFechaNac().toString());
+		    		rs.put("role", user.get().getRole());
+		    		
+		    		rs.put("phone", (user != null && user.get().getPhone() != null) ? user.get().getPhone().toString() : "");
+	    		} else {
+	    			rs.put("status", "false");
+	    			rs.put("message", "The user collected has not role");
+	    		}
+	    		
+	    	} else {
+	    		rs.put("status", "false");
+	    		rs.put("message", "Couldn´t find the user with id: "+id);
+	    	}
+	    } catch (Exception e) {
+	    	rs.put("status", "false");
+	    	rs.put("message", "Exception in server getting the user to edit: "+e);
+	    }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@PostMapping("/postUserEdited")
+	public ResponseEntity<String> postUserEdited(@RequestBody Usuario user) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    Usuario editedUser = new Usuario();
+	    System.out.println("Editando: "+user.toString());
+	    editedUser.setId(user.getId());
+	    if (StringUtils.hasText(user.getPassword())) {
+	    	editedUser.setPassword(encoder.encode(user.getPassword()));
+	    	System.out.println("Se modificó la contraseña");
+	    }
+	    if(StringUtils.hasText(user.getName())) {
+	    	editedUser.setName(user.getName());
+//	    	System.out.println("Se modificó el nombre");
+	    }
+	    if(StringUtils.hasText(user.getRole())) {
+	    	editedUser.setRole(user.getRole());
+	    	System.out.println("Se modificó el role");
+	    }
+	    if(StringUtils.hasText(user.getFechaNac().toString())) {
+	    	editedUser.setFechaNac(user.getFechaNac());
+//	    	System.out.println("Se modificó la fecha de nacimiento");
+	    }
+	    if(StringUtils.hasText(user.getEmail())) {
+	    	editedUser.setEmail(user.getEmail());
+	    	System.out.println("Se modificó el email");
+	    }
+	    if(StringUtils.hasText(user.getStudies())) {
+	    	editedUser.setStudies(user.getStudies());
+//	    	System.out.println("Se modificaron los estudios");
+	    }
+	    if(StringUtils.hasText(user.getSchool())) {
+	    	editedUser.setSchool(user.getSchool());
+//	    	System.out.println("Se modificó la escuela");
+	    }
+	    if(StringUtils.hasText(user.getStudies_title())) {
+	    	editedUser.setStudies_title(user.getStudies_title());
+//	    	System.out.println("Se modificaron los tirulos de estudio");
+	    }
+	    if(StringUtils.hasText(user.getStudy_place())) {
+	    	editedUser.setStudy_place(user.getStudy_place());
+//	    	System.out.println("Se modificó el lugar de estudio");
+	    }
+	    if(user.getTitle_date()!=null) {
+	    	if(StringUtils.hasText(user.getTitle_date().toString())) {
+	    		editedUser.setTitle_date(user.getTitle_date());
+//	    		System.out.println("Se modificó la fecha del titulo");
+	    	}
+	    }
+	    
+	    if(user.getPhone()!=null) {
+		    if(StringUtils.hasText(user.getPhone().toString())) {
+		    	editedUser.setPhone(user.getPhone());
+//		    	System.out.println("Se modificó el teléfono");
+		    }
+	    }
+	    
+	    try {
+	    	userRepo.save(editedUser);
+	    	rs.put("status", "true");
+	    } catch(Exception e) {
+	    	rs.put("status", "false");
+	    	rs.put("message", "There was an error editing the user in server: "+e);
+	    }
+	     
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
 	@PostMapping("/postRegistryUser")
 	public ResponseEntity<String> postRegistryUser(@RequestBody Usuario user) throws JsonProcessingException{
 		Map<String, String> rs = new HashMap<>();
@@ -638,6 +806,351 @@ public class MainRestController {
 	    return ResponseEntity.ok(json);
 	}
 	
+	@GetMapping("/getAllIdUsers")
+	public ResponseEntity<String> getAllIdUsers() throws JsonProcessingException{
+		Map<String, Object> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    // those are modifications for ObjectMapper to allow Jackson library to read DataTime objects, first allow to read and the second formats it to have - between each value (Year-Month-Day)
+	    om.registerModule(new JavaTimeModule());
+	    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    try {
+	    	List<Usuario> users = userRepo.findAll();
+	    	if (!users.isEmpty()) {
+//	    		List<String> ids = new ArrayList<String>();
+//	    		for (Usuario user : users) {
+//	    			ids.add(user.getId());
+//	    		}
+//	    		if (!ids.isEmpty()) {
+	    			System.out.println(users.toString());
+	    			rs.put("status", "true");
+	    			rs.put("array", users);
+//	    		} else {
+//	    			rs.put("status", "false");
+//			    	rs.put("message", "The List collected from the server is empty, this might be an error");
+//	    		}
+	    		
+	    	} else {
+	    		rs.put("status", "false");
+		    	rs.put("message", "There are no users in database, this might be an error");
+	    	}
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    	rs.put("status", "false");
+	    	rs.put("message", "There was an error in server trying to fetch the users");
+	    }
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getAllIdWorks")
+	public ResponseEntity<String> getAllIdWorks() throws JsonProcessingException{
+		Map<String, Object> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    // those are modifications for ObjectMapper to allow Jackson library to read DataTime objects, first allow to read and the second formats it to have - between each value (Year-Month-Day)
+	    om.registerModule(new JavaTimeModule());
+	    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    try {
+	    	List<Obra> works = obraRepo.findAll();
+	    	if (!works.isEmpty()) {
+	    		
+	    		System.out.println("writings to show: "+works.toString());
+	    		
+	    		System.out.println(works.toString());
+	    		rs.put("status", "true");
+	    		rs.put("array", works);
+	    		
+	    	} else {
+	    		rs.put("status", "false");
+		    	rs.put("message", "There are no Writings in database, this might be an error");
+	    	}
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    	rs.put("status", "false");
+	    	rs.put("message", "There was an error in server trying to fetch the writings");
+	    }
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getUserDeleted")
+	public ResponseEntity<String> getDeletedUser(@RequestParam String id) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    if (id!=null) {
+	    	try {
+	    		
+	    		List<Comentario> comments = commentRepo.findAllByUsuario(id);
+	    		for (Comentario comment : comments) {
+	    			commentRepo.deleteById(comment.getId());
+	    		}
+	    		userRepo.deleteById(id);
+	    		rs.put("status", "true");
+		    } catch (Exception e) {
+		    	rs.put("status", "false");
+		    	rs.put("message", "Error connecting with server, deleting the user aborted");
+		    }
+	    } else {
+	    	rs.put("status", "false");
+	    	rs.put("message", "The id recieved to delete is empty");
+	    }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getWorkDeleted")
+	public ResponseEntity<String> getWorkDeleted(@RequestParam Long id) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    if (id!=null) {
+	    	try {
+	    		
+	    		List<Comentario> comments = commentRepo.findAllByObra(id);
+	    		for (Comentario comment : comments) {
+	    			commentRepo.deleteById(comment.getId());
+	    		}
+	    		obraRepo.deleteById(id);
+	    		rs.put("status", "true");
+		    } catch (Exception e) {
+		    	rs.put("status", "false");
+		    	rs.put("message", "Error connecting with server, deleting the writing aborted");
+		    }
+	    } else {
+	    	rs.put("status", "false");
+	    	rs.put("message", "The id recieved to delete is empty");
+	    }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getWorkToEdit")
+	public ResponseEntity<String> getWorkToEdit(@RequestParam Long id) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    try {
+	    	Optional<Obra> obra = obraRepo.findById(id);
+	    	if(!obra.isEmpty()) {
+	    		if(obra.get().getTipo().equals("BOOK")) {
+		    		rs.put("status", "true");
+		    		rs.put("title", obra.get().getTitulo());
+		    		rs.put("autor", obra.get().getAutor());
+		    		rs.put("publicationDate", obra.get().getFechaPublicacion().toString());
+		    		rs.put("type", obra.get().getTipo());
+		    		rs.put("abstract", obra.get().getAbstracto());
+		    		rs.put("editorial", obra.get().getEditorial());
+		    		rs.put("publicationPlace", obra.get().getLugar_publicacion());
+		    		rs.put("temas", om.writeValueAsString(obra.get().getTemas()));
+
+	    		} else if (obra.get().getTipo().equals("ARTICLE")) {
+		    		rs.put("status", "true");
+		    		rs.put("title", obra.get().getTitulo());
+		    		rs.put("autor", obra.get().getAutor());
+		    		rs.put("publicationDate", obra.get().getFechaPublicacion().toString());
+		    		rs.put("type", obra.get().getTipo());
+		    		rs.put("abstract", obra.get().getAbstracto());
+		    		rs.put("editorial", obra.get().getEditorial());
+		    		rs.put("publicationPlace", obra.get().getLugar_publicacion());
+		    		rs.put("temas", om.writeValueAsString(obra.get().getTemas()));
+		    		rs.put("PageIni", String.valueOf(obra.get().getPaginaini()));
+		    		rs.put("PageFin", String.valueOf(obra.get().getPaginafin()));
+	    		} else {
+	    			rs.put("status", "false");
+	    			rs.put("message", "The Writing collected has not type");
+	    		}
+	    		
+	    	} else {
+	    		rs.put("status", "false");
+	    		rs.put("message", "Couldn´t find the Writing with isbn: "+id);
+	    	}
+	    } catch (Exception e) {
+	    	rs.put("status", "false");
+	    	rs.put("message", "Exception in server getting the writing to edit: "+e);
+	    }
+	    
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@PostMapping("/postWorkEdited")
+	public ResponseEntity<String> postWorkEdited(@RequestBody Obra work) throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    System.out.println("Editing Work...: "+work.toString());
+	    boolean cell = true;
+	    String fields = "";
+	    if (work.getIsbn()==null) {
+	    	cell=false;
+	    	fields="ISBN is empty\n";
+	    }
+	    if(work.getTitulo()==null || work.getTitulo()=="") {
+	    	cell=false;
+	    	fields+="Title is empty\n";
+	    }
+	    if (work.getAutor()==null || work.getAutor()=="") {
+	    	cell=false;
+	    	fields+="Autor is empty\n";
+
+	    }
+	    if (work.getEditorial()==null || work.getEditorial()=="") {
+	    	cell=false;
+	    	fields+="Editorial is empty\n";
+	    }
+	    if (work.getFechaPublicacion()==null) {
+	    	cell=false;
+	    	fields+="FechaPublicacion is empty\n";	    
+	    }
+	    if (work.getLugar_publicacion()==null||work.getLugar_publicacion()=="") {
+	    	cell=false;
+	    	fields+="Lugar_publicacion is empty\n";
+	    }
+	    if (work.getTipo()==null||work.getTipo()=="") {
+	    	cell=false;
+	    	fields+="Tipo is empty\n";
+	    }
+	    if (!work.getTipo().equals("BOOK") && !work.getTipo().equals("ARTICLE")) {
+	    	cell=false;
+	    	fields+="Tipo not equals BOOK nor ARTICLE\n";
+	    }
+	    if (work.getAbstracto()==null || work.getAbstracto()=="") {
+	    	cell=false;
+	    	fields+="Astracto is empty\n";
+	    }
+	    if (work.getTemas()==null || work.getTemas().isEmpty()) {
+	    	cell=false;
+	    	fields+="Temas is empty\n";
+	    }
+	    if (cell==true) {
+	    	try {
+		    	obraRepo.save(work);
+		    	rs.put("status", "true");
+		    } catch(Exception e) {
+		    	rs.put("status", "false");
+		    	rs.put("message", "There was an error editing the user in server: "+e);
+		    }
+	    } else {
+	    	rs.put("status", "false");
+	    	rs.put("message", "Any writing's field is empty: "+fields);
+	    }
+	    
+	     
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("getSearchWorkList")
+	public ResponseEntity<String> getSearchWorkList(@RequestParam String search) throws JsonProcessingException{
+		Map<String, Object> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    // those are modifications for ObjectMapper to allow Jackson library to read DataTime objects, first allow to read and the second formats it to have - between each value (Year-Month-Day)
+	    om.registerModule(new JavaTimeModule());
+	    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    try {
+	    	List<Obra> works = obraRepo.findAllParams(search);
+	    
+	    	System.out.println("writings to show: "+works.toString());
+	    		
+	    	System.out.println(works.toString());
+	    	rs.put("status", "true");
+	    	rs.put("array", works);
+	    		
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    	rs.put("status", "false");
+	    	rs.put("message", "There was an error in server trying to fetch the writings");
+	    }
+	    String json= om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getSearchUsersList")
+	public ResponseEntity<String> getSearchUsersList(@RequestParam String search) throws JsonProcessingException {
+	    Map<String, Object> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    om.registerModule(new JavaTimeModule());
+	    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    
+	    try {
+	        List<Usuario> users = userRepo.findAllParams(search); 
+
+	        rs.put("status", "true");
+	        rs.put("array", users);
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        rs.put("status", "false");
+	        rs.put("message", "There was an error in server trying to fetch the users");
+	    }
+	    
+	    String json = om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/geIsbnChecked")
+	public ResponseEntity<String> getIsbnChecked(@RequestParam Long id) throws JsonProcessingException {
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    try {
+	    	List<Obra> obras = obraRepo.findAllOnlyIsbn();
+	    	if (obras.isEmpty()) {
+	    		rs.put("status", "false");
+	    		rs.put("message", "Error, no any ISBN received from database");
+	    	} else {
+
+	    		boolean isPresent = obras.stream().anyMatch(obra -> obra.getIsbn().equals(id));
+
+	    		rs.put("status", "true");
+	    		if (isPresent) {
+	    			rs.put("present", "true");
+	    		} else {
+	    			rs.put("present", "false");
+	    		}
+	    		
+	    	}
+
+	    } catch (Exception e) {
+	    	rs.put("status", "false");
+	    	rs.put("message", "there was a problem in server: "+e);
+	    }
+		
+		String json = om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@PostMapping("/postWorkInsert")
+	public ResponseEntity<String> postWorkInsert(@RequestBody Obra work) throws JsonProcessingException {
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    
+	    System.out.println("obra a insertar: "+work);
+	    
+	    if (work.getIsbn()!=null && 
+	    	work.getTitulo()!=null && work.getTitulo()!="" &&
+	    	work.getAutor()!=null && work.getAutor()!="" &&
+	    	work.getAbstracto()!=null && work.getAbstracto()!="" &&
+	    	work.getEditorial()!=null && work.getEditorial()!="" &&
+	    	work.getLugar_publicacion()!=null && work.getLugar_publicacion()!="" &&
+	    	work.getTipo()!=null && work.getTipo()!="" &&
+	    	work.getFechaPublicacion()!=null) {
+	    	
+	    	try {
+	    		obraRepo.save(work);
+	    		rs.put("status", "true");
+	    	} catch (Exception e) {
+	    		rs.put("status", "false");
+		    	rs.put("message", "There was a problem connecting with Database: "+e);
+	    	}
+	    	
+	    } else {
+	    	rs.put("status", "false");
+	    	rs.put("message", "Any Writing field was empty, couldn't insert the writing in Database");
+	    }
+		
+		String json = om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
 	
 	private int getAVG(Long id) {
 		int valor=0;
@@ -651,8 +1164,6 @@ public class MainRestController {
 				contador++;
 			}
 			valor=suma/contador;
-//			System.out.println("valores recogidos: "+valores.toString());
-//			System.out.println("media= "+valor);
 		}
 		
 		return valor;

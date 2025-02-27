@@ -1,0 +1,22 @@
+#Overlay-ErrorPage{
+    width: 100%;
+    height: 100%;
+ 
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+    align-items: center;
+    justify-items: center;
+}
+
+#Overlay-ErrorPage > h1{
+    font-style: italic;
+    
+}
+
+#Overlay-ErrorPage > img{
+height: 600px;
+width: 600px;
+border: solid black 5px;
+border-radius: 20%;
+}

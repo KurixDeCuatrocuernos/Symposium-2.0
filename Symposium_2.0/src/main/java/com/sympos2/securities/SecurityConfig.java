@@ -65,7 +65,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/index/**", "/login/**", "/register/**", "/submit/**", "/form/**", "/workShow/**", "/App/**","/sugerencias/**","/getUserRole/**", "/getUserAvatar/**","/getLogin","/getLogout", "/getWriting/**", "/getComentarios", "/getUserIdent", "/getCommented", "/postCommentInserted", "/getIdComment", "/getCommentEdit", "/postCommentEdited", "/getEmails", "/postRegistryUser").permitAll() // here we can add the URL we want to have a free access.
+                                .requestMatchers("/", "/index/**", "/login/**", "/register/**", "/submit/**", "/form/**", "/workShow/**", "/App/**","/sugerencias/**","/getUserRole/**", "/getUserAvatar/**","/getLogin","/getLogout", "/getWriting/**", "/getComentarios", "/getUserIdent", "/getCommented", "/postCommentInserted", "/getIdComment", "/getCommentEdit", "/postCommentEdited", "/getEmails", "/postRegistryUser", "/getAllIdUsers", "/getUserDeleted", "/getEmailsEdit", "/getUserToEdit", "/postUserEdited", "/getAllIdWorks", "/getWorkDeleted", "/getWorkToEdit", "/postWorkEdited", "/getSearchWorkList", "/getSearchUsersList", "/geIsbnChecked", "/postWorkInsert").permitAll() // here we can add the URL we want to have a free access.
                                 .requestMatchers("/admin-zone-users-list/**","/edit/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
