@@ -28,7 +28,6 @@ function AdminToolComponent() {
                     <ul  className={isMenuOpen ? 'open' : 'closed'}>
                         <li><Link to="/UsersList">Users List</Link></li>
                         <li><Link to="/WorkList">Writings List</Link></li>
-                        <li><Link to="/CommentList">Comments List</Link></li>
                     </ul>
                 </div>
             )}
