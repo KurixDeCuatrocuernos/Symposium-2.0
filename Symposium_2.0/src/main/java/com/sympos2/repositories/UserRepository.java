@@ -23,6 +23,9 @@ public interface UserRepository extends MongoRepository<Usuario, String> {
 	@Query(value = "{ '_id': ?0 }", fields = "{'_id': 1, 'name': 1, 'role': 1 , 'school': 1 }")
 	Optional<UsuarioComentarioPintado> findByIdOnlyIdAndNameAndRole(String id);
 	
+	@Query(value="{}", fields="{'_id':1}")
+	List<Usuario> findAllOnlyId();
+	
 	Optional<Usuario> findIdByEmail(String email);
 	
 	void deleteById(String id);
@@ -50,5 +53,18 @@ public interface UserRepository extends MongoRepository<Usuario, String> {
 	@Query(value="{ 'email' : ?0 }", fields="{ 'id' : 1 }")
 	Optional<Usuario> findByEmailOnlyId(String email);
 
+	@Query("{ '$or': [ " +
+	        "{ '$expr': { '$regexMatch': { 'input': { '$toString': '$_id' }, 'regex': ?0, 'options': 'i' } } }, " + // Búsqueda por subcadena en _id
+	        "{ 'name': { '$regex': ?0, '$options': 'i' } }, " +   
+	        "{ 'email': { '$regex': ?0, '$options': 'i' } }, " +  
+	        "{ 'role': { '$regex': ?0, '$options': 'i' } }, " +  
+	        "{ 'studies': { '$regex': ?0, '$options': 'i' } }, " +
+	        "{ 'school': { '$regex': ?0, '$options': 'i' } }, " + 
+	        "{ 'phone': { '$regex': ?0, '$options': 'i' } }, " +  
+	        "{ 'studies_title': { '$regex': ?0, '$options': 'i' } }, " +  
+	        "{ 'study_place': { '$regex': ?0, '$options': 'i' } }, " +
+	        "{ '$expr': { '$regexMatch': { 'input': { '$toString': '$fechaNac' }, 'regex': ?0, 'options': 'i' } } }" +  // Búsqueda por fecha
+	        "] }")
+	List<Usuario> findAllParams(String search);
 	
 }
