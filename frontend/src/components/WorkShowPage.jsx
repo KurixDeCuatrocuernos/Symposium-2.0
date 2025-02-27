@@ -251,9 +251,9 @@ function WorkShowPage(){
                     <div id="buttonContainer">
                     {
                         logged === false ? (
-                            <button id="buttonComment" onClick={signInMessage}>Comment1</button>
+                            <button id="buttonComment" onClick={signInMessage}>Comment</button>
                         ) : logged === true && commented === false && role === "TITLED" ? (
-                            <button id="buttonComment" onClick={comment}>Comment2</button>
+                            <button id="buttonComment" onClick={comment}>Comment</button>
                         ) : logged === true && commented === true && role === "TITLED" ? (
                             <button id="buttonComment" onClick={getIdComment}>Edit Comment</button>
                         ) : logged === true && role === "ADMIN" ? (
@@ -288,9 +288,9 @@ function WorkShowPage(){
                     <div id="buttonContainer">
                     {
                         logged === false ? (
-                            <button id="buttonComment" onClick={signInMessage}>Comment1</button>
+                            <button id="buttonComment" onClick={signInMessage}>Comment</button>
                         ) : logged === true && commented === false && role === "STUDENT" ? (
-                            <button id="buttonComment" onClick={comment}>Comment2</button>
+                            <button id="buttonComment" onClick={comment}>Comment</button>
                         ) : logged === true && commented === true && role === "STUDENT" ? (
                             <button id="buttonComment" onClick={getIdComment}>Edit Comment</button>
                         ) : logged === true && role === "ADMIN" ? (
