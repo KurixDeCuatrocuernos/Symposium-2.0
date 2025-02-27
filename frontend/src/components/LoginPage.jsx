@@ -84,13 +84,16 @@ function LoginPage() {
 
         <div>
           <label className="formLogin-label">User Email</label>
-          <input className="formLogin-input" id="email" placeholder="user.example@email.com" />
+          <div className="inputContainer">
+            <input className="formLogin-input" id="email" placeholder="user.example@email.com" />
+          </div>
+          
           <span className="formLogin-span">Your email</span>
         </div>
 
         <div>
           <label className="formLogin-label">User Password</label>
-          <div id="inputContainer">
+          <div className="inputContainer">
             <input className="formLogin-input" type={showPassword ? "text" : "password"} id="password" placeholder="12345abcd_!" />
             <input
               type="checkbox" id="showPasswordCheckbox" checked={showPassword} onChange={() => setShowPassword(!showPassword)} />
@@ -99,7 +102,9 @@ function LoginPage() {
           <span className="formLogin-span">Your password</span>
         </div>
 
-        <div>
+        <a id="Ancle-Register" href="/Register">Don't have account?, Register here now!</a>
+        
+        <div id="buttonContainer">
           <button type="button" className="formLogin-button" id="submitButton" onClick={verifyCreds}>Sign-In</button>
           <button type="button" className="formLogin-button" id="cancelButton" onClick={cancel}>Cancel</button>
         </div>

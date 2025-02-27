@@ -5,16 +5,20 @@
     min-width: 600px;
     max-width: 700px;
     min-height: 300px;
-    position: absolute;
-    left:25vw;
-    top: 25vh;
-}
-
-#formLogin{
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    justify-self: center;
+    margin-top: 20vh;
+}
+
+#formLogin {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
     text-align: center;
 }
+
 
 .formLogin-label{
     display: flex;
@@ -33,22 +37,66 @@
     margin-bottom: 20px;
 }
 
-#inputContainer{
+.inputContainer{
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    align-items: center; 
 }
 
 #submitButton{
     color:azure;
     background-color: rgba(6, 128, 6, 0.61);
+    width: 80px;
+    height: 40px;
+    border: solid black 2px;
+    border-radius: 20%;
 } 
+
+#submitButton:hover{
+    cursor: pointer;
+    background-color: rgba(6, 128, 6, 0.301);
+}
 
 #cancelButton{
     color:azure;
     background-color: rgb(145, 0, 0);
+    margin-left: 30px;
+    width: 80px;
+    height: 40px;
+    border: solid black 2px;
+    border-radius: 20%;
+}
+
+#cancelButton:hover{
+    background-color: rgba(145, 0, 0, 0.514);
+    cursor: pointer;
 }
 
 .formLogin-message{
     text-align: center;
+}
+
+#Ancle-Login{
+    margin-top: 20px;
+    text-align: center;
+    height: 30px;
+    font-size: larger;
+    font-weight: 900;
+    text-decoration: none;
+    color:rgb(255, 255, 255);
+
+}
+
+#Ancle-Login:hover{
+    color: rgba(119, 0, 255, 0.616);
+}
+
+#buttonContainer{
+    display: flex;
+    flex-direction: row;
+}
+
+#email{
+    position: relative;
+    right: 40px;
 }

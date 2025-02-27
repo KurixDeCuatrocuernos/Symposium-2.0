@@ -46,7 +46,7 @@
 }
 
 #email{
-    margin-left: 100px;
+    margin-left: 140px;
     height: 10%;
     display: flex;
     flex-direction: column;
@@ -92,6 +92,21 @@
     height: 10%;
     display: flex;
     flex-direction: column;
+}
+
+#Ancle-Register{
+    margin-top: 20px;
+    text-align: center;
+    height: 30px;
+    font-size: larger;
+    font-weight: 900;
+    text-decoration: none;
+    color:rgb(255, 255, 255);
+
+}
+
+#Ancle-Register:hover{
+    color: rgba(119, 0, 255, 0.616);
 }
 
 #buttons{

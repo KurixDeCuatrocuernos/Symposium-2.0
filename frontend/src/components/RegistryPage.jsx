@@ -42,6 +42,8 @@ function RegistryPage() {
         const name= event.target.value;
         if (name.length > 20){
             setNameAdvice("User name can only have 20 caracters at most");
+        } else if (name.length < 5){
+            setNameAdvice("User name must have at least 5 characters");
         } else {
             setNameAdvice(" ");
         }
@@ -130,9 +132,9 @@ function RegistryPage() {
             message+="All the fields must be completed!";
         } else {
             
-            if (username.value.length>20||username.value.length===0){
+            if (username.value.length>20||username.value.length<5){
                 cell=false;
-                message+="Username must be lower than 20 characters.\n";
+                message+="Username must be lower than 20 characters and longer than 5.\n";
             }
             if (emailColor!=="green"){
                 cell=false;
@@ -278,6 +280,8 @@ function RegistryPage() {
                     <input className="input" id="schoolInput" type="text" placeholder="High School of Economics of London"></input>
                     <span className="advice"></span>
                 </div>
+
+                <a id="Ancle-Register" href="/Login">You have account?, Sign-in here!</a>
                 <div id="buttons">
                     <button onClick={checkData}>Save</button>
                     <button onClick={cancelRegistry}>Cancel</button>
