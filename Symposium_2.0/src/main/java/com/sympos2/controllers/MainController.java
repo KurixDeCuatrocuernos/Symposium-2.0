@@ -106,10 +106,8 @@ public class MainController {
 		if (auth != null && auth.isAuthenticated()) {
 			model.addAttribute("username", auth.getName());
 			if(auth.getName().equals("anonymousUser")) {
-//				System.out.println("Usuario anónimo, credenciales predeterminados");
 				model.addAttribute("user", user);
 			} else {
-//				System.out.println("usuario identificado");
 				user = (Usuario) auth.getPrincipal();
 				model.addAttribute("user", auth.getPrincipal());
 			}
@@ -125,10 +123,7 @@ public class MainController {
 			Optional<Obra> obra = obraRepo.findById(id);
 			if (obra != null && !obra.isEmpty()) {
 				List<ObraIsbnTituloProjection> suggestions = obraRepo.findAllIsbnAndTitulo();
-//				System.out.println("sugerencias: "+suggestions.toString());
 				model.addAttribute("suggestWorks",suggestions);
-				
-//				System.out.println("mostrando obra: "+obra.get().toString());
 				model.addAttribute("obra", obra.get());
 				
 				Sort sortByDate = Sort.by(Order.desc("fecha"));
@@ -147,8 +142,6 @@ public class MainController {
 							paintcomments.add(new ComentarioPintado(comment,userToPaint.get().id(), userToPaint.get().name(), userToPaint.get().role()));
 						}
 					}
-//					System.out.println("Comentarios enviados al modelo: ");
-//					paintcomments.forEach(System.out::println);
 					model.addAttribute("comments", paintcomments);
 				} else {
 					System.out.println("No se encontraron comentarios para esa obra");
@@ -165,8 +158,6 @@ public class MainController {
 							paintanswers.add(new ComentarioPintado(answer, userToPaint.get().id(), userToPaint.get().name(), userToPaint.get().role()));
 						}
 					}
-//					System.out.println("Respuestas enviadas al modelo: ");
-//					paintanswers.forEach(System.out::println);
 					model.addAttribute("answers", paintanswers);
 				} else {
 					System.out.println("No se encontraron respuestas para esa obra");
@@ -174,7 +165,6 @@ public class MainController {
 				
 				boolean comentado=false;
 				for(Comentario comment : comments) {
-//					System.out.println("Comparando el idUsuario del comentario: "+comment.getUsuario()+" con el id del usuario: "+user.getId());
 					if (comment.getUsuario().equals(user.getId())) {
 						comentado=true;
 					}
