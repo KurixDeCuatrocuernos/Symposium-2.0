@@ -24,6 +24,7 @@ function WorkShowPage(){
     const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
     const [Commentary ,setCommentary] = useState(false);
     const [idComment, setIdComment] = useState("");
+    
 
     useEffect(() => {
         if (isbn){
@@ -265,13 +266,17 @@ function WorkShowPage(){
                         {comentariosTitle && comentariosTitle.length > 0 ? 
                         (comentariosTitle.map((comentario, index) => (
                             <ComentarioComponent
-                            key={comentario.id} // React necesita una clave única para cada elemento en listas
+                            key={comentario.id} 
+                            id={comentario.id}
                             username={comentario.username}
                             school={comentario.school}
                             value={comentario.value}
                             title={comentario.title}
                             text={comentario.text}
                             datetime={comentario.datetime}
+                            usr={usr} 
+                            isbn={isbn}
+                            role={role}
                             />
                         ))) : (<p>There are no Comments yet</p>)}
                     </div>
@@ -302,13 +307,17 @@ function WorkShowPage(){
                     <div className="commentsPlacement">
                         {comentarios && comentarios.length > 0 ? (comentarios.map((comentario, index) => (
                             <ComentarioComponent
-                            key={comentario.id} // React necesita una clave única para cada elemento en listas
+                            key={comentario.id}
+                            id={comentario.id}
                             username={comentario.username}
                             school={comentario.school}
                             value={comentario.value}
                             title={comentario.title}
                             text={comentario.text}
                             datetime={comentario.datetime}
+                            usr={usr} 
+                            isbn={isbn}
+                            role={role}
                             />
                         ))): (<p>There are no Comments yet</p>)}
                     </div>

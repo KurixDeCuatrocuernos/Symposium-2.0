@@ -45,20 +45,27 @@
     margin-top: 20px;
     align-self: center;
     position: relative;
-    width: 90vw;
+    width: 92vw;
     height: 600px; /* Tamaño fijo */
     padding-bottom: 20px;
     display: flex; /* Faltaba definir display */
     flex-direction: column;
     margin-bottom: 20px;
+    overflow-y: auto; 
+}
 
-}
-/*
 .commentsPlacement{
-    width: 750px;
-    border: solid brown 5px;
+    height: fit-content;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 20px;
+    /* Activa la barra de desplazamiento vertical */
+    position: sticky;
+    top: 0;
 }
-*/
+
 
 #buttonContainer{
     margin: 20px;
