@@ -4,6 +4,7 @@ import HeaderComponent from "./components/HeaderComponent";
 import WorkListPage from "./components/WorkListPage";
 import HomePage from "./components/HomePage";
 import LoginPage from "./components/LoginPage";
+import CommentListPage from "./components/CommentListPage";
 import RegistryPage from "./components/RegistryPage";
 import ErrorPage from "./components/ErrorPage";
 import UsersListPage from"./components/UsersListPage";
@@ -12,7 +13,11 @@ import ChatComponent from "./components/ChatComponent";
 
 function App() {
   const [access, setAccess] = useState(false); // Estado para manejar el acceso
-  const [elements, setElements] = useState(null); // Estado para manejar las rutas dinámicas
+  const [usr, setUsr] = useState("");
+
+  useEffect(()=>{
+    getUsr();
+  },[]);
 
   useEffect(() => {
     const searchAccess = async () => {
@@ -22,7 +27,6 @@ function App() {
         const data = await response.json();
         console.log(data);
         if (data && data === "ADMIN") {
-          console.log("El usuario es Administrador");
           setAccess(true);
         } else if (devtool === true) { // sólo para desarrollo
           setAccess(true);
@@ -37,6 +41,29 @@ function App() {
 
     searchAccess();
   }, []);
+
+  const getUsr = async() => {
+    try{
+      const response = await fetch('/getUsername');
+      if (response.ok){
+        const data = await response.json();
+        if (data.status === "true"){
+          if (data.user === "false"){
+             setUsr("");
+          } else {
+            setUsr(data.user);
+            console.log("user: "+data.user);
+          }
+        } else {
+          console.log("there was an error getting the user");
+        }
+      } else {
+        console.log("Response is not ok");
+      }
+    } catch (error) {
+      console.log("There was a problem trying to connect with server: "+error);
+    }
+  };
 
 
   return (
@@ -54,16 +81,22 @@ function App() {
           <>
             <Route path="/WorkList" element={<WorkListPage />} />
             <Route path="/UsersList" element={<UsersListPage />} />
+            <Route path="/CommentList" element={<CommentListPage />} />
           </>
         ) : (
           <>
             <Route path="/WorkList" element={<ErrorPage />} />
             <Route path="/UsersList" element={<ErrorPage />} />
+            <Route path="/CommentList" element={<ErrorPage />} />
           </>
         )}
         <Route path="*" element= {<ErrorPage />}/>
       </Routes>
-      <ChatComponent />
+      {usr && usr!=="" ? 
+        <ChatComponent usr={usr}/>
+      :
+      ''
+      }
     </Router>
     
   );
