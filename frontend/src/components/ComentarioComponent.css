@@ -1,22 +1,18 @@
 #CommentContainer{
     background-color: rgb(14, 38, 148);
     width: 90vw;
-    height: 200px; /*Revisar si funciona*/
-    justify-self:center;
-    overflow-y: auto; /* Activa la barra de desplazamiento vertical */
-    position: sticky;
-    top: 0;
     margin-bottom: 5px;
+    margin-top: 10px; 
 }
 
 #userContent{
     background-color: rgb(144, 241, 241);
     width: 80%;
-    height: fit-content;
     justify-self: center;
     display: flex;
     flex-direction: row;
     color:black;
+    margin-top: 10px;
 
 }
 
@@ -56,6 +52,7 @@
     flex-direction: row;
     color:black;
     padding-right: 10px;
+    margin-bottom: 10px;
 }
 
 #commentValue{
@@ -77,8 +74,21 @@
 #commentContext-text{
     display: flex;
     flex-direction: column;
-    width:100%;
+    width: 100%;
+    margin: 5px;
     
+}
+
+#commentContext-text > img{
+    width: 32px;
+    height: 32px;
+    align-self: flex-end;
+}
+
+#commentContext-text > img:hover{
+    background-color: rgba(1, 65, 65, 0.219);
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 #commentTitle{
