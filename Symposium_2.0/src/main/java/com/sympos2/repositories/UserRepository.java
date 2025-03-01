@@ -52,6 +52,9 @@ public interface UserRepository extends MongoRepository<Usuario, String> {
 	
 	@Query(value="{ 'email' : ?0 }", fields="{ 'id' : 1 }")
 	Optional<Usuario> findByEmailOnlyId(String email);
+	
+	@Query(value="{ 'role' : ?0 }", fields="{ 'id' : 1 }")
+	List<Usuario> findAllByRoleOnlyId(String role);
 
 	@Query("{ '$or': [ " +
 	        "{ '$expr': { '$regexMatch': { 'input': { '$toString': '$_id' }, 'regex': ?0, 'options': 'i' } } }, " + // Búsqueda por subcadena en _id

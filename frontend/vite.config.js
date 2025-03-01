@@ -9,10 +9,12 @@ export default defineConfig({
       '/sugerencias': 'http://localhost:9000', // Redirige todas las peticiones a /sugerencias al backend
       '/getUserRole': 'http://localhost:9000', // Redirige todas las peticiones a /getUserRole al backend
       '/getUserAvatar': 'http://localhost:9000', // Redirige todas las peticiones a /getUserAvatar al backend
+      '/getUsername': 'http://localhost:9000',
       '/getLogin': 'http://localhost:9000',
       '/getLogout': 'http://localhost:9000',
       '/getWriting': 'http://localhost:9000',
       '/getComentarios': 'http://localhost:9000',
+      '/getAnswers': 'http://localhost:9000',
       '/getCommented': 'http://localhost:9000',
       '/getUserIdent': 'http://localhost:9000',
       '/postCommentInserted': 'http://localhost:9000',
@@ -34,6 +36,15 @@ export default defineConfig({
       '/getSearchUsersList': 'http://localhost:9000',
       '/geIsbnChecked': 'http://localhost:9000',
       '/postWorkInsert': 'http://localhost:9000',
+      '/getNewestWriting': 'http://localhost:9000',
+      '/getMostValuedWriting': 'http://localhost:9000',
+      '/getTitledComment': 'http://localhost:9000',
+      '/getStudentComment': 'http://localhost:9000',
+      '/getBanComment': 'http://localhost:9000',
+      '/getAllBanComments': 'http://localhost:9000',
+      '/getUnbanComment': 'http://localhost:9000',
+      '/getDelComment': 'http://localhost:9000',
+      '/getSearchCommentList': 'http://localhost:9000',
     },
   },
 });

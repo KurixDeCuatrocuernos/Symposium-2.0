@@ -11,6 +11,10 @@
     border-radius: 50%;
 }
 
+#devToolImg:hover{
+    cursor: pointer;
+}
+
 .open {
     background-color: grey;
 }
@@ -43,6 +47,11 @@
     background-color: azure;
     margin: 5px;
     padding: 2px;
+}
+
+#devToolDropdown > ul > li:hover {
+    background-color: rgba(240, 255, 255, 0.575);
+    cursor: pointer;
 }
 
 #devToolDropdown > ul > li > a{

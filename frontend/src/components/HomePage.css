@@ -1,0 +1,100 @@
+.HomePage-Container {
+    width:fit-content;
+    height: fit-content;
+    display:flex;
+    flex-direction: column;
+    background-color: rgb(58, 100, 218);
+    margin: 20px;
+    border: solid black 5px;
+    border-radius: 6%;
+}
+
+.HomePage-Container:hover{
+    background-color: rgb(91, 129, 231);
+    cursor: pointer;
+}
+
+.HomePage-Container > h1 {
+    text-align: center;
+}
+
+.HomePage-WritingComp {
+    width:fit-content;
+    height: 25%;
+    display:flex;
+    flex-direction: row;
+}
+
+.HomePage-WritingComp-TitleAutor{
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    margin: 20px;
+    text-align: center;
+    justify-content: center;
+}
+
+.HomePage-WritingComp > img {
+    width: 64px;
+    height: 64px;
+    border: solid black 2px;
+    border-radius: 50%;
+    background-color: aqua;
+    align-self: center;
+    margin: 20px;
+}
+
+.HomePage-WritingComp > h3{
+        text-align: justify;
+        margin: 50px;
+        width: fit-content;
+        font-style: italic;
+}
+
+.HomePage-CommentComp{
+    width:fit-content;
+    height: 25%;
+    display:flex;
+    flex-direction: row;
+}
+
+.HomePage-CommentComp > img{
+    width: 64px;
+    height: 64px;
+    border: solid black 2px;
+    border-radius: 50%;
+    background-color: aqua;
+    align-self: center;
+    margin: 20px;
+}
+
+.StudentData-CommentComp{
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    margin: 20px;
+    text-align: center;
+    justify-content: center;
+}
+
+.CommentData-CommentComp{
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    margin: 20px;
+    text-align: justify;
+    justify-content: center;
+}
+
+#StudentData-CommentComp-value{
+    display: flex;
+    flex-direction: row;
+    width: 64px;
+    height: 64px;
+    border: solid black 5px;
+    border-radius: 50%;
+    font-size: larger;
+    justify-content: center;
+    align-items: center;
+}
+

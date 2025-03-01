@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -32,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sympos2.dto.ComentarioPintado;
 import com.sympos2.dto.ObraIsbnTituloProjection;
 import com.sympos2.dto.UserRequestBody;
 import com.sympos2.dto.UsuarioComentarioPintado;
@@ -68,6 +72,295 @@ public class MainRestController {
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 	
+	
+	@GetMapping("/getNewestWriting")
+	public ResponseEntity<String> getNewestWriting() throws JsonProcessingException{
+		 Map<String, Object> rs = new HashMap<>();
+		 ObjectMapper om = new ObjectMapper();
+		 om.registerModule(new JavaTimeModule());  // Registra el módulo para LocalDateTime
+		 om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		 
+		 try {
+			 List<Obra> obras = obraRepo.findOneByOrderByCreatedAtDesc();
+			 System.out.println(obras.get(0));
+			 
+			 if (!obras.isEmpty()) {
+				 rs.put("status", "true");
+				 rs.put("writing", obras.get(0));
+			 }
+		 } catch (Exception e) {
+			 rs.put("status", "false");
+			 rs.put("message", "There was a exception in server: "+e);
+		 }
+		 
+		 String json= om.writeValueAsString(rs);
+		 return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getMostValuedWriting")
+	public ResponseEntity<String> getMostValuedWriting() throws JsonProcessingException{
+		 Map<String, Object> rs = new HashMap<>();
+		 ObjectMapper om = new ObjectMapper();
+		 om.registerModule(new JavaTimeModule());  // Registra el módulo para LocalDateTime
+		 om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		 
+		 try {
+			 List<Obra> obras = obraRepo.findAll();
+			 if (!obras.isEmpty()) {
+				 Obra MVObra = new Obra();
+				 int value=0;
+				 for (Obra obra : obras) {
+					 if (value < getAVG(obra.getIsbn())) {
+						 MVObra=obra;
+					 }
+				 }
+				 
+				 rs.put("status", "true");
+				 rs.put("writing", MVObra);
+			 }
+		 } catch (Exception e) {
+			 rs.put("status", "false");
+			 rs.put("message", "There was a exception in server: "+e);
+		 }
+		 
+		 String json= om.writeValueAsString(rs);
+		 return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getTitledComment")
+	public ResponseEntity<String> getTitledComment() throws JsonProcessingException{
+		 Map<String, Object> rs = new HashMap<>();
+		 ObjectMapper om = new ObjectMapper();
+		 om.registerModule(new JavaTimeModule());  // Registra el módulo para LocalDateTime
+		 om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		 
+		 try {
+			 
+			 	List <Comentario> comments = commentRepo.findAllByTipo("COMMENT");
+			 	List<Usuario> users = userRepo.findAllByRoleOnlyId("STUDENT");
+		        // Crear un conjunto de IDs de usuarios con rol "STUDENT"
+		        Set<String> studentIds = users.stream()
+		                                      .map(Usuario::getId) // Obtener los IDs de los usuarios
+		                                      .collect(Collectors.toSet()); // Guardarlos en un Set para una búsqueda eficiente
+
+		        // Usamos un Iterator para eliminar los comentarios de estudiantes
+		        Iterator<Comentario> iterator = comments.iterator();
+		        while (iterator.hasNext()) {
+		            Comentario comment = iterator.next();
+		            if (studentIds.contains(comment.getUsuario())) {
+		                iterator.remove(); // Elimina el comentario si su usuario es estudiante
+		            }
+		        }
+			    Optional<Comentario> newestComment = comments.stream().max((c1, c2) -> c1.getFecha().compareTo(c2.getFecha()));
+			 	Optional<UsuarioComentarioPintado> user = userRepo.findByIdOnlyIdAndNameAndRole(newestComment.get().getUsuario());
+			 	ComentarioPintado commentToSend = new ComentarioPintado(newestComment.get(), user.get().id(), user.get().name(), user.get().role());
+			 	rs.put("comment", commentToSend);
+			 	rs.put("status", "true");
+				
+		 } catch (Exception e) {
+			 rs.put("status", "false");
+			 rs.put("message", "There was a exception in server: "+e);
+		 }
+		 
+		 String json= om.writeValueAsString(rs);
+		 return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getBanComment")
+	public ResponseEntity<String> getBanComment(@RequestParam String id) throws JsonProcessingException {
+		Map<String, Object> rs = new HashMap<>();
+		ObjectMapper om = new ObjectMapper();
+		
+		if (id != null) {
+			try {
+				Optional<Comentario> comment = commentRepo.findById(id);
+				if (comment.isPresent()) {
+					if(comment.get().getTipo().equals("COMMENT")) {
+						comment.get().setTipo("BANNED_COMMENT");
+						commentRepo.save(comment.get());
+						rs.put("status", "true");
+					} else if (comment.get().getTipo().equals("ANSWER")) {
+						comment.get().setTipo("BANNED_ANSWER");
+						commentRepo.save(comment.get());
+						rs.put("status", "true");
+					} else {
+						rs.put("status", "false");
+						rs.put("message", "The comment to delete is not a Cmment nor an Answer");
+					}
+						
+				} else {
+					rs.put("status", "false");
+					rs.put("message", "Couldn't find a comment with id: "+id);
+				}
+				
+			} catch (Exception e) {
+				rs.put("status", "false");
+				rs.put("message", "There was a exception in server: "+e);
+			}
+		} else {
+			rs.put("status", "false");
+			rs.put("message", "Server didn't recieve Id");
+		}
+		
+		
+		String json= om.writeValueAsString(rs);
+		return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getAllBanComments")
+	public ResponseEntity<String> getAllBanComments() throws JsonProcessingException{
+		Map<String, Object> rs = new HashMap<>();
+		ObjectMapper om = new ObjectMapper();
+		om.registerModule(new JavaTimeModule());  // Registra el módulo para LocalDateTime
+		om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		 
+		try {
+			List<Comentario> banComments = commentRepo.findAllByTipo("BANNED_COMMENT");
+			List<Comentario> banAnswers = commentRepo.findAllByTipo("BANNED_ANSWER");
+			List<ComentarioPintado> comments = new ArrayList<ComentarioPintado>();
+			for (Comentario comment : banComments) {
+				Optional<Usuario> user = userRepo.findById(comment.getUsuario());
+				if (user.isPresent()) {
+					comments.add(new ComentarioPintado(comment, user.get().getId(), user.get().getUsername(), user.get().getRole()));
+				}
+			}
+			for (Comentario comment : banAnswers) {
+				Optional<Usuario> user = userRepo.findById(comment.getUsuario());
+				if (user.isPresent()) {
+					comments.add(new ComentarioPintado(comment, user.get().getId(), user.get().getUsername(), user.get().getRole()));
+				}
+			}
+			if (!comments.isEmpty()) {
+				System.out.println("Banned Comments sended");
+				rs.put("status", "true");
+				rs.put("array", comments);
+			} else {
+				System.out.println("No Banned Comments found");
+				rs.put("status", "true");
+				rs.put("array", "false");
+			}
+		} catch (Exception e) {
+			rs.put("status", "false");
+			rs.put("message", "There was a exception in server: "+e);
+		}
+		
+		String json= om.writeValueAsString(rs);
+		return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getDelComment")
+	public ResponseEntity<String> getDeleteComment(@RequestParam String id) throws JsonProcessingException {
+		Map<String, Object> rs = new HashMap<>();
+		ObjectMapper om = new ObjectMapper();
+		
+			if (id != null) {
+				try {
+					
+					List<Comentario> answers = commentRepo.findAllByComment(id);
+					if (!answers.isEmpty()) {
+						for (Comentario answer : answers) {
+							commentRepo.deleteById(answer.getId());
+						}
+					}
+					commentRepo.deleteById(id);
+					rs.put("status", "true");
+					
+				} catch (Exception e) {
+					rs.put("status", "false");
+					rs.put("message", "There was a exception in server: "+e);
+				}
+			} else {
+				rs.put("status", "false");
+				rs.put("message", "Server didn't recieve Id");
+			}
+		
+		String json= om.writeValueAsString(rs);
+		return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getUnbanComment")
+	public ResponseEntity<String> getUnbanComment(@RequestParam String id) throws JsonProcessingException {
+		Map<String, Object> rs = new HashMap<>();
+		ObjectMapper om = new ObjectMapper();
+		
+			if (id != null) {
+				try {
+					Optional<Comentario> comment = commentRepo.findById(id);
+					
+					if (comment.isPresent()) {
+						if(comment.get().getTipo().equals("BANNED_COMMENT")) {
+								comment.get().setTipo("COMMENT");
+								commentRepo.save(comment.get());
+								rs.put("status", "true");
+							} else if (comment.get().getTipo().equals("BANNED_ANSWER")) {
+								comment.get().setTipo("ANSWER");
+								commentRepo.save(comment.get());
+								rs.put("status", "true");
+							} else {
+								rs.put("status", "false");
+								rs.put("message", "The comment to unban was not a Comment nor an Answer");
+							}
+
+
+					} else {
+						rs.put("status", "false");
+						rs.put("message", "Couldn't find a comment with id: "+id);
+					}
+
+					
+				} catch (Exception e) {
+					rs.put("status", "false");
+					rs.put("message", "There was a exception in server: "+e);
+				}
+			} else {
+				rs.put("status", "false");
+				rs.put("message", "Server didn't recieve Id");
+			}
+		
+		String json= om.writeValueAsString(rs);
+		return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getStudentComment")
+	public ResponseEntity<String> getStudentComment() throws JsonProcessingException{
+		 Map<String, Object> rs = new HashMap<>();
+		 ObjectMapper om = new ObjectMapper();
+		 om.registerModule(new JavaTimeModule());  // Registra el módulo para LocalDateTime
+		 om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		 
+		 try {
+			 
+			 	List <Comentario> comments = commentRepo.findAllByTipo("COMMENT");
+			 	List<Usuario> users = userRepo.findAllByRoleOnlyId("TITLED");
+		        // Crear un conjunto de IDs de usuarios con rol "STUDENT"
+		        Set<String> studentIds = users.stream()
+		                                      .map(Usuario::getId) // Obtener los IDs de los usuarios
+		                                      .collect(Collectors.toSet()); // Guardarlos en un Set para una búsqueda eficiente
+
+		        // Usamos un Iterator para eliminar los comentarios de estudiantes
+		        Iterator<Comentario> iterator = comments.iterator();
+		        while (iterator.hasNext()) {
+		            Comentario comment = iterator.next();
+		            if (studentIds.contains(comment.getUsuario())) {
+		                iterator.remove(); // Elimina el comentario si su usuario es estudiante
+		            }
+		        }
+			   
+		        Optional<Comentario> newestComment = comments.stream().max((c1, c2) -> c1.getFecha().compareTo(c2.getFecha()));
+			 	Optional<UsuarioComentarioPintado> user = userRepo.findByIdOnlyIdAndNameAndRole(newestComment.get().getUsuario());
+			 	ComentarioPintado commentToSend = new ComentarioPintado(newestComment.get(), user.get().id(), user.get().name(), user.get().role());
+			 	
+			 	rs.put("comment", commentToSend);
+			 	rs.put("status", "true");
+				
+		 } catch (Exception e) {
+			 rs.put("status", "false");
+			 rs.put("message", "There was a exception in server: "+e);
+		 }
+		 
+		 String json= om.writeValueAsString(rs);
+		 return ResponseEntity.ok(json);
+	}
 	
 	@GetMapping("/sugerencias")
     public List<ObraIsbnTituloProjection> suggestList(@RequestParam(required = false) String searchTerm) {
@@ -148,6 +441,23 @@ public class MainRestController {
 	    }
 	    
 	    return ResponseEntity.badRequest().body("{\"error\": \"Usuario no autenticado\"}");
+	}
+	
+	@GetMapping("/getUsername")
+	public ResponseEntity<String> getUsername() throws JsonProcessingException{
+		Map<String, String> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+	    	rs.put("status", "true");
+	    	rs.put("user", auth.getName());
+	    } else {
+	    	rs.put("status", "true");
+	    	rs.put("user", "false");
+	    }
+	    
+	    String json = om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
 	}
 
 	
@@ -278,7 +588,7 @@ public class MainRestController {
 	}
 
 	@GetMapping("/getComentarios")
-	public ResponseEntity<String> getComentarios(Long id, String role) throws JsonProcessingException {
+	public ResponseEntity<String> getComentarios(@RequestParam Long id, @RequestParam String role) throws JsonProcessingException {
 	    System.out.println("Recogiendo los comentarios de la obra");
 
 	    Map<String, String> response = new HashMap<>();
@@ -337,6 +647,69 @@ public class MainRestController {
 	    return answer;
 	}
 
+	@GetMapping("/getAnswers")
+	public ResponseEntity<String> getAnswers(@RequestParam Long id, @RequestParam String comment) throws JsonProcessingException {
+	    Map<String, Object> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    om.registerModule(new JavaTimeModule());  // Registra el módulo para LocalDateTime
+	    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    
+	    try {
+	        // Ordenamos por fecha descendente
+	        Sort sortByDate = Sort.by(Order.desc("fecha"));
+	        
+	        // Obtenemos las respuestas asociadas al comentario y la obra
+	        List<Comentario> answers = commentRepo.findAllByObraAndTipoAndComment(id, "ANSWER", comment, sortByDate);
+	        
+	        if (answers != null && !answers.isEmpty()) {
+	            // Lista para almacenar las respuestas formateadas
+	            List<Map<String, String>> list = new ArrayList<>();
+	            
+	            // Recorremos cada respuesta
+	            for (Comentario answer : answers) {
+	                // Obtenemos los datos del usuario que realizó la respuesta
+	                Optional<UsuarioComentarioPintado> userData = userRepo.findByIdOnlyIdAndNameAndRole(answer.getUsuario());
+	                
+	                if (userData.isPresent()) {
+	                    // Creamos un mapa para la respuesta con la información formateada
+	                    Map<String, String> rd = new HashMap<>();
+	                    rd.put("title", answer.getTitulo());
+	                    rd.put("text", answer.getTexto());
+	                    rd.put("id", answer.getId());
+	                    rd.put("datetime", answer.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+	                    rd.put("value", String.valueOf(answer.getValoracion()));
+	                    rd.put("username", userData.get().name());
+	                    rd.put("school", userData.get().school());
+	                    rd.put("role", userData.get().role());
+	                    rd.put("comentario", answer.getComment());
+	                    
+	                    // Añadimos la respuesta formateada a la lista
+	                    list.add(rd);
+	                }
+	            }
+	           
+	            rs.put("array", list);
+	            System.out.println(list.toString());
+	        } else {
+
+	            rs.put("array", new ArrayList<>());
+	        }
+	        
+	        // Añadimos la información del estado y el mensaje
+	        rs.put("status", "true");
+	        rs.put("message", "Comentarios encontrados con éxito");
+	    } catch (Exception e) {
+	        // Si ocurre un error, asignamos el estado "false"
+	        rs.put("status", "false");
+	        rs.put("message", "Error al obtener los comentarios: " + e.getMessage());
+	    }
+
+	    // Convertimos el mapa a un JSON
+	    String json = om.writeValueAsString(rs);
+	    
+	    // Devolvemos la respuesta como JSON
+	    return ResponseEntity.ok(json);
+	}
 	
 	@GetMapping("/getCommented")
 	public ResponseEntity<String> getCommented(Long id, String user) {
@@ -421,7 +794,6 @@ public class MainRestController {
 	
 	@PostMapping("/postCommentInserted")
 	public ResponseEntity<String> postCommentInserted(@RequestBody Comentario request) throws JsonProcessingException {
-	    System.out.println("Revisando datos del comentario");
 	    Map<String, String> response = new HashMap<>();
 	    ResponseEntity<String> answer = ResponseEntity.ok("Entered to the back, but not completed");
 
@@ -437,7 +809,6 @@ public class MainRestController {
 	    	try {
 	    		request.setFecha( LocalDateTime.now());
 	    		request.setId(null);
-	    		request.setTipo("COMMENT".toUpperCase());
 	    		commentRepo.save(request); 
 	    		response.put("status", "true");
 	    		response.put("message", "Datos recibidos con éxito");
@@ -1077,6 +1448,49 @@ public class MainRestController {
 	        rs.put("status", "true");
 	        rs.put("array", users);
 	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        rs.put("status", "false");
+	        rs.put("message", "There was an error in server trying to fetch the users");
+	    }
+	    
+	    String json = om.writeValueAsString(rs);
+	    return ResponseEntity.ok(json);
+	}
+	
+	@GetMapping("/getSearchCommentList")
+	public ResponseEntity<String> getSearchCommentList(@RequestParam String search) throws JsonProcessingException {
+	    Map<String, Object> rs = new HashMap<>();
+	    ObjectMapper om = new ObjectMapper();
+	    om.registerModule(new JavaTimeModule());
+	    om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    
+	    search = search.replaceAll("[^a-zA-Z0-9]", "");
+	    try {
+	        List<Comentario> commentsData = commentRepo.findAllParams(search); 
+	        List<ComentarioPintado> comments = new ArrayList<ComentarioPintado>();
+	        if (!commentsData.isEmpty()) {
+	        	for(Comentario comment : commentsData) {
+	        		if (comment.getTipo().equals("BANNED_COMMENT") || comment.getTipo().equals("BANNED_ANSWER")) {
+
+		        		Optional<Usuario> user = userRepo.findById(comment.getUsuario());
+		        		if (user.isPresent()) {
+
+		        			comments.add(new ComentarioPintado(comment, user.get().getId(), user.get().getUsername(), user.get().getRole()));
+		        		}
+		        		
+	        		}
+	        	}
+	        }
+	        if (!comments.isEmpty()) {
+	        	System.out.println("Found Comments with that search");
+	        	rs.put("status", "true");
+	        	rs.put("array", comments);
+	        } else {
+	        	System.out.println("Not found comments with that search");
+	        	rs.put("status", "true");
+	        	rs.put("array", comments);
+	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        rs.put("status", "false");

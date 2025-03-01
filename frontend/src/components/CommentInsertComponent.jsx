@@ -1,7 +1,7 @@
 import "./CommentInsertComponent.css";
-import {useState, useRef} from 'react';
+import {useState, useRef, useEffect} from 'react';
 
-function CommentInsertComponent({onClose, role, usr, isbn}){
+function CommentInsertComponent({onClose, role, usr, isbn, id, answer}){
 
     const [sliderValue, setSliderValue] = useState(50);
     const [titleinput, setTitleInput]= useState("");
@@ -27,19 +27,35 @@ function CommentInsertComponent({onClose, role, usr, isbn}){
     };
 
     const checkData = async() => {
-
-        if(titleinput!=="" && textarea!=="" && sliderValue!==null && usr && isbn){
-                try{
+        console.log(titleinput+", "+textarea+", "+usr+", "+isbn);
+        if(titleinput!=="" && textarea!=="" && usr && isbn){
+            
+            let commentData = {}
+            if (answer === true) {
+                commentData={
+                    comment: id,
+                    titulo: titleinput,
+                    texto: textarea,
+                    tipo: "ANSWER",
+                    usuario: usr,
+                    obra: isbn
+                }
+            } else {
+                commentData={
+                    titulo: titleinput,
+                    texto: textarea,
+                    tipo: "COMMENT",
+                    valoracion: sliderValue,
+                    usuario: usr,
+                    obra: isbn
+                }
+            }
+            
+            try{
                     const response = await fetch('/postCommentInserted',{
                         method:'POST',
                         headers: {'Content-Type':'application/json',},
-                        body: JSON.stringify({
-                            titulo: titleinput,
-                            texto: textarea,
-                            valoracion: sliderValue,
-                            usuario: usr,
-                            obra: isbn
-                        })
+                        body: JSON.stringify(commentData)
                            
                     });
                     if (response.ok){
@@ -64,6 +80,7 @@ function CommentInsertComponent({onClose, role, usr, isbn}){
         <div id="overlay">
             <div id="container">
                 <button onClick={onClose}>X</button>
+                {id!==null && <h2>Answer...</h2>}
                 <div id="title">
                     <h2>Comment Title</h2>
                     <input type="text" onChange={handleTitleChange} placeholder="I want to say..."></input>
@@ -72,13 +89,16 @@ function CommentInsertComponent({onClose, role, usr, isbn}){
                     <h2>Comment Body</h2>
                     <textarea type="textarea"  onChange={handleTextAreaChange} placeholder="I like it because of..."></textarea>
                 </div>
-                <div id="value">
-                    <h2>Select a number</h2>
-                    <input id="slider" type="range" 
-                    min="0" max="100" value={sliderValue} 
-                    step="1" onInput={handleSliderChange}></input>
-                    <h2 id="sliderValue">{sliderValue}</h2>
-                </div>
+                {!answer && 
+                    <div id="value">
+                        <h2>Select a number</h2>
+                        <input id="slider" type="range" 
+                        min="0" max="100" value={sliderValue} 
+                        step="1" onInput={handleSliderChange}></input>
+                        <h2 id="sliderValue">{sliderValue}</h2>
+                    </div>
+                }
+                
                 <div id="Savebutton">
                     <button onClick={checkData}>Save</button>
                 </div>

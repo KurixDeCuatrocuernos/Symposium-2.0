@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="coments")
@@ -15,7 +16,7 @@ public class Comentario {
 	private String titulo;
 	
 	private String texto;
-	
+	@Indexed
 	private LocalDateTime fecha;
 	
 	private int valoracion;
@@ -104,7 +105,7 @@ public class Comentario {
 	}
 
 	public void setTipo(String tipo) {
-		this.tipo = tipo;
+		this.tipo = tipo.toUpperCase();
 	}
 
 	public Long getObra() {
@@ -128,7 +129,7 @@ public class Comentario {
 	}
 
 	public void setComment(String comment) {
-		this.comment = comment.toUpperCase();
+		this.comment = comment;
 	}
 
 	@Override
