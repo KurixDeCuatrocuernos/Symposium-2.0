@@ -1,0 +1,128 @@
+#CommentContainer-AnswerComp{
+    background-color: rgb(14, 38, 148);
+    width: 90vw;
+    height: 200px; /*Revisar si funciona*/
+    justify-self:center;
+    margin-bottom: 5px;
+}
+
+#userContent-AnswerComp{
+    background-color: rgb(144, 241, 241);
+    width: 70%;
+    height: fit-content;
+    justify-self: center;
+    display: flex;
+    flex-direction: row;
+    color:black;
+
+}
+
+#userImg-AnswerComp{
+    width:64px;
+    height: 64px;
+    margin:30px;
+    border: solid black 3px;
+    border-radius: 50%;
+}
+
+#user-text-container-AnswerComp{
+    
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 10px;
+}
+
+#userName-AnswerComp{
+    font-weight: bold;
+    font-size: 20px;
+}
+/*
+#userRole{
+
+}
+*/
+#commentContent-AnswerComp{
+    background-color: rgb(144, 241, 241);
+    width: 70%;
+    height: fit-content;
+    justify-self: center;
+    display: flex;
+    flex-direction: row;
+    color:black;
+    padding-right: 10px;
+    margin-bottom: 5px;
+}
+
+#commentValue-AnswerComp{
+    min-width: 50px;
+    min-height: 50px;
+    width: 50px;
+    height: 50px;
+    margin-left: 30px;
+    text-align: center;
+    align-content: center;
+    font-size: 20px;
+    font-weight:bolder;
+    color: black;
+    margin-right: 30px;
+}
+
+#commentContext-text-AnswerComp{
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    
+}
+
+#commentContext-text-AnswerComp > img{
+    width: 32px;
+    height: 32px;
+    align-self: flex-end;
+}
+
+#commentContext-text-AnswerComp > img:hover{
+    background-color: rgba(1, 65, 65, 0.219);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#commentTitle-AnswerComp{
+    text-align: center;
+    font-size: 20px;
+}
+
+#commentText-AnswerComp{
+    text-align: justify;
+    border-radius: 10%;
+    background-color:rgba(118, 143, 226, 0.719);
+    width: 70%;
+    height: fit-content;
+    min-height: 5vh;
+    margin: auto;
+    padding: 10px;
+}
+
+#commentDate-AnswerComp{
+    text-align: end;
+}
+
+#commentContext-text-AnswerComp > img {
+    width: 32px;
+    height: 32px;
+    margin: 5px;
+}
+
+#AdminButtons-AnswerComp{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+#AdminButtons-AnswerComp > img{
+    width: 32px;
+    height: 32px;
+    margin: 5px;
+}
