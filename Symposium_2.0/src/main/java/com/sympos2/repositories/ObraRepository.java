@@ -16,6 +16,9 @@ public interface ObraRepository extends MongoRepository<Obra, Long>{
 	
 	Optional<Obra> deleteByIsbn(Long isbn);
 	
+	@Query(value = "{}", sort = "{'createdAt': -1}")
+	List<Obra> findOneByOrderByCreatedAtDesc();
+	
 	Optional<Obra> findByAutorAndTituloAndFechaPublicacion(String autor, String titulo, LocalDate fechaPublicacion);
 	
 	List<Obra> findAllByFechaPublicacion(LocalDate fechaPublicacion);
@@ -33,11 +36,11 @@ public interface ObraRepository extends MongoRepository<Obra, Long>{
 	List<Obra> findAllByEditorial(String editorial);
 	
 	@Query(value="{}", fields="{titulo:1, Autor:1}")
-	List<Obra> findAllByTitleOnlyTituloAndAutor(String titulo);
-	
-	@Query(value="{}", fields="{titulo:1, Autor:1}")
 	Optional<Obra> findByIsbnOnlyTituloAndAutor(Long isbn);
 	
+	@Query(value="{}", fields="{titulo:1, Autor:1}")
+	List<Obra> findAllByTitleOnlyTituloAndAutor(String titulo);
+		
 	@Query(value= "{}", fields="{ 'isbn': 1, 'titulo' : 1}")
 	List<ObraIsbnTituloProjection> findAllIsbnAndTitulo();
 	
