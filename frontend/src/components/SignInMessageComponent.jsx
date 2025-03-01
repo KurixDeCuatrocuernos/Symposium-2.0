@@ -14,7 +14,7 @@ const SignInMessageComponent = ({ onClose }) => {
                 <button onClick={logInRedir}>Log In</button>
                 <button onClick={onClose}>Cancel</button>
                 <br/>
-                <a href="/registry">Don't have account, register now here!</a>
+                <a href="/Register">Don't have account, register now here!</a>
             </div>
         </div>
     );
