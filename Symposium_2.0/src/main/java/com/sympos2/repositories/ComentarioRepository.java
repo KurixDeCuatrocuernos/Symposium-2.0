@@ -24,6 +24,8 @@ public interface ComentarioRepository extends MongoRepository<Comentario, String
 	
 	List<Comentario> findAllByObraAndTipo(Long obra, String tipo, Sort sort);
 	
+	List<Comentario> findAllByObraAndTipoAndComment(Long obra, String tipo, String comment, Sort sort);
+	
 	List<Comentario> findAllByUsuario(String usuario);
 	
 	List<Comentario> findAllByObraAndUsuario(Long obra, String usuario);
@@ -32,7 +34,22 @@ public interface ComentarioRepository extends MongoRepository<Comentario, String
 	
 	List<Comentario> findAllOrderByFecha();
 	
+	@Query(value = "{}", sort = "{'fecha': -1}")
+	List<Comentario> findNewestCommentByFechaAndTipo(String tipo);
+	
 	@Query(value="{ 'obra' : ?0, 'tipo' : 'COMMENT' }", fields="{ 'valoracion' : 1 }")
 	List<Comentario> findAllByObraOnlyComment(Long obra);
+	
+	@Query("{ '$or': [ " +
+	        "{ '$expr': { '$regexMatch': { 'input': { '$toString': '$_id' }, 'regex': ?0, 'options': 'i' } } }, " + 
+	        "{ 'titulo': { '$regex': ?0, '$options': 'i' } }, " + 
+	        "{ 'texto': { '$regex': ?0, '$options': 'i' } }, " + 
+	        "{ 'tipo': { '$regex': ?0, '$options': 'i' } }, " + 
+	        "{ 'usuario': { '$regex': ?0, '$options': 'i' } }, " + 
+	        "{ 'comment': { '$regex': ?0, '$options': 'i' } }, " + 
+	        "{ 'obra': { '$regex': ?0, '$options': 'i' } }, " +
+	        "{ '$expr': { '$regexMatch': { 'input': { '$toString': '$fecha' }, 'regex': ?0, 'options': 'i' } } }" +
+	        "] }")
+	List<Comentario> findAllParams(String search);
 	
 }
