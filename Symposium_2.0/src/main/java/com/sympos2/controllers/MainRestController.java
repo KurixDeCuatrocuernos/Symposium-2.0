@@ -445,12 +445,21 @@ public class MainRestController {
 	
 	@GetMapping("/getUsername")
 	public ResponseEntity<String> getUsername() throws JsonProcessingException{
-		Map<String, String> rs = new HashMap<>();
+		Map<String, Object> rs = new HashMap<>();
 	    ObjectMapper om = new ObjectMapper();
 	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	    if (auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
-	    	rs.put("status", "true");
-	    	rs.put("user", auth.getName());
+	    	
+	    	Optional<Usuario> user = userRepo.findByEmail(auth.getName());
+	    	if(user.isPresent()) {
+	    		rs.put("status", "true");
+	    		rs.put("user", user.get().getName());
+	    	} else {
+	    		rs.put("status", "true");
+	    		rs.put("user", auth.getName());
+	    	}
+	    	
+	    	
 	    } else {
 	    	rs.put("status", "true");
 	    	rs.put("user", "false");
