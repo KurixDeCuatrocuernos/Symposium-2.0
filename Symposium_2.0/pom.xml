@@ -84,7 +84,11 @@
 		    <groupId>com.fasterxml.jackson.datatype</groupId>
 		    <artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
-
+		<!-- Library for Spring Web to implements WebSocket objects -->
+		<dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-websocket</artifactId>
+	    </dependency>
 
 	</dependencies>
 
