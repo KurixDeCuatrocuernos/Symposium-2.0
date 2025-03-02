@@ -92,7 +92,7 @@ function App() {
         )}
         <Route path="*" element= {<ErrorPage />}/>
       </Routes>
-      {usr && usr!=="" ? 
+      {usr && usr!=="" && usr!==null ? 
         <ChatComponent usr={usr}/>
       :
       ''
