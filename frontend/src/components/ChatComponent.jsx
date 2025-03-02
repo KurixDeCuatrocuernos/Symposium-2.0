@@ -1,6 +1,5 @@
 import "./ChatComponent.css";
 import { useState, useEffect } from "react";
-import MessageComponent from "./MessageComponent";
 
 function ChatComponent({ usr }) {
    const [show, setShow] = useState(false);
@@ -102,7 +101,7 @@ function ChatComponent({ usr }) {
        {show === false ? (
          <div id="overlay-ChatComp">
            <div id="container-ChatComp" onClick={handleShow}>
-             <img src="chat.png" alt="Chat" />
+             <img src="chat-img.png" alt="Chat imagen" />
            </div>
          </div>
        ) : (
