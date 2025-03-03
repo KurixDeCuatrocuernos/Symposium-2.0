@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.sympos2"},{"l":"com.sympos2.controllers"},{"l":"com.sympos2.dto"},{"l":"com.sympos2.models"},{"l":"com.sympos2.repositories"},{"l":"com.sympos2.securities"},{"l":"com.sympos2.services"}];updateSearchResults();
