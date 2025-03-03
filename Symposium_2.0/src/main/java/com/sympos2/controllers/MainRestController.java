@@ -848,7 +848,7 @@ public class MainRestController {
 	@GetMapping("/getComentarios")
 	public ResponseEntity<String> getComentarios(@RequestParam Long id, @RequestParam String role) throws JsonProcessingException {
 	    System.out.println("Recogiendo los comentarios de la obra");
-	    Map<String, String> rs = new HashMap<>();
+	    Map<String, Object> rs = new HashMap<>();
 	    ObjectMapper om = new ObjectMapper();
 
 	    try {
@@ -878,6 +878,7 @@ public class MainRestController {
 	            
 	            // Creando la respuesta JSON
 	            rs.put("status", "true");
+	            rs.put("comments", list);
 	            rs.put("message", "Comentarios encontrados con éxito");
 
 	        } else {

@@ -60,7 +60,8 @@ function WorkShowPage(){
             if (!response.ok) throw new Error("Error en la respuesta del servidor");
             const data = await response.json();
             if (data && data!==null){
-                setComentarios(data);
+                setComentarios(data.comments);
+                console.log(data);
             } else {
                 console.log("The response is empty");
             }
@@ -75,7 +76,7 @@ function WorkShowPage(){
             if (!response.ok) throw new Error("Error en la respuesta del servidor");
             const data = await response.json();
             if (data && data!==null){
-                setComentariostitle(data);
+                setComentariostitle(data.comments);
             } else {
                 console.log("The response is empty");
             }
