@@ -15,7 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.sympos2.services.UserService;
 
 /**
- * This class configures the security Bean of Spring Web Security to grant access to some pages and deny to other, also edit the access credentials 
+ * This class contains Beans to configure Spring Security.
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
  */
 @Configuration
 @EnableWebSecurity
@@ -33,15 +35,21 @@ public class SecurityConfig {
 	@Autowired
 	private UserService usuarioService;
 	
+	/**
+	 * This method initializes the User with the specified configurations.
+	 * @param usuarioDetailsService UserService to use the methods of that service.
+	 * @see UserService
+	 */
 	public SecurityConfig (UserService usuarioDetailsService) {
 		this.usuarioService = usuarioDetailsService;
 	}
-	
+
 	/**
-	 * Bean that provides an instance of AuthenticationManager.
+	 * This Bean provides an instance of AuthenticationManager. Allows to login with an User object.
 	 * This manager is responsible for handling authentication requests.
-	 *
-	 * @param http The HttpSecurity configuration object.
+     * @param http The HttpSecurity configuration object.	 
+     * @param passwordEncoder The PasswordEncoder that encrypt the passwords.
+	 * @param userDetailsService UserService details to initialize the Security with an User object
 	 * @param authConfig The AuthenticationConfiguration to retrieve the AuthenticationManager.
 	 * @return The AuthenticationManager instance.
 	 * @throws Exception If an error occurs during authentication configuration.
@@ -52,7 +60,7 @@ public class SecurityConfig {
 	}
 	
 	/**
-	 * Bean that configures the security filter chain for HTTP requests.
+	 * This Bean configures the security filter chain for HTTP requests.
 	 * Defines which end-points are publicly accessible and which require authentication.
 	 * 
 	 * @param http HttpSecurity object used to configure HTTP request security.
@@ -89,29 +97,7 @@ public class SecurityConfig {
 	}
 	
 	/**
-	 * Bean that configures a custom UserDetailsService to retrieve user details based on the provided username.
-	 * This method provides a custom implementation of the UserDetailsService interface, which is used
-	 * by Spring Security to authenticate and load user-specific data.
-	 * 
-	 * @param passwordEncoder A PasswordEncoder to encode the user's password before storing it.
-	 * @return A custom UserDetailsService implementation.
-	 */
-//	@Bean
-//	UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-//		return inputUsername -> {
-//			if(username.equals(inputUsername)) {
-//				return User.withUsername(username)
-//						   .password(passwordEncoder.encode(password)) // encodes the password before save it in memory
-//					       .roles(roles.split(",")) // .split is for if you add more than one role
-//					       .build(); // builds the User object with the elements we gave
-//			}
-//			throw new UsernameNotFoundException("User not Found"); // If credentials don't match we send UserNotFound error
-//		};
-//		
-//	}
-	
-	/**
-	 * Bean that returns an instance of PasswordEncoder. It returns an instance of BCryptPasswordEncoder, which is used for 
+	 * This Bean returns an instance of PasswordEncoder. It returns an instance of BCryptPasswordEncoder, which is used for 
 	 * securely hashing and verifying passwords using the BCrypt algorithm.
 	 * 
 	 * @return an instance of BCryptPasswordEncoder

@@ -11,8 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 /**
- *  This Class is the model to create User objects and map into DB entities.
+ * This is the class to creates Usuario objects, which represents student, titled and admin users in database by the parameter: "role".
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
+ * @see UserDetails
  */
 @Document(collection="users")
 public class Usuario implements UserDetails {
@@ -58,17 +62,16 @@ public class Usuario implements UserDetails {
 	 * Constructor for creating a "Student" user with the specified attributes.
 	 * This constructor initializes an instance of the Usuario class with the 
 	 * provided values for user details, including the user's ID, name, birth date, 
-	 * email, password, avatar, studies, and school. Additionally, the user's role 
-	 * is set to "STUDENT".
+	 * email, password, avatar, studies, and school.
 	 * 
-	 * @param id the unique identifier for the user
-	 * @param name the name of the user
-	 * @param fechaNac the birth date of the user
-	 * @param email the email address of the user
-	 * @param password the password of the user
-	 * @param avatar the avatar image URL of the user
-	 * @param studies the studies the user is currently pursuing
-	 * @param school the institution where the user is studying
+	 * @param id String which collects the ObjectId of the user.
+	 * @param name String with the user's name.
+	 * @param fechaNac LocalDate with the user's birthday.
+	 * @param email String with the user's email address.
+	 * @param password String with the user's password.
+	 * @param avatar String with the avatar image URL of the user.
+	 * @param studies String with the studies the user is currently pursuing.
+	 * @param school String with the institution where the user is studying.
 	 */
 
 	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
@@ -83,6 +86,7 @@ public class Usuario implements UserDetails {
 		this.school = school;
 		this.role = role.toUpperCase();
 	}
+	
 	/**
 	 * Constructor for creating an "Administrator" user with the specified attributes.
 	 * This constructor initializes an instance of the Usuario class with the 
@@ -90,13 +94,13 @@ public class Usuario implements UserDetails {
 	 * email, password, avatar, and phone number. Additionally, the user's role 
 	 * is set to "ADMIN".
 	 * 
-	 * @param id the unique identifier for the user
-	 * @param name the name of the user
-	 * @param fechaNac the birth date of the user
-	 * @param email the email address of the user
-	 * @param password the password of the user
-	 * @param avatar the avatar image URL of the user
-	 * @param phone the phone number of the user
+	 * @param id String which collects the ObjectId of the user.
+	 * @param name String with the user's name.
+	 * @param fechaNac LocalDate with the user's birthday.
+	 * @param email String with the user's email address.
+	 * @param password String with the user's password.
+	 * @param avatar String with the avatar image URL of the user.
+	 * @param phone Long with the user's phone number.
 	 */
 	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
 			Long phone) {
@@ -117,16 +121,16 @@ public class Usuario implements UserDetails {
 	 * email, password, avatar, study title, study place, title date, and title image.
 	 * Additionally, the user's role is set to "TITLED".
 	 * 
-	 * @param id the unique identifier for the user
-	 * @param name the name of the user
-	 * @param fechaNac the birth date of the user
-	 * @param email the email address of the user
-	 * @param password the password of the user
-	 * @param avatar the avatar image URL of the user
-	 * @param studies_title the title of the user's studies (e.g., degree)
-	 * @param study_place the institution where the user completed their studies
-	 * @param title_date the date when the user obtained their title
-	 * @param title_img the image associated with the user's title
+	 * @param id String which collects the ObjectId of the user.
+	 * @param name String with the user's name.
+	 * @param fechaNac LocalDate with the user's birthday.
+	 * @param email String with the user's email address.
+	 * @param password String with the user's password.
+	 * @param avatar String with the avatar image URL of the user.
+	 * @param studies_title String with the title of the user's studies.
+	 * @param study_place String with the institution where the user completed her/his studies.
+	 * @param title_date LocalDate with the date when the user obtained their title.
+	 * @param title_img the image associated with the user's title.
 	 */
 	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar, String role,
 			String studies_title, String study_place, LocalDate title_date, String title_img) {
@@ -143,42 +147,6 @@ public class Usuario implements UserDetails {
 		this.role= role.toUpperCase();
 	}
 		
-	/**
-	 * constructor to get an user from the front-end when Edits an User
-	 * @param id
-	 * @param name
-	 * @param fechaNac
-	 * @param email
-	 * @param password
-	 * @param avatar
-	 * @param role
-	 * @param studies
-	 * @param school
-	 * @param phone
-	 * @param studies_title
-	 * @param study_place
-	 * @param title_date
-	 * @param title_img
-	 */
-	
-	public Usuario(String id, String name, LocalDate fechaNac, String email, String password, String avatar,
-			String role, String studies, String school, Long phone, String studies_title, String study_place,
-			LocalDate title_date, String title_img) {
-		this.id = id;
-		this.name = name;
-		this.fechaNac = fechaNac;
-		this.email = email;
-		this.password = password;
-		this.avatar = avatar;
-		this.role = role;
-		this.studies = studies;
-		this.school = school;
-		this.phone = phone;
-		this.studies_title = studies_title;
-		this.study_place = study_place;
-		this.title_date = title_date;
-		this.title_img = title_img;
-	}
 
 	// Getters and Setters
 	public String getId() {

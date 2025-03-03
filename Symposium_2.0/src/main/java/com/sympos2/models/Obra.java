@@ -8,6 +8,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/**
+ * This is the class to creates Obra objects, which represents Book and Article entities in database by the parameter: "tipo".
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
+ */
 @Document(collection = "works")
 public class Obra {
 	
@@ -36,27 +41,51 @@ public class Obra {
 	private int paginafin;
 	
 	public Obra() { }
-
+	
+	/**
+	 * Constructor for Comentario as the type Book
+	 * @param isbn Long which represents the id of the book.
+	 * @param fechaPublicacion LocalDate with the date of publication of the book.
+	 * @param titulo String with the title of the book.
+	 * @param autor String with the name of the book's author.
+	 * @param tipo String to determinate the type of the Obra, in this case probably will be "BOOK".
+	 * @param abstracto String with the resume of the book.
+	 * @param lugar_publicacion String with the place where the book was published, in this case a country or city
+	 * @param temas an ArrayList of Strings with the themes which the book could talk.
+	 * @param editorial String with the name of the editorial which published the book.
+	 */
 	public Obra(Long isbn, LocalDate fechaPublicacion, String titulo, String autor, String tipo, String abstracto,
 			String lugar_publicacion, List<String> temas, String editorial) {
 		this.isbn = isbn;
 		this.fechaPublicacion = fechaPublicacion;
 		this.titulo = titulo;
 		this.autor = autor;
-		this.tipo = tipo;
+		this.tipo = tipo.toUpperCase();
 		this.abstracto = abstracto;
 		this.lugar_publicacion = lugar_publicacion;
 		this.temas = temas;
 		this.editorial = editorial;
 	}
 
+	/**
+	 * Constructor for Comentario as the type Article
+	 * @param isbn Long which represents the id of the article.
+	 * @param fechaPublicacion LocalDate with the date of publication of the article.
+	 * @param titulo String with the title of the article.
+	 * @param autor String with the name of the article's author.
+	 * @param tipo String to determinate the type of the Obra, in this case probably will be "ARTICLE".
+	 * @param abstracto String with the resume of the article.
+	 * @param lugar_publicacion String with the place where the article was published, in this case a book or magazine.
+	 * @param temas an ArrayList of Strings with the themes which the article could talk.
+	 * @param editorial String with the name of the editorial which published the article or the book/magazine where the article was published.
+	 */
 	public Obra(Long isbn, LocalDate fechaPublicacion, String titulo, String autor, String tipo, String abstracto,
 			String lugar_publicacion, List<String> temas, String editorial, int paginaini, int paginafin) {
 		this.isbn = isbn;
 		this.fechaPublicacion = fechaPublicacion;
 		this.titulo = titulo;
 		this.autor = autor;
-		this.tipo = tipo;
+		this.tipo = tipo.toUpperCase();
 		this.abstracto = abstracto;
 		this.lugar_publicacion = lugar_publicacion;
 		this.temas = temas;

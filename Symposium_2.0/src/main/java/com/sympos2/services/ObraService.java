@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 import com.sympos2.models.Obra;
 import com.sympos2.repositories.ObraRepository;
 
+/**
+ * This service implements complex methods for ObraRepository
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
+ */
 @Service
 public class ObraService{
 	
@@ -20,16 +25,20 @@ public class ObraService{
 	@Autowired
 	private ObraRepository obraRepo;
 	
+	/**
+	 * This method returns a List of all the distinct themes in every Obra object in database, in order to show recommendations when inserts new Obra object.
+	 * @return returns a List of themes (String).
+	 */
 	public List<String> findAllDifferentTemas() {
         List<String> temas = mt.query(Obra.class)
                             .distinct("temas")
                             .as(String.class)
                             .all();
         return temas.stream()
-                .map(tema -> Normalizer.normalize(tema, Normalizer.Form.NFD)) // Eliminar acentos
-                .map(tema -> tema.replaceAll("\\p{InCombiningDiacriticalMarks}+", "")) // Quitar diacríticos
-                .map(String::toLowerCase) // Convertir a minúsculas
-                .distinct() // Evitar duplicados después de normalizar
+                .map(tema -> Normalizer.normalize(tema, Normalizer.Form.NFD)) 
+                .map(tema -> tema.replaceAll("\\p{InCombiningDiacriticalMarks}+", "")) 
+                .map(String::toLowerCase) 
+                .distinct()
                 .collect(Collectors.toList());
     }
 }
