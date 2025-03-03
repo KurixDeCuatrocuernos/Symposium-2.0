@@ -41,7 +41,7 @@ function WorkListPage(){
                 const data = await response.json();
                 if (data.status === "true" && Array.isArray(data.array)) {
                     setWorks(data.array);  // Guardamos la lista de obras completa
-                    //console.log(data.array);
+                    console.log(data.array);
                 } else {
                     console.error("Server error: " + data.message);
                 }
