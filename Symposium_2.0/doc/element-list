@@ -1,0 +1,7 @@
+com.sympos2
+com.sympos2.controllers
+com.sympos2.dto
+com.sympos2.models
+com.sympos2.repositories
+com.sympos2.securities
+com.sympos2.services
