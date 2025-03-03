@@ -16,7 +16,9 @@ import com.sympos2.models.Usuario;
 import com.sympos2.repositories.UserRepository;
 
 /**
- * This class generates a MongoTemplate to use the Service
+ * This service implements complex methods for ObraRepository.
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
  */
 @Service
 public class UserService implements UserDetailsService{
@@ -28,20 +30,22 @@ public class UserService implements UserDetailsService{
 	private UserRepository userRepo;
 	
 	private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-	
-	@Autowired
-	private final UserRepository usuarioRepository;
-
-    public UserService(UserRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
     
+	/**
+	 * This method allows to login by the email instead the user's name.
+	 * @param email String with the email to load the user when login.
+	 */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(email)
+        return userRepo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con el email: " + email));
     }
 	
+    /**
+     * This method edits an User in database (only works in the front-end without react).
+     * @param edit Usuario with the new User data to save in database.
+     * @return returns the User's data to edit. 
+     */
 	public Usuario edit(Usuario edit) {
 		System.out.println("Se modificará: "+edit.getId()+"con nivel: "+edit.getRole());
 		Optional<Usuario> user = userRepo.findById(edit.getId());

@@ -9,11 +9,23 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+/**
+ * This class manages the chat between two users.
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
+ * @see WebSocketConfig
+ * @see TextWebSocketHandler
+ */
 public class ChatWebSocketHandler extends TextWebSocketHandler{
 	
     private static final Set<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
     private static final Map<WebSocketSession, String> userNames = new HashMap<>();
-
+    
+    /**
+     * This method handles the text messages in chat.
+     * @param session WebSocketSession with the current session of an user in chat.
+     * @param message TextMessage with the message that an user publics in chat.
+     */
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         // Verificar si ya hay 2 clientes conectados
@@ -51,7 +63,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
             }
         }
     }
-
+    
+    /**
+     * This method handles the behavior of the chat socket when an User connects to the chat. 
+     * @param session WebSocketSession with the current session of an user in chat.
+     */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
@@ -65,7 +81,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
             session.close();
         }
     }
-
+    
+    /**
+     * This method handles the behavior of the chat socket when an User disconnects from the chat.
+     * @param session WebSocketSession with the current session of an user in chat.
+     * @param status the status of the chat server.
+     */
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);
@@ -88,7 +109,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
         }
     }
 
-    // Método para manejar el nombre de usuario del cliente
+    /**
+     * This method links a UserName to a session object.
+     * @param session WebSocketSession with the session of an user in chat.
+     * @param userName String with the user name to link it to a session.
+     */
     public void setUserName(WebSocketSession session, String userName) {
         userNames.put(session, userName);
     }

@@ -9,10 +9,20 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 import com.sympos2.services.ChatWebSocketHandler;
 
+/**
+ * This class contains Beans to configure the WebSocket for ChatWebSocketHandler. 
+ * @author KurixDeCuatroCuernos
+ * @version 0.1.0
+ * @see WebSocketConfigurer
+ */
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer{
     
+	/**
+     * This function set the configuration of WebSocket Handler (URL, origin and interceptors).
+     * @param registry WebSocketHandlerRegistry which collects the default WebSocketHandler configuratio to edit it. 
+     */
 	@Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         // Registra un manejador de WebSocket en una URL específica
@@ -21,6 +31,10 @@ public class WebSocketConfig implements WebSocketConfigurer{
                 .addInterceptors(new HttpSessionHandshakeInterceptor());
     }
 
+	/**
+	 * This method creates the new WebSocket handler (with the specified configuration.
+	 * @return returns the new ChatWebSocketHandler with the configuration changed.
+	 */
     public WebSocketHandler chatWebSocketHandler() {
         return new ChatWebSocketHandler();
     }

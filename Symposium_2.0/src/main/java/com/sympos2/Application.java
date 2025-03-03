@@ -18,7 +18,9 @@ import com.sympos2.repositories.ComentarioRepository;
 import com.sympos2.repositories.ObraRepository;
 import com.sympos2.repositories.UserRepository;
 
-
+/**
+ * This is the main Class where the Application is executed.
+ */
 @SpringBootApplication
 @EnableMongoRepositories(basePackages="com.sympos2.repositories")
 public class Application {
