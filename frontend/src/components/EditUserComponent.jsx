@@ -73,22 +73,22 @@ function EditUserComponent({ id, setShowEditUser }){
 
     const handleEdit = () =>{
         if (checked === ""){
-            setRoleAdvice("An User must have a role!");
+            setRoleAdvice("A User must have a role!");
         } else {
             let message = "";
 
             if (username === "") {
-                message+="An User must have a name! \n";
-                setUsernameAdvice("Insert an User name!");
+                message+="A User must have a name! \n";
+                setUsernameAdvice("Insert a User name!");
             }
 
             if (email === "") {
-                message+="An User must have an email! \n";
+                message+="A User must have an email! \n";
                 setEmailAdvice("Insert an Email!");
             }
             
             if (birthDate === "") {
-                message+="An User must have a birth date! \n";
+                message+="A User must have a birth date! \n";
                 setBirthDateAdvice("Insert a Date!");
             }
 
@@ -132,7 +132,7 @@ function EditUserComponent({ id, setShowEditUser }){
                 }
 
             } else {
-                setRoleAdvice("An User must have a role!");
+                setRoleAdvice("A User must have a role!");
             }
 
             if(message!==""){

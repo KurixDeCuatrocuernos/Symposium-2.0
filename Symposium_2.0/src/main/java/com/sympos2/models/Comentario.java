@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * This is the class to creates Comentario objects, which represents Comments and answers entities in database by the parameter: "tipo".
@@ -18,22 +19,31 @@ public class Comentario {
 	@Id
 	private String id;
 	
+	@Field("titulo")
 	private String titulo;
 	
+	@Field("texto")
 	private String texto;
+	
 	@Indexed
+	@Field("fecha")
 	private LocalDateTime fecha;
 	
+	@Field("valoracion")
 	private int valoracion;
 	
+	@Field("tipo")
 	private String tipo;
 	
+	@Field("obra")
 	private Long obra;
 	
 	// these are optional
 	
+	@Field("usuario")
 	private String usuario;
 	
+	@Field("comment")
 	private String comment;
 	
 	public Comentario() { }

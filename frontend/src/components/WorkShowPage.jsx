@@ -43,7 +43,7 @@ function WorkShowPage(){
     },[]);
     
     useEffect(() => {
-        if (comentarios.length > 0) {
+        if (comentarios && comentarios.length > 0) {
             getValues();
         }
     }, [comentarios]);
@@ -61,7 +61,7 @@ function WorkShowPage(){
             const data = await response.json();
             if (data && data!==null){
                 setComentarios(data.comments);
-                console.log(data);
+                console.log("comentarios recogidos: "+data);
             } else {
                 console.log("The response is empty");
             }
@@ -133,7 +133,6 @@ function WorkShowPage(){
             const data = await response.json();
             if(data.status==="true"){
                 setUsr(data.id);
-                console.log(data.id);
             } else {
                 setUsr(null);
                 console.log("Non logged user");

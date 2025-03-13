@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * This is the class to creates Obra objects, which represents Book and Article entities in database by the parameter: "tipo".
@@ -20,24 +21,34 @@ public class Obra {
 	@Indexed(unique=true)
 	private Long isbn;
 	
+	@Field("fechaPublicacion")
 	private LocalDate fechaPublicacion;
 
+	@Field("titulo")
 	private String titulo;
 	
+	@Field("autor")
 	private String autor;
 	
+	@Field("tipo")
 	private String tipo;
 	
+	@Field("abstracto")
 	private String abstracto;
 	
+	@Field("lugar_publicacion")
 	private String lugar_publicacion;
 	
+	@Field("temas")
 	private List<String> temas;
 	
+	@Field("editorial")
 	private String editorial;
 	
+	@Field("paginaini")
 	private int paginaini;
 	
+	@Field("paginafin")
 	private int paginafin;
 	
 	public Obra() { }
