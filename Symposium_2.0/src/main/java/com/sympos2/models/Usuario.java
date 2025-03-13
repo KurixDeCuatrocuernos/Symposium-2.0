@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,40 +21,51 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 @Document(collection="users")
 public class Usuario implements UserDetails {
+	
 	@Id
 	private String id;
 	
+	@Field("name")
 	private String name;
 	
+	@Field("fechaNac")
 	private LocalDate fechaNac;
 	
 	@Indexed(unique=true)
+	@Field("email")
 	private String email;
 	
-	private String password; // This parameter won't save in memory, only its serialization
+	@Field("password")
+	private String password;
 	
+	@Field("image")
 	private String avatar;
 	
+	@Field("role")
 	private String role;
 	
 // These are Student parameters
-	
+	@Field("studies")
 	private String studies;
 	
+	@Field("school")
 	private String school;
 	
 // These are Administrator parameters	
-	
+	@Field("phone")
 	private Long phone;
 	
 // These are Titled parameters
-	
+	@Field("studies_title")
 	private String studies_title;
 	
+	@Field("study_place")
 	private String study_place;
 	
+	@Field("title_date")
 	private LocalDate title_date;
 	
+	@Field("title_img")
 	private String title_img;
 
 	public Usuario() { }

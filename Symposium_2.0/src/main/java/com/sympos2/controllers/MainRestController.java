@@ -848,13 +848,14 @@ public class MainRestController {
 	@GetMapping("/getComentarios")
 	public ResponseEntity<String> getComentarios(@RequestParam Long id, @RequestParam String role) throws JsonProcessingException {
 	    System.out.println("Recogiendo los comentarios de la obra");
+	    System.out.println("isbn: "+id);
 	    Map<String, Object> rs = new HashMap<>();
 	    ObjectMapper om = new ObjectMapper();
 
 	    try {
 	        Sort sortByDate = Sort.by(Order.desc("fecha"));
 	        List<Comentario> comments = commentRepo.findAllByObraAndTipo(id, "COMMENT", sortByDate);
-	        
+	        System.out.println("comentarios: "+comments);
 	        if (!comments.isEmpty()) {
 	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	            List<Map<String, String>> list = new ArrayList<>();
@@ -1050,6 +1051,7 @@ public class MainRestController {
 	        try {
 	            System.out.println("Buscando al usuario con email: " + auth.getName());
 	            Optional<Usuario> user = userRepo.findByEmailOnlyId(auth.getName());
+	            System.out.println("Usuario: "+user.toString());
 	            if (user.isPresent()) {
 	                id = user.get().getId();
 	            }
@@ -1060,10 +1062,9 @@ public class MainRestController {
 	        }
 
 	        if (id != null) {
-	            Map<String, String> rd = new HashMap<>();
-	            rd.put("status", "true");
-	            rd.put("message", "User found");
-	            rd.put("id", id);
+	            rs.put("status", "true");
+	            rs.put("message", "User found");
+	            rs.put("id", id);
 	            
 	        } else {
 	            rs.put("status", "false");
