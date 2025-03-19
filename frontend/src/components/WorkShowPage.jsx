@@ -37,6 +37,10 @@ function WorkShowPage(){
         }
     }, [isbn]);
 
+    useEffect(()=>{
+        editComment();
+    }, [idComment])
+
     useEffect(() => {
         buttonCatch();
         getUsr();
@@ -213,11 +217,10 @@ function WorkShowPage(){
             const response = await fetch('/getIdComment?isbn='+isbn+'&usr='+usr);
             if (response.ok){
                 const data = await response.json();
-                if (data && data.status !== "false"){
+                if (data && data.status === "true"){
                     setIdComment(data.idComment);
-                    editComment();
                 } else {
-                    console.log("couldn't get the id");
+                    console.log("couldn't get the id: "+data.message);
                 }
             } else {
                 console.log('Response not ok');

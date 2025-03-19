@@ -126,3 +126,9 @@
     height: 32px;
     margin: 5px;
 }
+
+#AdminButtons-AnswerComp > img:hover{
+    cursor: pointer;
+    background-color: rgba(144, 175, 241, 0.781);
+    border-radius: 50%;
+}

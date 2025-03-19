@@ -141,6 +141,10 @@
     background-color: rgb(186, 207, 231);
 }
 
+#AdminChecked-span{
+    color: yellow;
+}
+
 /*
 #buttons-EditUserComp button {
     margin: 10px;
