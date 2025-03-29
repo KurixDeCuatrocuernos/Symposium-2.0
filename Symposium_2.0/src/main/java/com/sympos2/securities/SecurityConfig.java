@@ -23,15 +23,6 @@ import com.sympos2.services.UserService;
 @EnableWebSecurity
 public class SecurityConfig {
 	
-	@Value("${spring.security.user.name}") // Collects the User's name from application.properties
-	private String username; 
-	
-	@Value("${spring.security.user.password}") // Collects the User's password from application.properties
-	private String password;
-	
-	@Value("${spring.security.user.roles}") // Collects the User's role from application.properties
-	private String roles;
-	
 	@Autowired
 	private UserService usuarioService;
 	
