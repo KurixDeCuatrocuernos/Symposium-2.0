@@ -1,10 +1,30 @@
 import './LoginPage.css';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function LoginPage() {
     const [showPassword, setShowPassword] = useState(false); // Estado para la visibilidad de la contraseña
     const [message, setMessage] = useState("");
     
+    useEffect(()=>{
+      logged();  
+    })
+
+    const logged = async() => {
+      try {
+        const response = await fetch('/getUserIdent');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status==="true"){
+            window.location.href="/";
+          }
+        } else {
+          console.error("Response not ok"+response);
+        }
+      } catch (error) {
+        alert("There was a problem connecting with backend: "+error);
+      }
+    }
+
     const verifyCreds= () =>{
         const username = document.getElementById('email');
         const pass = document.getElementById('password');

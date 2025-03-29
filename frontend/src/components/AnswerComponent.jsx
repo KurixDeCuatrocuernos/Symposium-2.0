@@ -1,6 +1,6 @@
 import "./AnswerComponent.css"
 
-function AnswerComponent({ username, school, role, title, text, datetime, id, admin }) {
+function AnswerComponent({ username, school, userRole, role, title, text, datetime, id, admin }) {
     
     const banComment = async() => {
         
@@ -107,7 +107,9 @@ function AnswerComponent({ username, school, role, title, text, datetime, id, ad
                     <strong id="commentTitle-AnswerComp">{title}</strong>
                     <p id="commentText-AnswerComp">{text}</p>
                     <p id="commentDate-AnswerComp">{datetime}</p>
-                    <img onClick={banComment} src="prohibido.png"></img>
+                    {userRole==="ADMIN" ? 
+                        <img onClick={banComment} src="prohibido.png"></img>
+                    : '' }
                 </div>
             </div>
         </div>

@@ -468,6 +468,7 @@ function EditUserComponent({ id, setShowEditUser }){
                 }
                 {checked === "ADMIN" ?
                     <>
+                    <span id="AdminChecked-span">If you converts the user in Admin, all his/her comments and answers will be deleted!</span>
                     <div className="container-div-EditUserComp">
                         <h3 className="h3Class-EditUserComp">Phone: </h3>
                         <div className="inputContainer-EditUserComp">

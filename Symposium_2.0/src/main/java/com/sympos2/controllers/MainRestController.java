@@ -1079,21 +1079,42 @@ public class MainRestController {
 	 * Inserts a new comment into the database.
 	 *
 	 * <p>
-	 * This method receives a comment object via HTTP POST, validates the required fields, and attempts to save it 
-	 * to the database. If all required fields are present and valid, the comment is saved. If any validation fails 
-	 * or an error occurs during the saving process, an appropriate error message is returned.
+	 * This method receives a {@link Comentario} object via HTTP POST, validates the required fields, and attempts 
+	 * to save it to the database. If all required fields are present and valid, the comment is saved successfully. 
+	 * If any validation fails or an error occurs during the saving process, an appropriate error message is returned.
 	 * </p>
 	 *
-	 * @param request A {@link Comentario} object containing the details of the comment to be inserted. The fields of 
-	 *                the comment must include:
-	 *                - `titulo` (title)
-	 *                - `texto` (text)
-	 *                - `usuario` (user)
-	 *                - `obra` (work)
+	 * <p>
+	 * The comment can either be a regular comment or an answer. The required fields for each type are as follows:
+	 * </p>
+	 * <ul>
+	 *     <li>If the comment is of type "COMMENT":
+	 *         <ul>
+	 *             <li>`titulo` (title) - Required</li>
+	 *             <li>`texto` (text) - Required</li>
+	 *             <li>`usuario` (user) - Required</li>
+	 *             <li>`obra` (work) - Required</li>
+	 *         </ul>
+	 *     </li>
+	 *     <li>If the comment is of type "ANSWER":
+	 *         <ul>
+	 *             <li>`texto` (text) - Required</li>
+	 *             <li>`usuario` (user) - Required</li>
+	 *             <li>`obra` (work) - Required</li>
+	 *         </ul>
+	 *     </li>
+	 * </ul>
+	 *
+	 * @param request A {@link Comentario} object containing the details of the comment to be inserted.
+	 *                The fields must be provided based on the comment type ("COMMENT" or "ANSWER").
+	 *                - If the type is "COMMENT", the following fields are required:
+	 *                  - `titulo` (title), `texto` (text), `usuario` (user), `obra` (work)
+	 *                - If the type is "ANSWER", the following fields are required:
+	 *                  - `texto` (text), `usuario` (user), `obra` (work)
 	 *
 	 * @return A {@link ResponseEntity} containing a JSON object with the status and message:
 	 *         - If the comment is successfully inserted, the response will contain:
-	 *           - `"status": "true"`, `"message": "Datos recibidos con éxito"`.
+	 *           - `"status": "true"`, `"message": "Datos recibidos con éxito"`
 	 *         - If validation fails or an error occurs during saving, the response will contain:
 	 *           - `"status": "false"` and an appropriate error message.
 	 */
@@ -1103,7 +1124,8 @@ public class MainRestController {
 	    ResponseEntity<String> answer = ResponseEntity.ok("Entered to the back, but not completed");
 
 	    // Validación de los campos del comentario
-	    if (request.getTitulo() != null && !request.getTitulo().isEmpty() && 
+	    if (request.getTipo().equals("COMMENT") &&
+	    	request.getTitulo() != null && !request.getTitulo().isEmpty() && 
 	        request.getTexto() != null && !request.getTexto().isEmpty() &&  
 	        request.getUsuario() != null && !request.getUsuario().isEmpty() && 
 	        request.getObra() != null) {
@@ -1119,7 +1141,21 @@ public class MainRestController {
 		        response.put("message", "Error al enviar los datos a la base de datos");
 	    	}
 	    	
-	       
+	    } else if (request.getTipo().equals("ANSWER") && 
+	    		   request.getTexto() != null && !request.getTexto().isEmpty() &&  
+		           request.getUsuario() != null && !request.getUsuario().isEmpty() && 
+		           request.getObra() != null) { 
+	    	try {
+	    		request.setFecha( LocalDateTime.now());
+	    		request.setId(null);
+	    		commentRepo.save(request); 
+	    		response.put("status", "true");
+	    		response.put("message", "Datos recibidos con éxito");
+	    	} catch (Exception e) {
+	    		response.put("status", "false");
+		        response.put("message", "Error al enviar los datos a la base de datos");
+	    	}
+	    	
 	    } else {
 	        
 	        response.put("status", "false");
@@ -1156,7 +1192,7 @@ public class MainRestController {
 		
 		if (isbn != null && usr != null) {
 			try {
-				Optional<Comentario> comment = commentRepo.findByObraAndUsuario(isbn, usr);
+				Optional<Comentario> comment = commentRepo.findByObraAndUsuarioAndTipo(isbn, usr, "COMMENT");
 				if (!comment.isEmpty()) {
 					answer.put("status", "true");
 					answer.put("idComment", comment.get().getId());
@@ -1258,7 +1294,7 @@ public class MainRestController {
 	        
 	    	try {
 	    		
-	    		Optional<Comentario> comment = commentRepo.findByObraAndUsuario(request.getObra(), request.getUsuario());
+	    		Optional<Comentario> comment = commentRepo.findByObraAndUsuarioAndTipo(request.getObra(), request.getUsuario(), "COMMENT");
 	    		if(!comment.isEmpty()) {
 	    			request.setId(comment.get().getId());
 	    			request.setFecha( LocalDateTime.now());
@@ -1504,24 +1540,35 @@ public class MainRestController {
 	}
 	
 	/**
-	 * Edits an existing user by updating their information with the provided details.
+	 * Edits an existing user's information by updating their details with the provided data.
 	 *
 	 * <p>
-	 * This method handles HTTP POST requests to edit an existing user in the system. The user's details are 
-	 * updated based on the data provided in the request body. Fields such as name, password, role, birthdate, 
-	 * email, studies, school, title information, and phone number are updated if they contain valid values.
-	 * The password, if provided, is encoded before saving. After successfully saving the updated user information, 
-	 * a status message is returned indicating whether the operation was successful or if there was an error.
+	 * This method handles HTTP POST requests to update the details of an existing user in the system. The user's 
+	 * information is updated based on the data provided in the request body. Fields such as name, password, role, 
+	 * birthdate, email, studies, school, title information, and phone number are updated if they contain valid values. 
+	 * The password, if provided, is encoded before saving. If the user is an "ADMIN", all comments and their related 
+	 * answers made by that user are deleted. After the update, a status message is returned indicating whether the operation 
+	 * was successful or if an error occurred.
 	 * </p>
 	 *
-	 * @param user A {@link Usuario} object containing the new data to update the user.
-	 *             The user object should include the user ID and any fields that need to be updated.
-	 * 
+	 * <p>
+	 * The updated fields are as follows:
+	 * </p>
+	 * <ul>
+	 *     <li>If the password is provided, it is encoded and updated.</li>
+	 *     <li>If the name, role, email, studies, school, studies title, study place, title date, or phone are provided, 
+	 *         they are updated accordingly.</li>
+	 *     <li>If the user's role is "ADMIN", all comments and answers made by that user are deleted from the database.</li>
+	 * </ul>
+	 *
+	 * @param user A {@link Usuario} object containing the updated data for the user.
+	 *             The user object must include the user ID and any fields that need to be updated.
+	 *
 	 * @return A {@link ResponseEntity} containing a JSON object with the status of the operation:
 	 *         - If the user is successfully updated:
 	 *           - "status": "true".
 	 *         - If there is an error during the process:
-	 *           - "status": "false", "message": "There was an error editing the user in server: {error message}".
+	 *           - "status": "false", "message": "There was an error editing the user in the server: {error message}".
 	 */
 	@PostMapping("/postUserEdited")
 	public ResponseEntity<String> postUserEdited(@RequestBody Usuario user) throws JsonProcessingException{
@@ -1570,6 +1617,19 @@ public class MainRestController {
 		    }
 	    }
 	    
+	    if (user.getRole().equals("ADMIN")) {
+	    	List<String> ides= new ArrayList<String>();
+	    	List<Comentario> comments = commentRepo.findAllByUsuario(user.getId());
+	    	for (Comentario comentario : comments) {
+	    		List<Comentario> answers = commentRepo.findAllByComment(comentario.getId());
+	    		for (Comentario answer : answers) {
+	    			ides.add(answer.getId());
+	    		}
+	    		ides.add(comentario.getId());
+	    	}
+	    	commentRepo.deleteAllById(ides);
+	    }
+	    
 	    try {
 	    	userRepo.save(editedUser);
 	    	rs.put("status", "true");
@@ -1612,7 +1672,6 @@ public class MainRestController {
 		Map<String, String> rs = new HashMap<>();
 	    ObjectMapper om = new ObjectMapper();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
             rs.put("status", "false");
             rs.put("message", "You are already logged!");

@@ -54,7 +54,6 @@ function RegistryPage() {
         if (response.ok){
             const data = await response.json();
             if (data.status==="true"){
-                console.log(data);
                 if(data.resp!==null){
                     setEmailColor(data.checkEmail === "true" ? "green" : "red");
                     setEmailAdvice(data.resp);

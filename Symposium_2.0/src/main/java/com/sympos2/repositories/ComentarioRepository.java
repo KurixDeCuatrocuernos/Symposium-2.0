@@ -28,10 +28,11 @@ public interface ComentarioRepository extends MongoRepository<Comentario, String
 	/**
 	 * This method finds a Comentario object in database by the work and user related. 
 	 * @param obra Long with the id of the Work which the comment to find comments.
-	 * @param usuario String with the id of the user who created the comment to find
+	 * @param usuario String with the id of the user who created the comment to find.
+	 * @param tipo String with the comment's type, to find the comment.
 	 * @return returns an Optional object, filled with a Comentario object if it founds the comment in database, or an empty Optional if not.
 	 */
-	Optional<Comentario> findByObraAndUsuario(Long obra, String usuario);
+	Optional<Comentario> findByObraAndUsuarioAndTipo(Long obra, String usuario, String tipo);
 	
 	/**
 	 * This method finds a Comentario object in database by the user who created it and the type of the comment (Comment or Answer). 

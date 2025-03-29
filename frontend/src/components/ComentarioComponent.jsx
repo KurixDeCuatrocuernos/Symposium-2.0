@@ -106,6 +106,7 @@ function ComentarioComponent({ id, username, school, value, title, text, datetim
                 return (
                     <AnswerComponent 
                         key={answer.id}
+                        userRole={role}
                         username={answer.username} 
                         school={answer.school} 
                         role={answer.role} 
